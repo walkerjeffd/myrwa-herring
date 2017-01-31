@@ -220,6 +220,9 @@ var processLocationDir = function (locationId) {
     });
 }
 
+console.log('MyRWA Herring Count Website - Video Processing Service');
+console.log('Start: %s', new Date());
+
 Promise.mapSeries(config.locationIds, processLocationDir)
   .then(function (locations) {
     process.exit(0);
