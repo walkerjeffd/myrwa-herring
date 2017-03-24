@@ -21,7 +21,7 @@ module.exports = {
             return reject(err);
           }
 
-          return resolve(result.rows);
+          return resolve(result.rows[0]);
         });
       });
     });

@@ -1,22 +1,15 @@
 <template>
   <div>
     <h2>Video</h2>
-    <p>
-      <router-link to="/">Home</router-link>
-      <router-link to="/instructions">Instructions</router-link>
-    </p>
     <div id="video-container" >
       <video id="video" class="video-js"></video>
     </div>
-    <div>
-      <router-link to="/count" tag="button">Enter Your Count</router-link>
-    </div>
+    <router-view :video="video" :load-video="loadVideo"></router-view>
   </div>
 </template>
 
 <script>
 import videojs from 'video.js'
-import config from './config'
 
 export default {
   name: 'video',

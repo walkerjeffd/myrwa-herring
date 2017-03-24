@@ -1,12 +1,19 @@
 <template>
   <div id="app">
     <h1>Mystic River Herring Video Count Application</h1>
+    <p>
+      <router-link to="/">Home</router-link>
+      <router-link to="/instructions">Instructions</router-link>
+      <router-link to="/video">Watch Video</router-link>
+      <router-link to="/status">Count Status</router-link>
+    </p>
+
     <router-view :video="video" :load-video="loadVideo"></router-view>
   </div>
 </template>
 
 <script>
-import config from './config'
+import config from '../config'
 
 export default {
   name: 'app',
@@ -25,11 +32,6 @@ export default {
       vm.$http.get(config.api_url + '/watch/')
         .then(function(response) {
           var video = vm.video = response.body.data;
-
-          // vm.player.src({type: 'video/mp4', src: video.url});
-          // vm.player.load();
-
-          // vm.loading = false;
         }, function(response) {
           alert('Error occurred getting video from the server');
           console.log(response);

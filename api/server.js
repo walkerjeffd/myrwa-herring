@@ -19,8 +19,8 @@ app.use(bodyParser.json())
 app.use(allowCrossDomain);
 app.use('/static/video-app', express.static('../video-app/dist'))
 
-app.get('/stats/', function (req, res) {
-  console.log('GET /stats/');
+app.get('/status/', function (req, res) {
+  console.log('GET /status/');
   db.stats()
     .then(function (result) {
       return res.status(200).json({status: 'ok', data: result});
