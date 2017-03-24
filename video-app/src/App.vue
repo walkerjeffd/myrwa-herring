@@ -1,119 +1,39 @@
 <template>
   <div id="app">
-    <p v-if="show.loading">Loading...</p>
-    <p>{{video && video.url}}</p>
-    <div v-show="!show.loading">
-      <div id="video-container" >
-        <video id="video" class="video-js"></video>
-      </div>
-      <div v-show="!show.form && !show.confirmation">
-        <button v-on:click="openCount()">Enter Count</button>
-      </div>
-      <div v-show="show.form">
-        <p>Enter Count: <input type="text" v-model="form.count"></p>
-        <p>Comment: <input type="text" v-model="form.comment"></p>
-        <p><button v-on:click="submitCount()">Submit</button></p>
-        <p><button v-on:click="cancelCount()">Cancel</button></p>
-      </div>
-      <div v-show="show.confirmation">
-        <p>Thanks for your help!</p>
-        <p>What would you like to do next?</p>
-        <div>
-          <button v-on:click="reset()">Count Another Video</button>
-          <a href="#">Explore the Data</a>
-          <a href="index.html">Return Home</a>
-        </div>
-      </div>
-    </div>
+    <h1>Mystic River Herring Video Count Application</h1>
+    <router-view :video="video" :load-video="loadVideo"></router-view>
   </div>
 </template>
 
 <script>
-import videojs from 'video.js'
 import config from './config'
 
 export default {
   name: 'app',
   data: function () {
     return {
-      show: {
-        loading: true,
-        form: false,
-        confirmation: false
-      },
-      form: {
-        count: '',
-        comment: ''
-      },
       video: undefined
     }
   },
   mounted: function () {
-    console.log('app:mounted');
-    window.app = this;
-    var vm = this;
-    videojs('video', {
-        controls: true,
-        autoplay: false,
-        // preload: 'auto',
-        width: 640,
-        height: 480,
-        playbackRates: [0.1, 0.25, 0.5, 1]
-      }).ready(function () {
-        vm.player = this;
-
-        vm.loadVideo();
-      });
+    console.log('App:mounted');
   },
   methods: {
     loadVideo: function () {
+      console.log('App:loadVideo');
       var vm = this;
       vm.$http.get(config.api_url + '/watch/')
         .then(function(response) {
           var video = vm.video = response.body.data;
 
-          vm.player.src({type: 'video/mp4', src: video.url});
-          vm.player.load();
+          // vm.player.src({type: 'video/mp4', src: video.url});
+          // vm.player.load();
 
-          vm.show.loading = false;
+          // vm.loading = false;
         }, function(response) {
           alert('Error occurred getting video from the server');
           console.log(response);
         });
-    },
-    openCount: function () {
-      console.log('app:openCount()');
-      this.show.form = true;
-    },
-    submitCount: function () {
-      console.log('app:submitCount(%d, %s)', this.video.id, this.form.count);
-      var data = {
-        video_id: this.video.id,
-        count: +this.form.count,
-        comment: this.form.comment
-      };
-
-      this.$http.post(config.api_url + '/count/', data)
-        .then(function (response) {
-          this.show.form = false;
-          this.show.confirmation = true;
-        }, function (response) {
-          alert('Error occurred submitting count to the server');
-          console.log(response);
-        });
-    },
-    cancelCount: function () {
-      this.count = '';
-      this.comment = '';
-      this.show.form = false;
-    },
-    reset: function () {
-      console.log('app:reset()');
-      this.count = '';
-      this.comment = '';
-      this.show.form = false;
-      this.show.confirmation = false;
-      this.loadVideo();
     }
   }
 };
