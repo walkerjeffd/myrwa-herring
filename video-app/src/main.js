@@ -6,9 +6,11 @@ require('./app.css')
 
 Vue.use(vueResource)
 
-new Vue({
-  el: '#app',
-  render: h => h(App)
-})
+window.onload = function () {
+  new Vue({
+    el: '#app',
+    render: h => h(App)
+  })
+}
 
 
