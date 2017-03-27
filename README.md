@@ -50,14 +50,21 @@ nano config/index.js                          # edit config
 Run:
 
 ```
+# sudo ufw allow <port>                       # open port
 node server.js                                # run api server
+```
+
+Service:
+
+```
+pm2 start server.js --name herring-api
 ```
 
 Endpoints:
 
 ```
 GET  /static/video-app -> ../video-app/dist # client application delivery
-GET  /stats/           -> db stats
+GET  /status/          -> db status
 GET  /watch/           -> video
 POST /count/           -> submit fish count
 ```
