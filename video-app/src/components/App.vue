@@ -1,10 +1,9 @@
 <template>
   <div id="app">
-    <h1>Mystic River Herring Video Count Application</h1>
     <p>
-      <router-link to="/">Home</router-link>
-      <router-link to="/instructions">Instructions</router-link>
-      <router-link to="/video">Watch Video</router-link>
+      <router-link to="/">Home</router-link> | 
+      <router-link to="/instructions">Instructions</router-link> | 
+      <router-link to="/video">Watch Video</router-link> | 
       <router-link to="/status">Count Status</router-link>
     </p>
 
@@ -33,7 +32,7 @@ export default {
         .then(function(response) {
           var video = vm.video = response.body.data;
         }, function(response) {
-          alert('Error occurred getting video from the server');
+          alert('Error occurred getting video from the server, try refreshing.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');
           console.log(response);
         });
     }

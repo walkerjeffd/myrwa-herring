@@ -54,6 +54,7 @@ const router = new VueRouter({
   routes
 })
 
+
 window.onload = function () {
   new Vue({
     router: router,
