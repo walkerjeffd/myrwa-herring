@@ -22,7 +22,7 @@ app.use('/static/video-app', express.static(config.static.videoApp));
 
 app.get('/status/', function (req, res) {
   console.log('GET /status/');
-  db.stats()
+  db.status()
     .then(function (result) {
       return res.status(200).json({status: 'ok', data: result});
     })

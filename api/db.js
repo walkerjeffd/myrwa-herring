@@ -4,27 +4,59 @@ var pg = require('pg'),
 var config = require('./config');
 var pool = new pg.Pool(config.db);
 
-module.exports = {
-  stats: function () {
-    return new Promise(function (resolve, reject) {
-      pool.connect(function (err, client, done) {
+var videoStats = function () {
+  return new Promise(function (resolve, reject) {
+    pool.connect(function (err, client, done) {
+      if (err) {
+        return reject(err);
+      }
+
+      var sql = 'SELECT count(*)::integer, sum(duration) as duration FROM videos;';
+
+      client.query(sql, function (err, result) {
+        done();
+
         if (err) {
           return reject(err);
         }
 
-        var sql = 'SELECT count(*) FROM videos;';
-
-        client.query(sql, function (err, result) {
-          done();
-
-          if (err) {
-            return reject(err);
-          }
-
-          return resolve(result.rows[0]);
-        });
+        return resolve(result.rows[0]);
       });
     });
+  });
+};
+
+var countStats = function () {
+  return new Promise(function (resolve, reject) {
+    pool.connect(function (err, client, done) {
+      if (err) {
+        return reject(err);
+      }
+
+      var sql = 'SELECT count(*)::integer, sum(count) as sum FROM counts;';
+
+      client.query(sql, function (err, result) {
+        done();
+
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve(result.rows[0]);
+      });
+    });
+  });
+};
+
+module.exports = {
+  status: function () {
+    return Promise.all([videoStats(), countStats()])
+      .then(function (results) {
+        return {videos: results[0], counts: results[1]};
+      })
+      .catch(function (err) {
+        return reject(err);
+      });
   },
   watch: function () {
     return new Promise(function (resolve, reject) {
