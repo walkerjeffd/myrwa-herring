@@ -22,6 +22,9 @@ Set up:
 
 ```
 psql -d herring -f db/schema.sql
+head db/permissions.sql
+# manually create myrwa_www role
+psql -d herring -f db/permissions.sql
 ```
 
 Populate:
