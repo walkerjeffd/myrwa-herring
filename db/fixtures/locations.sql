@@ -1,2 +1,2 @@
 INSERT INTO locations (id, location_description)
-VALUES ('LAKES', 'Mystic Lakes Dam'), ('WIN', 'Winchester Dam');
+VALUES ('UML', 'Upper Mystic Lake Dam'), ('WIN', 'Winchester Dam'), ('TEST', 'Test Dam');
