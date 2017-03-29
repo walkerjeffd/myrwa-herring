@@ -27,24 +27,24 @@ app.get('/status/', function (req, res) {
       return res.status(200).json({status: 'ok', data: result});
     })
     .catch(function (err) {
-      return res.status(500).json({status: 'error', error: err})
+      console.error(err);
+      return res.status(500).json({status: 'error', error: err.toString()})
     })
 });
 
 app.get('/watch/', function (req, res) {
-  console.log('GET /watch/');
-  db.watch()
+  console.log('GET /watch/', req.query);
+  db.watch(req.query)
     .then(function (result) {
       return res.status(200).json({status: 'ok', data: result});
     })
     .catch(function (err) {
-      return res.status(500).json({status: 'error', error: err})
+      return res.status(500).json({status: 'error', error: err.toString()})
     })
 });
 
 app.post('/count/', function (req, res) {
   console.log('POST /count/');
-  console.log(req.body);
 
   db.saveCount(req.body)
     .then(function (result) {

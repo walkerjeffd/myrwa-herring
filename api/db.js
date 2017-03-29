@@ -1,51 +1,34 @@
-var pg = require('pg'),
-    Promise = require('bluebird');
+var Promise = require('bluebird');
 
 var config = require('./config');
-var pool = new pg.Pool(config.db);
+
+var knex = require('knex')({
+  client: 'pg',
+  connection: config.db
+});
 
 var videoStats = function () {
-  return new Promise(function (resolve, reject) {
-    pool.connect(function (err, client, done) {
-      if (err) {
-        return reject(err);
-      }
-
-      var sql = 'SELECT count(*)::integer, sum(duration) as duration FROM videos;';
-
-      client.query(sql, function (err, result) {
-        done();
-
-        if (err) {
-          return reject(err);
-        }
-
-        return resolve(result.rows[0]);
-      });
+  return knex
+    .select(
+      knex.raw('count(*)::integer as count'),
+      knex.raw('sum(duration) as duration')
+    )
+    .from('videos')
+    .then(function (results) {
+      return results[0];
     });
-  });
 };
 
 var countStats = function () {
-  return new Promise(function (resolve, reject) {
-    pool.connect(function (err, client, done) {
-      if (err) {
-        return reject(err);
-      }
-
-      var sql = 'SELECT count(*)::integer, sum(count) as sum FROM counts;';
-
-      client.query(sql, function (err, result) {
-        done();
-
-        if (err) {
-          return reject(err);
-        }
-
-        return resolve(result.rows[0]);
-      });
+  return knex
+    .select(
+      knex.raw('count(*)::integer as count'),
+      knex.raw('sum(count)::real as sum')
+    )
+    .from('counts')
+    .then(function (results) {
+      return results[0];
     });
-  });
 };
 
 module.exports = {
@@ -53,59 +36,45 @@ module.exports = {
     return Promise.all([videoStats(), countStats()])
       .then(function (results) {
         return {videos: results[0], counts: results[1]};
-      })
-      .catch(function (err) {
-        return reject(err);
       });
   },
-  watch: function () {
-    return new Promise(function (resolve, reject) {
-      pool.connect(function (err, client, done) {
-        if (err) {
-          return reject(err);
-        }
+  watch: function (params) {
+    if (params.video_id) {
+      return knex('videos')
+        .select()
+        .where('id', params.video_id);
+    }
 
-        var sql = 'select * from videos offset random() * (select count(*) from videos) limit 1;';
+    var cte = knex('videos')
+      .select();
 
-        client.query(sql, function (err, result) {
-          done();
+    if (params.video_date) {
+      cte = cte.where(knex.raw('date_trunc(\'day\', start_timestamp)::date'), params.video_date)
+    }
 
-          if (err) {
-            return reject(err);
-          }
+    if (params.video_location) {
+      cte = cte.andWhere('location_id', params.video_location)
+    }
 
-          if (result.rows.length === 0) {
-            return reject(new Error('No videos are available'));
-          }
-
-          return resolve(result.rows[0]);
-        });
+    return knex
+      .raw(
+        'with v as (?) ?',
+        [
+          cte,
+          knex.raw('select * from v offset floor( random() * (select count(*) from v) ) limit 1')
+        ]
+      )
+      .then(function (results) {
+        return results.rows;
       });
-    });
   },
   saveCount: function(data) {
-    return new Promise(function (resolve, reject) {
-      pool.connect(function (err, client, done) {
-        if (err) {
-          return reject(err);
-        }
-
-        var sql = 'insert into counts (video_id, count, comment) values ($1, $2, $3) returning *';
-
-        client.query(sql, [data.video_id, data.count, data.comment], function (err, result) {
-          done();
-
-          if (err) {
-            return reject(err);
-          }
-
-          if (result.rows.length === 0) {
-            return reject(new Error('Failed to save count on server'));
-          }
-
-          return resolve(result.rows[0]);
-        });
+    return knex('counts')
+      .returning('*')
+      .insert({
+        video_id: data.video_id,
+        count: data.count,
+        comment: data.comment
       });
-    });
   }
 };
