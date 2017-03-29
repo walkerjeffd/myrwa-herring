@@ -51,9 +51,9 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  routes
+  mode: 'hash',
+  routes: routes
 })
-
 
 window.onload = function () {
   new Vue({

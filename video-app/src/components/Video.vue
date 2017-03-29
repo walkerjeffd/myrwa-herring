@@ -13,7 +13,7 @@ import videojs from 'video.js'
 
 export default {
   name: 'video',
-  props: ['video', 'loadVideo'],
+  props: ['video', 'loadVideo', 'query'],
   watch: {
     video: function () {
       console.log('Video:watch:video');
@@ -35,7 +35,8 @@ export default {
         playbackRates: [0.1, 0.25, 0.5, 1]
       }).ready(function () {
         vm.player = this;
-        vm.loadVideo();
+        var query = vm.query ? vm.query.data : {};
+        vm.loadVideo(query);
       });
   },
   beforeDestroy: function () {

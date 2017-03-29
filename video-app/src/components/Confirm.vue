@@ -11,7 +11,8 @@ export default {
   props: ['video', 'loadVideo'],
   methods: {
     restart: function () {
-      this.loadVideo();
+      var query = this.query ? this.query.data : {};
+      this.loadVideo(query);
       this.$router.push('/video');
     }
   }
