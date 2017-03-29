@@ -6,11 +6,11 @@ module.exports = {
     }
   },
   db: {
-    host: '',     // db host
-    database: '', // db name
-    user: '',     // db user
-    password: '', // db password
-    port: 5432
+    host: '',
+    port: 5432,
+    database: '',
+    user: '',
+    password: ''
   },
   videoApp: {
     apiUrl: ''     // API URL
@@ -21,6 +21,8 @@ module.exports = {
     locationIds: ['TEST', 'UML', 'WIN'], // location IDs to process
   },
   s3: {
+    bucket: '', // S3 bucket name
+    path: ''    // S3 videos path
     client: {
       maxAsyncS3: 20,                     // default
       s3RetryCount: 3,                    // default
@@ -32,8 +34,6 @@ module.exports = {
         secretAccessKey: '', // S3 Secret Access Key
         region: ''           // default
       }
-    },
-    bucket: '', // S3 bucket name
-    path: ''    // S3 videos path
+    }
   }
 }

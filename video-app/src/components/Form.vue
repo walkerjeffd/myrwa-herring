@@ -32,7 +32,7 @@ export default {
         comment: this.form.comment
       };
 
-      this.$http.post(config.api_url + '/count/', payload)
+      this.$http.post(config.videoApp.apiUrl + '/count/', payload)
         .then((response) => {
           this.form.count = 0;
           this.form.comment = '';
