@@ -1,6 +1,6 @@
 var Promise = require('bluebird');
 
-var config = require('./config');
+var config = require('../config');
 
 var knex = require('knex')({
   client: 'pg',

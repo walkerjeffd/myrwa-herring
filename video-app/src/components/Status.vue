@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import config from '../config'
+import config from '../../../config'
 import * as d3 from 'd3'
 
 export default {
@@ -34,7 +34,7 @@ export default {
     }
   },
   mounted: function () {
-    this.$http.get(config.api_url + '/status/')
+    this.$http.get(config.videoApp.apiUrl + '/status/')
         .then((response) => {
           let data = response.body.data;
           this.$set(this.status, 'data', data);

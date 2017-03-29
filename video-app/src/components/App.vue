@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import config from '../config'
+import config from '../../../config'
 import queryString from 'query-string'
 
 export default {
@@ -41,7 +41,7 @@ export default {
       console.log('App:loadVideo');
 
       var vm = this;
-      vm.$http.get(config.api_url + '/watch/', {
+      vm.$http.get(config.videoApp.apiUrl + '/watch/', {
           params: params
         })
         .then(function(response) {

@@ -1,0 +1,39 @@
+module.exports = {
+  api: {
+    port: 8000, // API listening port
+    static: {
+      videoApp: '../video-app/dist' // path to video-app
+    }
+  },
+  db: {
+    host: '',     // db host
+    database: '', // db name
+    user: '',     // db user
+    password: '', // db password
+    port: 5432
+  },
+  videoApp: {
+    apiUrl: ''     // API URL
+  },
+  videoService: {
+    inDir: '',     // directory containing new videos
+    saveDir: '',   // directory to save videos after processing
+    locationIds: ['TEST', 'UML', 'WIN'], // location IDs to process
+  },
+  s3: {
+    client: {
+      maxAsyncS3: 20,                     // default
+      s3RetryCount: 3,                    // default
+      s3RetryDelay: 1000,                 // default
+      multipartUploadThreshold: 20971520, // default (20 MB)
+      multipartUploadSize: 15728640,      // default (15 MB)
+      s3Options: {
+        accessKeyId: '',     // S3 Access Key ID
+        secretAccessKey: '', // S3 Secret Access Key
+        region: ''           // default
+      }
+    },
+    bucket: '', // S3 bucket name
+    path: ''    // S3 videos path
+  }
+}

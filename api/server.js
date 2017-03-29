@@ -3,7 +3,7 @@ var express = require('express'),
 
 var app = express();
 
-var config = require('./config');
+var config = require('../config');
 
 var db = require('./db');
 
@@ -18,7 +18,7 @@ var allowCrossDomain = function(req, res, next) {
 app.use(bodyParser.json());
 app.use(allowCrossDomain);
 
-app.use('/static/video-app', express.static(config.static.videoApp));
+app.use('/static/video-app', express.static(config.api.static.videoApp));
 
 app.get('/status/', function (req, res) {
   console.log('GET /status/');
@@ -55,6 +55,6 @@ app.post('/count/', function (req, res) {
     })
 });
 
-app.listen(config.port, function () {
-  console.log('started on port %d', config.port);
+app.listen(config.api.port, function () {
+  console.log('started on port %d', config.api.port);
 });

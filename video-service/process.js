@@ -7,7 +7,7 @@ var Promise = require('bluebird'),
 
 var SKIP_S3 = false;
 
-var config = require('./config');
+var config = require('../config');
 
 var s3Client = s3.createClient(config.s3.client);
 
@@ -29,7 +29,7 @@ var processLocationDir = function (locationId) {
   return getLocationDb(location)
     .then(function (locationDb) {
       location.db = locationDb;
-      location.dir = path.join(config.in_dir, location.id);
+      location.dir = path.join(config.videoService.inDir, location.id);
 
       return readdir(location.dir)
         .then(function (files) {
@@ -163,9 +163,9 @@ var uploadFileToS3 = function (video) {
 }
 
 var moveFileToSaveDir = function (video) {
-  console.log('moveFileToSaveDir("%s/%s"): %s', video.location_id, video.filename, config.save_dir);
+  console.log('moveFileToSaveDir("%s/%s"): %s', video.location_id, video.filename, config.videoService.saveDir);
   var inPath = video.filepath,
-      savePath = path.join(config.save_dir, video.location_id, video.filename);
+      savePath = path.join(config.videoService.saveDir, video.location_id, video.filename);
 
   return rename(inPath, savePath)
     .then(function () {
@@ -218,7 +218,7 @@ var processVideo = function (video) {
 
 console.log('video-service/process.js: start: %s', new Date());
 
-Promise.mapSeries(config.locationIds, processLocationDir)
+Promise.mapSeries(config.videoService.locationIds, processLocationDir)
   .then(function (locations) {
     process.exit(0);
   })
