@@ -1,11 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>video-status</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script src="dist/build.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <title>video-status</title>
+  <!-- Styles: copy to squarespace -->
+  <style>
+    .chart-timeseries {
+      width: 900px;
+      height: 400px;
+      padding: 40px 20px;
+    }
+    .chart-donut {
+      width: 900px;
+      height: 400px;
+      padding: 40px 20px;
+    }
+  </style>
+  <!-- Styles -->
+</head>
+<body>
+
+<!-- App: copy to squarespace -->
+<div>
+  <div id="mrh-pct-watched" class="chart-donut"></div>
+  <div id="mrh-counts" class="chart-timeseries"></div>
+  <div id="mrh-fish" class="chart-timeseries"></div>
+  <div id="mrh-fish-avg" class="chart-timeseries"></div>
+</div>
+<!-- App -->
+
+<script src="dist/build-dev.js"></script>
+
+</body>
 </html>
