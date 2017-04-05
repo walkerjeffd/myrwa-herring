@@ -7,33 +7,8 @@ var knex = require('knex')({
   connection: config.db
 });
 
-var videoStats = function () {
-  return knex
-    .select(
-      knex.raw('count(*)::integer as count'),
-      knex.raw('sum(duration) as duration')
-    )
-    .from('videos')
-    .then(function (results) {
-      return results[0];
-    });
-};
-
-var countStats = function () {
-  return knex
-    .select(
-      knex.raw('count(*)::integer as count'),
-      knex.raw('sum(count)::real as sum')
-    )
-    .from('counts')
-    .then(function (results) {
-      return results[0];
-    });
-};
-
 module.exports = {
   status: function () {
-    // return Promise.all([videoStats(), countStats()])
     return knex.raw(`
 with c as (
   select video_id, count(*) as n_counts, sum(count) as sum_counts
