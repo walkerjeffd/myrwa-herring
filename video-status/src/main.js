@@ -26,125 +26,126 @@ Highcharts.setOptions({
 
 var colors = Highcharts.getOptions().colors;
 
-Highcharts.chart('mrh-counts', {
-  chart: {
-    type: 'column'
-  },
-  title: {
-    text: 'Number of Video Counts per Day'
-  },
-  xAxis: {
-    type: 'datetime',
-    dateTimeLabelFormats: {
-      month: '%b %d',
-      day: '%b %d'
-    }
-  },
-  yAxis: {
+window.onload = function () {
+  Highcharts.chart('mrh-counts', {
+    chart: {
+      type: 'column'
+    },
     title: {
-      text: '# Videos Counted'
-    }
-  },
-  legend: {
-    enabled: false
-  },
-  series: [{
-    name: 'Counts per day',
-    data: data.map(function (d) {
-      return [d.date.valueOf(), d.n_count]
-    }),
-    color: colors[2]
-  }]
-});
-
-Highcharts.chart('mrh-fish', {
-  chart: {
-    type: 'column'
-  },
-  title: {
-    text: 'Number of Fish Counted per Day'
-  },
-  xAxis: {
-    type: 'datetime',
-    dateTimeLabelFormats: {
-      month: '%b %d',
-      day: '%b %d'
-    }
-  },
-  yAxis: {
-    title: {
-      text: '# Fish Counted'
-    }
-  },
-  legend: {
-    enabled: false
-  },
-  series: [{
-    name: 'Fish per day',
-    data: data.map(function (d) {
-      return [d.date.valueOf(), d.n_fish]
-    }),
-    color: colors[4]
-  }]
-});
-
-Highcharts.chart('mrh-fish-avg', {
-  chart: {
-    type: 'column'
-  },
-  title: {
-    text: 'Average Number of Fish Counted per Day'
-  },
-  xAxis: {
-    type: 'datetime',
-    dateTimeLabelFormats: {
-      month: '%b %d',
-      day: '%b %d'
-    }
-  },
-  yAxis: {
-    title: {
-      text: '# Fish Counted'
-    }
-  },
-  legend: {
-    enabled: false
-  },
-  series: [{
-    name: 'Fish per day',
-    data: data.map(function (d) {
-      return [d.date.valueOf(), d.mean_fish]
-    }),
-    color: colors[3]
-  }]
-});
-
-Highcharts.chart('mrh-pct-watched', {
-  chart: {
-    type: 'pie'
-  },
-  title: {
-    text: 'Videos Watched'
-  },
-  plotOptions: {
-    pie: {
-      shadow: false,
-      center: ['50%', '50%']
-    }
-  },
-  series: [{
-    name: '# Videos',
-    size: '60%',
-    innerSize: '50%',
-    data: [{
-      name: 'Watched',
-      y: Math.floor(Math.random() * 100),
-      color: colors[0]
-    }, {
-      name: 'Not Watched',
-      y: Math.floor(Math.random() * 100),
-      color: colors[1]
+      text: 'Number of Video Counts per Day'
+    },
+    xAxis: {
+      type: 'datetime',
+      dateTimeLabelFormats: {
+        month: '%b %d',
+        day: '%b %d'
+      }
+    },
+    yAxis: {
+      title: {
+        text: '# Videos Counted'
+      }
+    },
+    legend: {
+      enabled: false
+    },
+    series: [{
+      name: 'Counts per day',
+      data: data.map(function (d) {
+        return [d.date.valueOf(), d.n_count]
+      }),
+      color: colors[2]
     }]
-  }]
-});
+  });
 
+  Highcharts.chart('mrh-fish', {
+    chart: {
+      type: 'column'
+    },
+    title: {
+      text: 'Number of Fish Counted per Day'
+    },
+    xAxis: {
+      type: 'datetime',
+      dateTimeLabelFormats: {
+        month: '%b %d',
+        day: '%b %d'
+      }
+    },
+    yAxis: {
+      title: {
+        text: '# Fish Counted'
+      }
+    },
+    legend: {
+      enabled: false
+    },
+    series: [{
+      name: 'Fish per day',
+      data: data.map(function (d) {
+        return [d.date.valueOf(), d.n_fish]
+      }),
+      color: colors[4]
+    }]
+  });
+
+  Highcharts.chart('mrh-fish-avg', {
+    chart: {
+      type: 'column'
+    },
+    title: {
+      text: 'Average Number of Fish Counted per Day'
+    },
+    xAxis: {
+      type: 'datetime',
+      dateTimeLabelFormats: {
+        month: '%b %d',
+        day: '%b %d'
+      }
+    },
+    yAxis: {
+      title: {
+        text: '# Fish Counted'
+      }
+    },
+    legend: {
+      enabled: false
+    },
+    series: [{
+      name: 'Fish per day',
+      data: data.map(function (d) {
+        return [d.date.valueOf(), d.mean_fish]
+      }),
+      color: colors[3]
+    }]
+  });
+
+  Highcharts.chart('mrh-pct-watched', {
+    chart: {
+      type: 'pie'
+    },
+    title: {
+      text: 'Videos Watched'
+    },
+    plotOptions: {
+      pie: {
+        shadow: false,
+        center: ['50%', '50%']
+      }
+    },
+    series: [{
+      name: '# Videos',
+      size: '60%',
+      innerSize: '50%',
+      data: [{
+        name: 'Watched',
+        y: Math.floor(Math.random() * 100),
+        color: colors[0]
+      }, {
+        name: 'Not Watched',
+        y: Math.floor(Math.random() * 100),
+        color: colors[1]
+      }]
+    }]
+  });
+}
