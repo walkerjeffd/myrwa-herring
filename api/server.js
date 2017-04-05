@@ -18,7 +18,7 @@ var allowCrossDomain = function(req, res, next) {
 app.use(bodyParser.json());
 app.use(allowCrossDomain);
 
-app.use('/static/video-app', express.static(config.api.static.videoApp));
+app.use('/static/video-app', express.static(config.api.static.videoWatch));
 
 app.get('/status/', function (req, res) {
   console.log('GET /status/');

@@ -33,9 +33,23 @@ var countStats = function () {
 
 module.exports = {
   status: function () {
-    return Promise.all([videoStats(), countStats()])
+    // return Promise.all([videoStats(), countStats()])
+    return knex.raw(`
+with c as (
+  select video_id, count(*) as n_counts, sum(count) as sum_counts
+  from counts
+  group by video_id
+)
+select
+  count(v.*) as videos_n_total,
+  sum((COALESCE(c.n_counts, 0) > 0)::integer) as videos_n_watched,
+  sum((COALESCE(c.n_counts, 0))::integer) as counts_n,
+  sum((COALESCE(c.sum_counts, 0))) as counts_sum
+from videos v
+left join c on v.id=c.video_id;
+`)
       .then(function (results) {
-        return {videos: results[0], counts: results[1]};
+        return results.rows[0];
       });
   },
   watch: function (params) {
