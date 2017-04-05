@@ -1,17 +1,17 @@
 <template>
   <div id="app">
-    <p>
-      <router-link to="/">Home</router-link> | 
-      <router-link to="/instructions">Instructions</router-link> | 
-      <router-link to="/video">Watch Video</router-link> | 
-      <router-link to="/status">Count Status</router-link>
-    </p>
-
-    <router-view :video="video" :query="query" :load-video="loadVideo"></router-view>
+    <!-- <div id="video-container" class="sqs-block html-block sqs-block-html"> -->
+    <div class="video-container">
+      <video id="video" class="video-js"></video>
+    </div>
+    <div class="view-container">
+      <router-view :video="video" :load-video="loadVideo"></router-view>
+    </div>
   </div>
 </template>
 
 <script>
+import videojs from 'video.js'
 import config from '../../../config'
 import queryString from 'query-string'
 
@@ -26,7 +26,7 @@ export default {
     }
   },
   created: function () {
-    console.log('App:created');
+    console.log('app:created');
 
     if (location.search) {
       var qry = queryString.parse(location.search);
@@ -36,12 +36,32 @@ export default {
       }
     }
   },
+  mounted: function () {
+    console.log('app:mounted');
+    const vm = this;
+
+    videojs('video', {
+        controls: true,
+        autoplay: false,
+        width: 800,
+        height: 600,
+        playbackRates: [0.1, 0.25, 0.5, 1]
+      }).ready(function () {
+        vm.player = this;
+        var query = vm.query ? vm.query.data : {};
+        vm.loadVideo(query);
+      });
+  },
+  beforeDestroy: function () {
+    console.log('app:beforeDestroy');
+    // this.player.dispose();
+  },
   methods: {
     loadVideo: function (params) {
-      console.log('App:loadVideo');
+      console.log('app:loadVideo');
 
       var vm = this;
-      vm.$http.get(config.videoApp.apiUrl + '/watch/', {
+      vm.$http.get(config.api.url + '/watch/', {
           params: params
         })
         .then(function(response) {
@@ -52,6 +72,10 @@ export default {
             console.log(response);
           } else {
             vm.video = videos[0];
+            if (vm.video) {
+              vm.player.src({type: 'video/mp4', src: vm.video.url});
+              vm.player.load();
+            }
           }
         }, function(response) {
           alert('Error occurred getting video from the server, try refreshing.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');
@@ -63,4 +87,10 @@ export default {
 </script>
 
 <style scoped>
+.video-container {
+  margin-bottom: 25px;
+}
+.view-container {
+  width: 800px;
+}
 </style>
