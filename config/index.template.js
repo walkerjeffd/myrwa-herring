@@ -1,8 +1,9 @@
 module.exports = {
   api: {
+    url: ''     // API URL
     port: 8000, // API listening port
     static: {
-      videoApp: '../video-app/dist' // path to video-app
+      videoWatch: '../video-watch/dist' // path to video-app
     }
   },
   db: {
@@ -11,9 +12,6 @@ module.exports = {
     database: '',
     user: '',
     password: ''
-  },
-  videoApp: {
-    apiUrl: ''     // API URL
   },
   videoService: {
     inDir: '',     // directory containing new videos
