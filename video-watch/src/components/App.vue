@@ -2,7 +2,7 @@
   <div id="app">
     <!-- <div id="video-container" class="sqs-block html-block sqs-block-html"> -->
     <div class="video-container">
-      <video id="video" class="video-js"></video>
+      <video id="video" class="video-js vjs-big-play-centered"></video>
     </div>
     <div class="view-container">
       <router-view :video="video" :load-video="loadVideo"></router-view>
