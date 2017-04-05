@@ -12,14 +12,14 @@ CREATE TABLE videos (
   filesize REAL,
   start_timestamp TIMESTAMP WITH TIME ZONE,
   end_timestamp TIMESTAMP WITH TIME ZONE,
-  location_id TEXT REFERENCES locations(id),
+  location_id TEXT REFERENCES locations(id) ON DELETE CASCADE,
   flagged BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE counts (
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  video_id INT REFERENCES videos(id),
+  video_id INT REFERENCES videos(id) ON DELETE CASCADE,
   session TEXT,
   count INT,
   comment TEXT,
