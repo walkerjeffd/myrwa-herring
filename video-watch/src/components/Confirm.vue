@@ -10,8 +10,8 @@
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
           <a class="sqs-block-button-element--medium sqs-block-button-element" @click="restart()">Watch Another</a>
-          <a href="/video-status" class="sqs-block-button-element--medium sqs-block-button-element">View Count Status</a>
-          <a href="/explore-data" class="sqs-block-button-element--medium sqs-block-button-element">Explore Data</a>
+          <a href="/video/status" class="sqs-block-button-element--medium sqs-block-button-element">View Count Status</a>
+          <a href="/data" class="sqs-block-button-element--medium sqs-block-button-element">Explore Data</a>
         </div>
       </div>
     </div>
