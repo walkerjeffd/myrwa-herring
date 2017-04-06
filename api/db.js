@@ -13,15 +13,17 @@ module.exports = {
 with c as (
   select video_id, count(*) as n_counts, sum(count) as sum_counts
   from counts
+  where not flagged
   group by video_id
 )
 select
-  count(v.*) as videos_n_total,
-  sum((COALESCE(c.n_counts, 0) > 0)::integer) as videos_n_watched,
-  sum((COALESCE(c.n_counts, 0))::integer) as counts_n,
-  sum((COALESCE(c.sum_counts, 0))) as counts_sum
+  count(v.*)::integer as videos_n_total,
+  sum((COALESCE(c.n_counts, 0) > 0)::integer)::integer as videos_n_watched,
+  sum((COALESCE(c.n_counts, 0))::integer)::integer as counts_n,
+  sum((COALESCE(c.sum_counts, 0)))::integer as counts_sum
 from videos v
-left join c on v.id=c.video_id;
+left join c on v.id=c.video_id
+where not v.flagged;
 `)
       .then(function (results) {
         return results.rows[0];
@@ -35,10 +37,11 @@ left join c on v.id=c.video_id;
     }
 
     var cte = knex('videos')
-      .select();
+      .select()
+      .where('flagged', false);
 
     if (params.video_date) {
-      cte = cte.where(knex.raw('date_trunc(\'day\', start_timestamp)::date'), params.video_date)
+      cte = cte.andWhere(knex.raw('date_trunc(\'day\', start_timestamp)::date'), params.video_date)
     }
 
     if (params.video_location) {
