@@ -11,7 +11,7 @@
 </template>
 
 <script>
-var d3 = require('d3');
+var d3 = require('d3-request');
 
 export default {
   name: 'app',

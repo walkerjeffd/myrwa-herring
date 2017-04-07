@@ -95,6 +95,6 @@ export default {
   margin-bottom: 25px;
 }
 .view-container {
-  width: 800px;
+  max-width: 800px;
 }
 </style>

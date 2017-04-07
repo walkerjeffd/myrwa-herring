@@ -1,8 +1,6 @@
 import Vue from 'vue'
-import VueResource from 'vue-resource'
 import VueRouter from 'vue-router'
 
-Vue.use(VueResource)
 Vue.use(VueRouter)
 
 import App from './App.vue'
@@ -11,7 +9,6 @@ import Step2 from './components/Step2.vue'
 import Step3 from './components/Step3.vue'
 
 var Highcharts = require('highcharts');
-// require('highcharts/modules/exporting')(Highcharts);
 
 Highcharts.setOptions({
   global: {
