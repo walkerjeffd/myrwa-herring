@@ -44,7 +44,7 @@
 import config from '../../../config'
 
 export default {
-  props: ['video'],
+  props: ['video', 'session'],
   data: function () {
     return {
       form: {
@@ -63,7 +63,8 @@ export default {
       var payload = {
         video_id: this.video.id,
         count: +this.form.count,
-        comment: this.form.comment
+        comment: this.form.comment,
+        session: this.session
       };
 
       this.$http.post(config.api.url + '/count/', payload)
