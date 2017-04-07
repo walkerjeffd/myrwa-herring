@@ -1,11 +1,19 @@
-var express = require('express'),
+var fs = require('fs'),
+    path = require('path'),
+    express = require('express'),
+    morgan = require('morgan'),
     bodyParser = require('body-parser');
+
+var config = require('../config'),
+    db = require('./db');
 
 var app = express();
 
-var config = require('../config');
+// create a write stream (in append mode)
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
 
-var db = require('./db');
+// logging
+app.use(morgan('short', {stream: accessLogStream}));
 
 // body parser (json only)
 app.use(bodyParser.json());
@@ -26,7 +34,6 @@ app.use('/static/vis-temp', express.static(config.api.static.visTemp));
 
 // endpoints
 app.get('/status/', function (req, res, next) {
-  console.log('GET /status/');
   db.getStatus()
     .then(function (result) {
       return res.status(200).json({status: 'ok', data: result});
@@ -35,7 +42,6 @@ app.get('/status/', function (req, res, next) {
 });
 
 app.get('/video/', function (req, res, next) {
-  console.log('GET /watch/', req.query);
   db.getVideo(req.query)
     .then(function (result) {
       return res.status(200).json({status: 'ok', data: result});
@@ -44,8 +50,6 @@ app.get('/video/', function (req, res, next) {
 });
 
 app.post('/count/', function (req, res, next) {
-  console.log('POST /count/', req.body.session || 'unknown');
-
   db.saveCount(req.body)
     .then(function (result) {
       return res.status(201).json({status: 'ok', data: result});
@@ -55,7 +59,6 @@ app.post('/count/', function (req, res, next) {
 
 // error handler
 function errorHandler (err, req, res, next) {
-  console.error(err);
   return res.status(500).json({
     status: 'error',
     error: {
@@ -68,5 +71,5 @@ app.use(errorHandler);
 
 // start server
 app.listen(config.api.port, function () {
-  console.log('started on port %d', config.api.port);
+  console.log('started:port=%d', config.api.port);
 });
