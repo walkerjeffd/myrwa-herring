@@ -2,10 +2,12 @@ var $ = require('jquery'),
     Highcharts = require('highcharts'),
     d3 = require('d3');
 
+var config = require('../../config');
+
 require('highcharts/modules/exporting')(Highcharts);
 
 var data = d3.timeDay
-  .range(new Date(2016, 3, 4), new Date(2016, 3, 30), 1)
+  .range(new Date(2016, 3, 1), new Date(2016, 3, 30), 1)
   .map(function (d) {
     var x = {
       date: d,
@@ -26,7 +28,7 @@ Highcharts.setOptions({
 
 var colors = Highcharts.getOptions().colors;
 
-window.onload = function () {
+var draw = function (data) {
   Highcharts.chart('mrh-pct-watched', {
     chart: {
       type: 'pie'
@@ -151,4 +153,16 @@ window.onload = function () {
   //     color: colors[4]
   //   }]
   // });
+}
+
+window.onload = function () {
+  d3.json(config.api.url + '/status/')
+    .get(function (err, data) {
+      if (err) {
+        alert('Error occurred getting current status from the server, try refreshing.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');
+        return;
+      }
+
+      draw(data);
+    })
 }
