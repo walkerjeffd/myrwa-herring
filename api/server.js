@@ -48,14 +48,14 @@ app.post('/count/', function (req, res, next) {
 
   db.saveCount(req.body)
     .then(function (result) {
-      return res.status(200).json({status: 'ok', data: result});
+      return res.status(201).json({status: 'ok', data: result});
     })
     .catch(next)
 });
 
 // error handler
 function errorHandler (err, req, res, next) {
-  console.log('errorHandler');
+  console.error(err);
   return res.status(500).json({
     status: 'error',
     error: {

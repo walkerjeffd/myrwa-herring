@@ -16,14 +16,15 @@ nano config/index.js                          # edit config
 ## Components
 
 ```
-/api           # api server
-/config        # common configuration
-/db            # database
-/nginx         # proxy server configuration
-/video-service # video processing service
-/video-status  # video count status app
-/video-watch   # video count watch app
-/vis-temp      # data visualization temperature app
+/api             # api server
+/apps            # client-side applications
+  /video-status  # video status app
+  /video-watch   # video watch app
+  /vis-temp      # data vis temperature app
+/config          # common configuration
+/db              # database
+/nginx           # proxy server configuration
+/video-service   # video processing service
 ```
 
 ## System Requirements

@@ -2,7 +2,7 @@ var $ = require('jquery'),
     Highcharts = require('highcharts'),
     d3 = require('d3');
 
-var config = require('../../config');
+var config = require('../../../config');
 
 require('highcharts/modules/exporting')(Highcharts);
 

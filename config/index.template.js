@@ -3,9 +3,9 @@ module.exports = {
     url: ''     // API URL
     port: 8000, // API listening port
     static: {
-      videoWatch: '../video-watch/dist',
-      videoStatus: '../video-status/dist',
-      visTemp: '../vis-temp/dist'
+      videoWatch: '../apps/video-watch/dist',
+      videoStatus: '../apps/video-status/dist',
+      visTemp: '../apps/vis-temp/dist'
     }
   },
   db: {

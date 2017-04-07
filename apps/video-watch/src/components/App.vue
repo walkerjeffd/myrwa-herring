@@ -12,7 +12,7 @@
 
 <script>
 import videojs from 'video.js'
-import config from '../../../config'
+import config from '../../../../config'
 import queryString from 'query-string'
 
 // https://gist.github.com/jed/982883
@@ -65,7 +65,7 @@ export default {
       console.log('app:loadVideo');
 
       var vm = this;
-      vm.$http.get(config.api.url + '/watch/', {
+      vm.$http.get(config.api.url + '/video/', {
           params: params
         })
         .then(function(response) {
