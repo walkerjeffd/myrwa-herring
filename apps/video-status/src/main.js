@@ -19,7 +19,7 @@ var draw = function (data) {
       type: 'pie'
     },
     title: {
-      text: 'How many videos have been watched overall?'
+      text: 'How many videos have been watched this year?'
     },
     plotOptions: {
       pie: {
@@ -48,7 +48,8 @@ var draw = function (data) {
       type: 'column'
     },
     title: {
-      text: 'What is the average number of fish counted on each day?'
+      text: 'What is the average number of fish counted on each day?',
+      subtitle: 'CHANGE: average fish passage rate (#/min)'
     },
     xAxis: {
       type: 'datetime',
@@ -62,7 +63,7 @@ var draw = function (data) {
     },
     yAxis: {
       title: {
-        text: 'Average # Fish'
+        text: 'Average # Fish per Video'
       }
     },
     legend: {
@@ -93,7 +94,7 @@ var draw = function (data) {
     },
     yAxis: {
       title: {
-        text: '# Videos Counted'
+        text: '# Videos Watched'
       }
     },
     legend: {
