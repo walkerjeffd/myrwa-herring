@@ -13,7 +13,8 @@ var app = express();
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
 
 // logging
-app.use(morgan('short', {stream: accessLogStream}));
+var logFormat = ':date[iso] :remote-addr :remote-user :method :url HTTP/:http-version :status :res[content-length] - :response-time ms';
+app.use(morgan(logFormat, {stream: accessLogStream}));
 
 // body parser (json only)
 app.use(bodyParser.json());
