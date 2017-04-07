@@ -7,56 +7,66 @@ var config = require('../config');
 
 var db = require('./db');
 
+// body parser (json only)
+app.use(bodyParser.json());
+
+// allow CORS
 var allowCrossDomain = function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-
   next();
 };
-
-app.use(bodyParser.json());
 app.use(allowCrossDomain);
 
+// paths to app builds
 app.use('/static/video-watch', express.static(config.api.static.videoWatch));
 app.use('/static/video-status', express.static(config.api.static.videoStatus));
 app.use('/static/vis-temp', express.static(config.api.static.visTemp));
 
-app.get('/status/', function (req, res) {
+// endpoints
+app.get('/status/', function (req, res, next) {
   console.log('GET /status/');
-  db.status()
+  db.getStatus()
     .then(function (result) {
       return res.status(200).json({status: 'ok', data: result});
     })
-    .catch(function (err) {
-      console.error(err);
-      return res.status(500).json({status: 'error', error: err.toString()})
-    })
+    .catch(next)
 });
 
-app.get('/watch/', function (req, res) {
+app.get('/video/', function (req, res, next) {
   console.log('GET /watch/', req.query);
-  db.watch(req.query)
+  db.getVideo(req.query)
     .then(function (result) {
       return res.status(200).json({status: 'ok', data: result});
     })
-    .catch(function (err) {
-      return res.status(500).json({status: 'error', error: err.toString()})
-    })
+    .catch(next);
 });
 
-app.post('/count/', function (req, res) {
-  console.log('POST /count/');
+app.post('/count/', function (req, res, next) {
+  console.log('POST /count/', req.body.session || 'unknown');
 
   db.saveCount(req.body)
     .then(function (result) {
       return res.status(200).json({status: 'ok', data: result});
     })
-    .catch(function (err) {
-      return res.status(500).json({status: 'error', error: err})
-    })
+    .catch(next)
 });
 
+// error handler
+function errorHandler (err, req, res, next) {
+  console.log('errorHandler');
+  return res.status(500).json({
+    status: 'error',
+    error: {
+      data: err,
+      message: err.toString()
+    }
+  });
+}
+app.use(errorHandler);
+
+// start server
 app.listen(config.api.port, function () {
   console.log('started on port %d', config.api.port);
 });
