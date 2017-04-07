@@ -1,18 +1,30 @@
-# datavis
+Mystic Herring Migration - Data Visualization - Temperature
+===========================================================
 
-> A Vue.js project
+## Configuration
 
-## Build Setup
+None
 
-``` bash
-# install dependencies
-npm install
+## Setup
 
-# serve with hot reload at localhost:8080
-npm run dev
+Install dependencies
 
-# build for production with minification
-npm run build
+```bash
+npm i
 ```
 
-For more information see the [docs for vueify](https://github.com/vuejs/vueify).
+## Development Build
+
+Build development version and run local development server [http://localhost:8080/]()
+
+```
+npm run dev # -> dist/build-dev.js
+```
+
+## Production Build
+
+Build production version with minification
+
+```
+npm run build # -> dist/build.js
+```

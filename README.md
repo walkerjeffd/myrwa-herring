@@ -4,135 +4,29 @@ MyRWA River Herring Video Count Website
 Jeffrey D Walker, PhD
 [Walker Environmental Research, LLC](http://walkerenvres.com)
 
+## Configuration
 
-
-# Components
-
-
-
-## Database
-
-Create:
-
-```
-createdb herring
-```
-
-Set up:
-
-```
-psql -d herring -f db/schema.sql
-head db/permissions.sql
-# manually create myrwa_www role
-psql -d herring -f db/permissions.sql
-```
-
-Populate:
-
-```
-psql -d herring -f db/fixtures/locations.sql
-```
-
-
-
-## API
-
-Enter:
-
-```
-cd api
-```
-
-Configure:
+Copy config template to active file and enter parameters. See README files in each component folder for details.
 
 ```
 # cp config/index.template.js config/index.js # copy config template
 nano config/index.js                          # edit config
 ```
 
-Run:
+## Components
 
 ```
-# sudo ufw allow <port>                       # open port
-node server.js                                # run api server
+/api           # api server
+/config        # common configuration
+/db            # database
+/nginx         # proxy server configuration
+/video-service # video processing service
+/video-status  # video count status app
+/video-watch   # video count watch app
+/vis-temp      # data visualization temperature app
 ```
 
-Service:
+## System Requirements
 
-```
-pm2 start server.js --name herring-api
-```
-
-Endpoints:
-
-```
-GET  /static/video-app -> ../video-app/dist # client application delivery
-GET  /status/          -> db status
-GET  /watch/           -> video
-POST /count/           -> submit fish count
-```
-
-
-
-## Video Processing Service
-
-Enter:
-
-```
-cd video-service
-```
-
-Configure:
-
-```
-cp config/index.template.js config/index.js  # copy config template
-nano config/index.js                         # edit config
-```
-
-Run:
-
-```
-node ./video-service/process.js
-```
-
-
-
-## Video Application
-
-Enter:
-
-```
-cd video-app
-```
-
-Configure:
-
-```
-cp src/config/index.template.js src/config/index.js  # copy config template
-nano src/config/index.js                             # edit config
-```
-
-Edit CSS:
-
-```
-nano src/app.css
-```
-
-Development:
-
-```
-npm run dev
-```
-
-Production Build:
-
-```
-browserify src/main.js > dist/build.js
-```
-
-
-
-# System Requirements
-
-- ffmpeg/ffprobe
-- node
+- [ffmpeg/ffprobe](https://ffmpeg.org/)
+- [nvm/node](https://github.com/creationix/nvm)
