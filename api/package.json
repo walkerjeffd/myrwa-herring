@@ -12,6 +12,7 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
+    "d3": "^4.7.4",
     "express": "^4.15.2",
     "knex": "^0.12.9",
     "pg": "^6.1.5"

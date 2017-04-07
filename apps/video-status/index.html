@@ -2,17 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>video-status</title>
+  <title>Video Count Status App</title>
   <!-- Styles: copy to squarespace -->
   <style>
-    .chart-timeseries {
-      width: 900px;
-      height: 400px;
-      padding: 40px 20px;
-    }
-    .chart-donut {
-      width: 900px;
-      height: 400px;
+    .mrh-chart {
       padding: 40px 20px;
     }
   </style>
@@ -20,14 +13,15 @@
 </head>
 <body>
 
-<!-- App: copy to squarespace -->
-<div>
-  <div id="mrh-pct-watched" class="chart-donut"></div>
-  <div id="mrh-fish-avg" class="chart-timeseries"></div>
-  <div id="mrh-counts" class="chart-timeseries"></div>
-  <!-- <div id="mrh-fish" class="chart-timeseries"></div> -->
+<div style="max-width:900px">
+  <!-- App: copy to squarespace -->
+  <div>
+    <div id="mrh-pct-watched" class="mrh-chart"></div>
+    <div id="mrh-fish-avg" class="mrh-chart"></div>
+    <div id="mrh-counts" class="mrh-chart"></div>
+  </div>
+  <!-- App -->
 </div>
-<!-- App -->
 
 <script src="dist/build-dev.js"></script>
 

@@ -1,24 +1,9 @@
-var $ = require('jquery'),
-    Highcharts = require('highcharts'),
-    d3 = require('d3');
+var Highcharts = require('highcharts'),
+    d3 = require('d3-request');
 
 var config = require('../../../config');
 
 require('highcharts/modules/exporting')(Highcharts);
-
-var data = d3.timeDay
-  .range(new Date(2016, 3, 1), new Date(2016, 3, 30), 1)
-  .map(function (d) {
-    var x = {
-      date: d,
-      n_count: Math.floor(Math.random() * 10),
-      n_fish: Math.floor(Math.random() * Math.random() * 100 * 10)
-    };
-
-    x.mean_fish = x.n_count > 0 ? x.n_fish / x.n_count : 0;
-
-    return x;
-  });
 
 Highcharts.setOptions({
   global: {
@@ -48,11 +33,11 @@ var draw = function (data) {
       innerSize: '50%',
       data: [{
         name: 'Watched',
-        y: Math.floor(Math.random() * 100),
+        y: data.videos.summary.n_watched,
         color: colors[0]
       }, {
         name: 'Not Watched',
-        y: Math.floor(Math.random() * 100),
+        y: data.videos.summary.n - data.videos.summary.n_watched,
         color: colors[1]
       }]
     }]
@@ -85,8 +70,8 @@ var draw = function (data) {
     },
     series: [{
       name: 'Fish per day',
-      data: data.map(function (d) {
-        return [d.date.valueOf(), d.mean_fish]
+      data: data.counts.daily.map(function (d) {
+        return [d.date.valueOf(), d.mean]
       }),
       color: colors[3]
     }]
@@ -116,13 +101,12 @@ var draw = function (data) {
     },
     series: [{
       name: 'Counts per day',
-      data: data.map(function (d) {
-        return [d.date.valueOf(), d.n_count]
+      data: data.counts.daily.map(function (d) {
+        return [d.date.valueOf(), d.n]
       }),
       color: colors[2]
     }]
   });
-
   // Highcharts.chart('mrh-fish', {
   //   chart: {
   //     type: 'column'
@@ -157,12 +141,16 @@ var draw = function (data) {
 
 window.onload = function () {
   d3.json(config.api.url + '/status/')
-    .get(function (err, data) {
+    .get(function (err, response) {
       if (err) {
         alert('Error occurred getting current status from the server, try refreshing.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');
         return;
       }
 
-      draw(data);
+      response.data.counts.daily.forEach(function (d) {
+        d.date = new Date(d.date);
+      });
+
+      draw(response.data);
     })
 }
