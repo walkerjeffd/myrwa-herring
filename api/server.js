@@ -9,6 +9,14 @@ var config = require('../config'),
 
 var app = express();
 
+// non-access logging
+const namespace = 'mrh-api';
+const debug = require('debug')(namespace);
+
+debug.log = console.log.bind(console);
+
+debug('%s | booting', (new Date()).toISOString());
+
 // create a write stream (in append mode)
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
 
@@ -45,6 +53,7 @@ app.get('/status/', function (req, res, next) {
 app.get('/video/', function (req, res, next) {
   db.getVideo(req.query)
     .then(function (result) {
+      debug('%s | served video id=%d', (new Date()).toISOString(), result.length > 0 ? result[0].id : 'unknown');
       return res.status(200).json({status: 'ok', data: result});
     })
     .catch(next);
@@ -60,6 +69,7 @@ app.post('/count/', function (req, res, next) {
 
 // error handler
 function errorHandler (err, req, res, next) {
+  debug('%s | error', (new Date()).toISOString(), err.toString());
   return res.status(500).json({
     status: 'error',
     error: {
@@ -72,5 +82,5 @@ app.use(errorHandler);
 
 // start server
 app.listen(config.api.port, function () {
-  console.log('started:port=%d', config.api.port);
+  debug('%s | listening port=%d', (new Date()).toISOString(), config.api.port);
 });

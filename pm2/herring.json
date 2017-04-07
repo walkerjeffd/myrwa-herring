@@ -1,0 +1,12 @@
+{
+  "apps" : [{
+    "name"        : "mrh-api",
+    "script"      : "server.js",
+    "merge_logs"  : true,
+    "cwd"         : "api/",
+    "env": {
+      "NODE_ENV": "production",
+      "DEBUG": "mrh-api"
+    }
+  }]
+}

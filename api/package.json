@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "DEBUG=myrwa-api nodemon server.js"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +13,7 @@
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
     "d3": "^4.7.4",
+    "debug": "^2.6.3",
     "express": "^4.15.2",
     "knex": "^0.12.9",
     "morgan": "^1.8.1",

@@ -33,7 +33,9 @@ npm start
 Run production server using pm2
 
 ```
-pm2 start server.js --name herring-api
+cd ..                          # back to project root
+pm2 start ./pm2/herring.js
+pm2 save
 ```
 
 ## Responses
