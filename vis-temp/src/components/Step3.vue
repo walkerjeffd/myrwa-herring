@@ -57,7 +57,8 @@ export default {
             },
             labels: {
               format: '{value}',
-            }
+            },
+            tickAmount: 6
           }, {
             labels: {
               format: '{value} °F',
@@ -65,7 +66,10 @@ export default {
             title: {
               text: 'Temperature',
             },
-            opposite: true
+            opposite: true,
+            // min: 45,
+            // max: 80,
+            tickAmount: 6
           }
         ],
         tooltip: {
@@ -86,15 +90,17 @@ export default {
               return [d.date.valueOf(), d.fish];
             }),
             color: colors[1],
-          }, {
-            name: 'Water Temperature',
-            type: 'line',
-            yAxis: 1,
-            data: data.map(function (d) {
-              return [d.date.valueOf(), d.watertemp];
-            }),
-            color: colors[0],
-          }, {
+          }, 
+          // {
+          //   name: 'Water Temperature',
+          //   type: 'line',
+          //   yAxis: 1,
+          //   data: data.map(function (d) {
+          //     return [d.date.valueOf(), d.watertemp];
+          //   }),
+          //   color: colors[0],
+          // }, 
+          {
             name: 'Air Temperature',
             type: 'line',
             yAxis: 1,
@@ -102,6 +108,17 @@ export default {
               return [d.date.valueOf(), d.airtemp];
             }),
             color: colors[3],
+          }, 
+          {
+            name: '55 °F Threshold',
+            type: 'line',
+            yAxis: 1,
+            data: [[data[0].date.valueOf(), 52], [data[data.length-1].date.valueOf(), 52]],
+            color: 'orangered',
+            marker: {
+              enabled: false
+            },
+            enableMouseTracking: false
           }
         ]
       });
