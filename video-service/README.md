@@ -24,8 +24,15 @@ npm start
 
 ## Scheduled Runs
 
-Set up cron job
+Find path to node (b/c nvm)
 
 ```
-<TODO>
+which node
+```
+
+Add crontab line to run at minute 5 of each hour
+
+```
+crontab -e
+5 * * * * cd /home/myrwa/apps/myrwa-herring-web/video-service && /home/myrwa/.nvm/versions/node/v7.7.4/bin/node process.js >> process.log 2>&1
 ```

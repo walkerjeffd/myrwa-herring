@@ -1,4 +1,2 @@
 node_modules/
-config/index.js
-config/index.local.js
-
+process.log
