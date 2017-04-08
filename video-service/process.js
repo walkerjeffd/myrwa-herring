@@ -15,7 +15,6 @@ var logger = new (winston.Logger)({
 });
 
 if (!config.mail.disable) {
-  console.log('adding mail transport');
   require('winston-mail').Mail;
 
   logger.add(winston.transports.Mail, {

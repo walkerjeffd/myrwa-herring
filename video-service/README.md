@@ -26,13 +26,15 @@ npm start
 
 Find path to node (b/c nvm)
 
-```
+```bash
 which node
+# /home/myrwa/.nvm/versions/node/v7.7.4/bin/node
 ```
 
 Add crontab line to run at minute 5 of each hour
 
-```
+```bash
 crontab -e
-5 * * * * cd /home/myrwa/apps/myrwa-herring-web/video-service && /home/myrwa/.nvm/versions/node/v7.7.4/bin/node process.js >> process.log 2>&1
+
+# 5 * * * * cd /home/myrwa/apps/myrwa-herring-web/video-service && /home/myrwa/.nvm/versions/node/v7.7.4/bin/node process.js >> process.log 2>&1
 ```
