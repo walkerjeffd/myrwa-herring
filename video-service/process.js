@@ -3,11 +3,37 @@ var Promise = require('bluebird'),
     fs = require('fs'),
     ffprobe = Promise.promisify(require('fluent-ffmpeg').ffprobe),
     s3 = require('s3'),
-    moment = require('moment-timezone');
-
-var SKIP_S3 = false;
+    moment = require('moment-timezone'),
+    winston = require('winston');
 
 var config = require('../config');
+
+var logger = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Console)()
+  ]
+});
+
+if (!config.mail.disable) {
+  console.log('adding mail transport');
+  require('winston-mail').Mail;
+
+  logger.add(winston.transports.Mail, {
+    to: config.mail.notify,
+    from: config.mail.server.username,
+    host: config.mail.server.host,
+    port: config.mail.server.port,
+    username: config.mail.server.username,
+    password: config.mail.server.password,
+    ssl: true,
+    level: 'error',
+    subject: '[myrwa-api:video-service] Error Notification'
+  });
+}
+
+var startTime = new Date();
+
+logger.info('starting %s', startTime.toISOString());
 
 var s3Client = s3.createClient(config.s3.client);
 
@@ -20,8 +46,28 @@ var readdir = Promise.promisify(fs.readdir),
     rename = Promise.promisify(fs.rename),
     open = Promise.promisify(fs.open);
 
-var processLocationDir = function (locationId) {
-  console.log('processLocationDir("%s")', locationId);
+const locationIds = config.videoService.locationIds;
+
+Promise.mapSeries(locationIds, processLocationDir)
+  .then((locations) => {
+    var endTime = new Date();
+    logger.info('done %s (duration = %d ms)', endTime.toISOString(), (endTime - startTime))
+  })
+  .catch(function (err) {
+    logger.error(err.toString());
+  })
+  .finally(function () {
+    setTimeout(function () {
+      process.exit(0);
+    }, 1000 * 10)
+  });
+
+
+// functions ------------------------------------------------------------------
+
+function processLocationDir (locationId) {
+  logger.info('processing location folder %s', locationId);
+
   var location = {
     id: locationId
   };
@@ -33,11 +79,11 @@ var processLocationDir = function (locationId) {
 
       return readdir(location.dir)
         .then(function (files) {
-          console.log('processLocationDir("%s"): processing %d files', location.id, files.length);
-
           location.files = files.map(function (filename) {
             return path.join(location.dir, filename);
           });
+
+          logger.info('location folder %s contains %d file(s)', locationId, files.length);
 
           return location;
         });
@@ -61,20 +107,18 @@ var processLocationDir = function (locationId) {
     .then(function (videos) {
       location.videos = videos;
       return location;
-    })
-    .then(function (location) {
-      console.log('processLocationDir("%s"): done', location.id);
     });
 }
 
-var getLocationDb = function (location) {
-  console.log('getLocationDb("%s")', location.id);
+function getLocationDb (location) {
+  logger.info('getting location from db', {id: location.id});
 
   return knex('locations')
     .select()
     .where('id', location.id)
     .then(function (results) {
       if (results.length < 1) {
+        logger.error('failed to find location in db', {id: location.id});
         throw new Error('Location ' + location.id + ' not found in database');
       }
 
@@ -82,13 +126,21 @@ var getLocationDb = function (location) {
     });
 }
 
-var getVideoMetadata = function (video) {
-  console.log('getVideoMetadata("%s/%s")', video.location_id, video.filename);
+function getVideoMetadata (video) {
+  logger.info('getting video metadata', {filename: video.location_id + '/' + video.filename});
+
+  video.ok = false;
 
   return ffprobe(video.filepath)
     .then(function (metadata) {
       var format = metadata.format;
       var filename = path.basename(format.filename);
+      var pattern = /^\d_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.mp4$/;
+
+      if (!pattern.test(filename)) {
+        logger.warn('invalid video filename, skipping', {filename: filename});
+        return video;
+      }
 
       var timestring = filename.substr(2, 19);
       var start = moment(timestring, 'YYYY-MM-DD_HH-mm-ss').tz("America/New_York");
@@ -105,14 +157,19 @@ var getVideoMetadata = function (video) {
       return video;
     })
     .catch(function (err) {
-      console.log('getVideoMetadata("%s/%s"): unable to read file, skipping', video.location_id, video.filename);
+      logger.warn('unable to read video file, skipping', {filename: video.location_id + '/' + video.filename})
       video.ok = false;
       return video;
     });
 }
 
-var uploadFileToS3 = function (video) {
-  console.log('uploadFileToS3("%s/%s")', video.location_id, video.filename);
+function uploadFileToS3 (video) {
+  if (config.s3.disable) {
+    logger.info('skipping s3');
+    return Promise.resolve(video);
+  }
+
+  logger.info('uploading file to s3', {filename: video.location_id + '/' + video.filename});
 
   var filename = video.filename,
       bucket = config.s3.bucket,
@@ -128,33 +185,25 @@ var uploadFileToS3 = function (video) {
     }
   };
 
-  if (SKIP_S3) {
-    console.log('uploadFileToS3("%s/%s"): skipping', video.location_id, filename);
-    return video;
-  }
-
   s3Client.s3.headObject({
       Bucket: bucket,
       Key: key
     }, function (err, data) {
       if (data) {
-        console.log('uploadFileToS3("%s/%s"): Warning: file already exists on s3', video.location_id, filename);
+        logger.warn('file already exists on s3', {filename: video.location_id + '/' + video.filename});
       }
     });
 
   var uploader = s3Client.uploadFile(params);
-  console.log('uploadFileToS3("%s/%s"): uploading', video.location_id, filename);
 
   return new Promise(function (resolve, reject) {
     uploader.on('error', function(err) {
+      logger.error('failed to upload file to s3', {filename: video.location_id + '/' + video.filename});
       reject(err);
     });
-    // uploader.on('progress', function() {
-    //   console.log("progress", uploader.progressMd5Amount,
-    //               uploader.progressAmount / uploader.progressTotal * 100);
-    // });
     uploader.on('end', function() {
-      console.log('uploadFileToS3("%s/%s"): done', video.location_id, filename);
+      logger.info('successfully uploaded file to s3', {filename: video.location_id + '/' + video.filename});
+
       var url = s3.getPublicUrl(bucket, key);
       video.url = url;
       resolve(video);
@@ -162,8 +211,9 @@ var uploadFileToS3 = function (video) {
   })
 }
 
-var moveFileToSaveDir = function (video) {
-  console.log('moveFileToSaveDir("%s/%s"): %s', video.location_id, video.filename, config.videoService.saveDir);
+function moveFileToSaveDir (video) {
+  logger.info('moving file to %s', config.videoService.saveDir, {filename: video.location_id + '/' + video.filename});
+
   var inPath = video.filepath,
       savePath = path.join(config.videoService.saveDir, video.location_id, video.filename);
 
@@ -174,8 +224,8 @@ var moveFileToSaveDir = function (video) {
     });
 }
 
-var saveVideoToDb = function (video) {
-  console.log('saveVideoToDb("%s/%s")', video.location_id, video.filename);
+function saveVideoToDb (video) {
+  logger.info('saving video to database', {filename: video.location_id + '/' + video.filename});
 
   var data = [
     video.url,
@@ -199,30 +249,27 @@ var saveVideoToDb = function (video) {
       location_id: video.location_id
     })
     .then(function (results) {
+      if (results.length > 0) {
+        logger.info('video saved to database', {filename: video.location_id + '/' + video.filename});
+      } else {
+        logger.error('failed to save video to database', {filename: video.location_id + '/' + video.filename});
+      }
       return results[0];
     });
 }
 
-var processVideo = function (video) {
-  console.log('processVideo("%s/%s"): %s', video.location_id, path.basename(video.filepath), video.filepath);
+function processVideo (video) {
+  logger.info('video processing starting', {filename: video.location_id + '/' + video.filename});
+
   return uploadFileToS3(video)
     .then(moveFileToSaveDir)
     .then(saveVideoToDb)
     .then(function (row) {
+      logger.info('video processing complete', {filename: video.location_id + '/' + video.filename});
+
       video.db = row;
-      console.log('processVideo("%s/%s"): done', video.location_id, video.filename);
+
       return video;
     });
 }
 
-
-console.log('video-service/process.js: start: %s', new Date());
-
-Promise.mapSeries(config.videoService.locationIds, processLocationDir)
-  .then(function (locations) {
-    process.exit(0);
-  })
-  .catch(function (err) {
-    console.error(err);
-    process.exit(1);
-  });

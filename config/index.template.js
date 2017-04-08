@@ -21,8 +21,9 @@ module.exports = {
     locationIds: ['TEST', 'UML', 'WIN'], // location IDs to process
   },
   s3: {
-    bucket: '', // S3 bucket name
-    path: ''    // S3 videos path
+    disable: false, // disable S3 uploading
+    bucket: '',     // S3 bucket name
+    path: '',       // S3 videos path
     client: {
       maxAsyncS3: 20,                     // default
       s3RetryCount: 3,                    // default
@@ -34,6 +35,16 @@ module.exports = {
         secretAccessKey: '', // S3 Secret Access Key
         region: ''           // default
       }
+    }
+  },
+  mail: {
+    disable: false, // disable email notifications
+    notify: '',     // email address for notifications
+    server: {
+      // smtp server settings
+      username: '',
+      password: '',
+      host: ''
     }
   }
 }
