@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "DEBUG=myrwa-api nodemon server.js"
+    "start": "DEBUG=mrh-api nodemon server.js"
   },
   "author": "",
   "license": "ISC",
