@@ -33,11 +33,11 @@ var draw = function (data) {
       innerSize: '50%',
       data: [{
         name: 'Watched',
-        y: data.videos.summary.n_watched,
+        y: data.summary.n_watched,
         color: colors[0]
       }, {
         name: 'Not Watched',
-        y: data.videos.summary.n - data.videos.summary.n_watched,
+        y: data.summary.n_video - data.summary.n_watched,
         color: colors[1]
       }]
     }]
@@ -71,8 +71,8 @@ var draw = function (data) {
     },
     series: [{
       name: 'Fish per day',
-      data: data.counts.daily.map(function (d) {
-        return [d.date.valueOf(), d.mean]
+      data: data.daily.map(function (d) {
+        return [d.date.valueOf(), d.mean_count]
       }),
       color: colors[3]
     }]
@@ -102,8 +102,8 @@ var draw = function (data) {
     },
     series: [{
       name: 'Counts per day',
-      data: data.counts.daily.map(function (d) {
-        return [d.date.valueOf(), d.n]
+      data: data.daily.map(function (d) {
+        return [d.date.valueOf(), d.n_count]
       }),
       color: colors[2]
     }]
@@ -148,10 +148,10 @@ window.onload = function () {
         return;
       }
 
-      response.data.counts.daily.forEach(function (d) {
+      response.data.daily.forEach(function (d) {
         d.date = new Date(d.date);
       });
-
+console.log(response.data);
       draw(response.data);
     })
 }

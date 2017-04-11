@@ -9,64 +9,77 @@ var knex = require('knex')({
 });
 
 var getStatus = function () {
-  // var sql = `
-  //   with c as (
-  //     select video_id, count(*) as n_counts, sum(count) as sum_counts
-  //     from counts
-  //     where not flagged
-  //     group by video_id
-  //   )
-  //   select
-  //     count(v.*)::integer as videos_n_total,
-  //     sum((COALESCE(c.n_counts, 0) > 0)::integer)::integer as videos_n_watched,
-  //     sum((COALESCE(c.n_counts, 0)))::integer as counts_n,
-  //     sum((COALESCE(c.sum_counts, 0)))::integer as counts_sum
-  //   from videos v
-  //   left join c on v.id=c.video_id
-  //   where not v.flagged;
-  // `;
-  //
-  // return knex.raw(sql)
-  //   .then(function (results) {
-  //     return results.rows[0];
-  //   });
+  var sql = `
+  WITH c AS (
+    SELECT video_id, count(*) as n_count, sum(count) as sum_count
+    FROM counts
+    WHERE NOT flagged
+    GROUP BY video_id
+  ),
+  vc AS (
+    SELECT
+      v.id,
+      v.start_timestamp,
+      date_trunc('day', v.start_timestamp AT TIME ZONE 'America/New_York')::date as date,
+      COALESCE(c.n_count, 0)::integer as n_count,
+      COALESCE(c.sum_count, 0)::integer as sum_count
+    FROM videos v
+    LEFT JOIN c
+    ON v.id = c.video_id
+    WHERE v.location_id = 'UML' AND NOT v.flagged
+    ORDER BY v.start_timestamp
+  ),
+  vcd AS (
+    SELECT
+      vc.date,
+      count(vc.id) as n_video,
+      sum((n_count > 0)::integer)::integer as n_watched,
+      sum(n_count) as n_count,
+      sum(sum_count) as sum_count
+    FROM vc
+    GROUP BY vc.date
+    ORDER BY vc.date
+  ),
+  d AS (
+    SELECT generate_series('2017-04-01'::date, current_date, '1 day')::date as date
+  )
+  SELECT
+    d.date,
+    COALESCE(n_video, 0)::integer as n_video,
+    COALESCE(n_watched, 0)::integer as n_watched,
+    COALESCE(n_count, 0)::integer as n_count,
+    COALESCE(sum_count, 0)::integer as sum_count
+  FROM d
+  LEFT JOIN vcd
+  ON d.date = vcd.date
+  ORDER BY d.date;
+  `;
 
-  // mock data
-  var data = {
-    videos: {
-      summary: {
-        n: 19,
-        n_watched: 7
+  return knex
+    .raw(sql)
+    .then(function (results) {
+      var rows = results.rows;
+
+      rows.forEach(function (d) {
+        d.mean_count = d.n_count > 0 ? d.sum_count / d.n_count : 0;
+      });
+
+      return data = {
+        daily: rows,
+        summary: rows.reduce((p, v) => {
+            p.n_video += v.n_video;
+            p.n_watched += v.n_watched;
+            p.n_count += v.n_count;
+            p.sum_count += v.sum_count;
+            return p;
+          }, {
+            n_video: 0,
+            n_watched: 0,
+            n_count: 0,
+            sum_count: 0
+        })
       }
-    },
-    counts: {
-      summary: {
-      }
-    }
-  };
-
-  data.counts.daily = d3.timeDay
-    .range(new Date(2016, 3, 1), new Date(2016, 3, 30), 1)
-    .map(function (d) {
-      var x = {
-        date: d,
-        n: Math.floor(Math.random() * 10),
-        sum: Math.floor(Math.random() * Math.random() * 100 * 10)
-      };
-
-      x.mean = x.n > 0 ? x.sum / x.n : 0;
-
-      return x;
     });
-
-  data.counts.summary.n = data.counts.daily.reduce(function (p, v) {
-    return p + v.n
-  }, 0);
-  data.counts.summary.sum = data.counts.daily.reduce(function (p, v) {
-    return p + v.sum
-  }, 0);
-
-  return Promise.resolve(data);
 }
 
 var getVideo = function (params) {
