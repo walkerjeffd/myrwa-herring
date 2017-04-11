@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueResource from 'vue-resource'
 import VueRouter from 'vue-router'
+import VeeValidate from 'vee-validate'
 
 if (process.env.NODE_ENV === 'development') {
   console.log('development')
@@ -11,6 +12,7 @@ require('./app.css')
 
 Vue.use(VueResource)
 Vue.use(VueRouter)
+Vue.use(VeeValidate)
 
 import App from './components/App.vue'
 import Watch from './components/Watch.vue'

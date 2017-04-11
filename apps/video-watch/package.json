@@ -10,6 +10,7 @@
     "build": "cross-env NODE_ENV=production browserify -g envify src/main.js | uglifyjs -c warnings=false -m > dist/build.js"
   },
   "dependencies": {
+    "vee-validate": "^2.0.0-beta.25",
     "video.js": "^5.18.4",
     "vue": "^2.2.5",
     "vue-resource": "^1.2.1",

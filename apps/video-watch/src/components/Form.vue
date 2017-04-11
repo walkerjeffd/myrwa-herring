@@ -1,23 +1,15 @@
 <template>
-  <!-- <div>
-    <p>How many fish did you count? <input type="number" name="" v-model="form.count"></p>
-    <p>Did you notice anything interesting in the video, or have any other comments</p>
-    <p><textarea v-model="form.comment"></textarea></p>
-    <div>
-      <button @click="submit()">Submit</button>
-      <router-link to="/video" tag="button">Cancel</router-link>
-    </div>
-  </div> -->
   <div class="form-wrapper">
     <div class="form-inner-wrapper">
       <form>
         <div class="field-list clear">
           <div id="" class="form-item field number">
-            <label class="title" for="name">How many fish did you count?</label>
-            <input class="field-element" type="text" name="count" v-model="form.count">
+            <label class="title" for="count">How many fish did you count?</label>
+            <input v-validate="'required|numeric'" :class="{'input': true, 'is-danger': errors.has('email') }" class="field-element" type="text" name="count" v-model="form.count">
+            <span v-show="errors.has('count')" class="help is-danger">{{ errors.first('count') }}</span>
           </div>
           <div class="form-item field textarea">
-            <label class="title" for="comment">Any comments about the video? Did you see anything interesting?</label>
+            <label class="title" for="comment">Any comments about the video? Did you see anything interesting? <i>(optional)</i></label>
             <textarea class="field-element" name="comment" v-model="form.comment"></textarea>
           </div>
         </div>
@@ -60,22 +52,28 @@ export default {
     submit: function () {
       console.log('form:submit(%s)', this.video.id);
 
-      var payload = {
-        video_id: this.video.id,
-        count: +this.form.count,
-        comment: this.form.comment,
-        session: this.session
-      };
+      this.$validator.validateAll()
+        .then(() => {
+          var payload = {
+            video_id: this.video.id,
+            count: +this.form.count,
+            comment: this.form.comment,
+            session: this.session
+          };
 
-      this.$http.post(config.api.url + '/count/', payload)
-        .then((response) => {
-          this.form.count = 0;
-          this.form.comment = '';
-          this.$router.push({path: '/confirm'});
-        }, (response) => {
-          alert('Error occurred saving count to the server, try submitting again.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');
-          console.log(response);
-        });
+          this.$http.post(config.api.url + '/count/', payload)
+            .then((response) => {
+              this.form.count = '';
+              this.form.comment = '';
+              this.$router.push({path: '/confirm'});
+            }, (response) => {
+              alert('Error occurred saving count to the server, try submitting again.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');
+              console.log(response);
+            });
+        })
+        .catch(() => {
+            alert('A count is required and must be a whole number. Do not use commas or periods in your count.');
+        })
     }
   }
 };
@@ -84,5 +82,8 @@ export default {
 <style scoped>
 label {
   font-size:1.2em
+}
+.is-danger {
+  color: red;
 }
 </style>

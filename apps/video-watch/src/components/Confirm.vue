@@ -1,9 +1,4 @@
 <template>
-  <!-- <div>
-    <p>Thanks!</p>
-    <button @click="restart()">Watch Another</button>
-    <router-link to="/status" tag="button">See Count Status</router-link>
-  </div> -->
   <div>
     <p>Thanks! You're count has been received. What would you like to do next?</p>
     <div class="sqs-block button-block sqs-block-button" data-block-type="53">
