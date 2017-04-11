@@ -14,17 +14,21 @@ Highcharts.setOptions({
 var colors = Highcharts.getOptions().colors;
 
 var draw = function (data) {
-  Highcharts.chart('mrh-pct-watched', {
+  Highcharts.chart('mrh-pie-videos', {
     chart: {
       type: 'pie'
     },
     title: {
-      text: 'How many videos have been watched this year?'
+      text: 'How many videos have been counted overall?'
     },
     plotOptions: {
       pie: {
         shadow: false,
-        center: ['50%', '50%']
+        center: ['50%', '50%'],
+        dataLabels: {
+          enabled: true,
+          format: '<b>{point.name}</b>: {point.y:,.0f}'
+        }
       }
     },
     series: [{
@@ -32,24 +36,28 @@ var draw = function (data) {
       size: '60%',
       innerSize: '50%',
       data: [{
-        name: 'Watched',
+        name: 'Videos Counted',
         y: data.summary.n_watched,
         color: colors[0]
       }, {
-        name: 'Not Watched',
+        name: 'Videos Not Counted',
         y: data.summary.n_video - data.summary.n_watched,
         color: colors[1]
       }]
     }]
   });
 
-  Highcharts.chart('mrh-fish-avg', {
+  Highcharts.chart('mrh-bar-videos', {
     chart: {
       type: 'column'
     },
     title: {
-      text: 'What is the average number of fish counted on each day?',
-      subtitle: 'CHANGE: average fish passage rate (#/min)'
+      text: 'How many videos have been counted for each day?'
+    },
+    plotOptions: {
+      column: {
+        stacking: 'normal'
+      }
     },
     xAxis: {
       type: 'datetime',
@@ -62,28 +70,41 @@ var draw = function (data) {
       }
     },
     yAxis: {
+      min: 0,
       title: {
-        text: 'Average # Fish per Video'
+        text: '# Videos'
+      },
+      stackLabels: {
+        enabled: true,
+        style: {
+          fontWeight: 'bold',
+          color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+        }
       }
     },
-    legend: {
-      enabled: false
-    },
-    series: [{
-      name: 'Fish per day',
-      data: data.daily.map(function (d) {
-        return [d.date.valueOf(), d.mean_count]
-      }),
-      color: colors[3]
-    }]
+    series: [
+      {
+        name: 'Videos Counted',
+        data: data.daily.map(function (d) {
+          return [d.date.valueOf(), d.n_watched]
+        }),
+        color: colors[0]
+      }, {
+        name: 'Videos Not Counted',
+        data: data.daily.map(function (d) {
+          return [d.date.valueOf(), d.n_video - d.n_watched]
+        }),
+        color: colors[1]
+      }
+    ]
   });
 
-  Highcharts.chart('mrh-counts', {
+  Highcharts.chart('mrh-bar-counts', {
     chart: {
       type: 'column'
     },
     title: {
-      text: 'How many videos have been watched each day?'
+      text: 'How many fish have been counted for each day?'
     },
     xAxis: {
       type: 'datetime',
@@ -94,50 +115,20 @@ var draw = function (data) {
     },
     yAxis: {
       title: {
-        text: '# Videos Watched'
+        text: '# Fish Counted'
       }
     },
     legend: {
       enabled: false
     },
     series: [{
-      name: 'Counts per day',
+      name: '# Counts',
       data: data.daily.map(function (d) {
-        return [d.date.valueOf(), d.n_count]
+        return [d.date.valueOf(), d.n_count > 0 ? d.sum_count / d.n_count : 0]
       }),
       color: colors[2]
     }]
   });
-  // Highcharts.chart('mrh-fish', {
-  //   chart: {
-  //     type: 'column'
-  //   },
-  //   title: {
-  //     text: 'Number of Fish Counted per Day'
-  //   },
-  //   xAxis: {
-  //     type: 'datetime',
-  //     dateTimeLabelFormats: {
-  //       month: '%b %d',
-  //       day: '%b %d'
-  //     }
-  //   },
-  //   yAxis: {
-  //     title: {
-  //       text: '# Fish Counted'
-  //     }
-  //   },
-  //   legend: {
-  //     enabled: false
-  //   },
-  //   series: [{
-  //     name: 'Fish per day',
-  //     data: data.map(function (d) {
-  //       return [d.date.valueOf(), d.n_fish]
-  //     }),
-  //     color: colors[4]
-  //   }]
-  // });
 }
 
 window.onload = function () {
@@ -151,7 +142,7 @@ window.onload = function () {
       response.data.daily.forEach(function (d) {
         d.date = new Date(d.date);
       });
-console.log(response.data);
+
       draw(response.data);
     })
 }
