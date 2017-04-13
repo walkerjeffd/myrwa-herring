@@ -63,6 +63,20 @@ Promise.mapSeries(locationIds, processLocationDir)
 
 
 // functions ------------------------------------------------------------------
+function checkVideoExistsInDb (video) {
+  return knex('videos')
+    .select()
+    .where('location_id', video.location_id)
+    .andWhere('filename', video.filename)
+    .then(function (results) {
+      if (results.length >= 1) {
+        logger.warn('video already exists in database, skipping', {filename: video.location_id + '/' + video.filename})
+        video.ok = false;
+      }
+
+      return video;
+    });
+}
 
 function processLocationDir (locationId) {
   logger.info('processing location folder %s', locationId);
@@ -96,6 +110,9 @@ function processLocationDir (locationId) {
         };
       });
       return Promise.mapSeries(videos, getVideoMetadata);
+    })
+    .then(function (videos) {
+      return Promise.mapSeries(videos, checkVideoExistsInDb);
     })
     .filter(function (videos) {
       return videos.ok;
