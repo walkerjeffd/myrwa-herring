@@ -63,6 +63,14 @@ app.get('/video/', function (req, res, next) {
     .catch(next);
 });
 
+app.get('/videos/', function (req, res, next) {
+  db.getVideos(req.query)
+    .then(function (result) {
+      return res.status(200).json({status: 'ok', data: result});
+    })
+    .catch(next);
+});
+
 app.post('/count/', function (req, res, next) {
   db.saveCount(req.body)
     .then(function (result) {

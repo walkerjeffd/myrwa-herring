@@ -82,6 +82,17 @@ var getStatus = function () {
     });
 }
 
+var getVideos = function (params) {
+  var qry = knex('videos')
+    .select();
+
+  if (params.location) {
+    qry = qry.where('location_id', params.location)
+  }
+
+  return qry.orderBy('location_id').orderBy('start_timestamp');
+}
+
 var getVideo = function (params) {
   if (params.id) {
     return knex('videos')
@@ -128,5 +139,6 @@ var saveCount = function(data) {
 module.exports = {
   getStatus: getStatus,
   getVideo: getVideo,
+  getVideos: getVideos,
   saveCount: saveCount
 };
