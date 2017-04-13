@@ -40,10 +40,14 @@ app.use(allowCrossDomain);
 
 
 // paths to app builds
+app.use('/static/video-admin', express.static(config.api.static.videoAdmin));
 app.use('/static/video-watch', express.static(config.api.static.videoWatch));
 app.use('/static/video-status', express.static(config.api.static.videoStatus));
 app.use('/static/vis-temp', express.static(config.api.static.visTemp));
 
+
+// pages
+app.use('/www/', express.static('./www/'));
 
 // endpoints
 app.get('/status/', function (req, res, next) {
