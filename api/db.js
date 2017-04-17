@@ -26,7 +26,11 @@ var getStatus = function () {
     FROM videos v
     LEFT JOIN c
     ON v.id = c.video_id
-    WHERE v.location_id = 'UML' AND NOT v.flagged
+    WHERE v.location_id = 'UML'
+      AND NOT v.flagged
+      AND v.start_timestamp >= '2017-04-15 00:00:00+00'
+      AND date_part('hour', start_timestamp) >= 6
+      AND date_part('hour', start_timestamp) <= 19
     ORDER BY v.start_timestamp
   ),
   vcd AS (
