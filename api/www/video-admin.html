@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Video Admin</title>
-  <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
-  <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
-  <link href="http://vjs.zencdn.net/5.19.1/video-js.css" rel="stylesheet">
+  <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
+  <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
+  <link href="//vjs.zencdn.net/5.19.1/video-js.css" rel="stylesheet">
 
-  <script src="http://vjs.zencdn.net/5.19.1/video.js"></script>
+  <script src="//vjs.zencdn.net/5.19.1/video.js"></script>
   <script
-  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  src="//code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
   crossorigin="anonymous"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
 
   <style>
     body {
@@ -40,7 +40,7 @@ var player = videojs('video', {
 });
 
 $.ajax({
-  url: 'https://myrwa-api.org/api/herring/videos?location=UML',
+  url: 'https://myrwa-api.org/api/herring/videos/?location=UML',
   success: function (response) {
     response.data.forEach(function (d) {
       d.start_timestamp = new Date(d.start_timestamp);
