@@ -1,6 +1,5 @@
 module.exports = {
   api: {
-    url: ''     // API URL
     port: 8000, // API listening port
     static: {
       videoWatch: '../apps/video-watch/dist',

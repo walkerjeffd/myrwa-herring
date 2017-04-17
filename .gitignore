@@ -4,3 +4,5 @@ npm-debug.log
 yarn-error.log
 config/*.js
 !config/index.template.js
+apps/config/*.js
+!apps/config/index.template.js

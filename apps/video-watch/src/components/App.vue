@@ -11,7 +11,7 @@
 
 <script>
 import videojs from 'video.js'
-import config from '../../../../config'
+import config from '../../../config'
 import queryString from 'query-string'
 
 // https://gist.github.com/jed/982883

@@ -4,7 +4,6 @@ import VueRouter from 'vue-router'
 import VeeValidate from 'vee-validate'
 
 if (process.env.NODE_ENV === 'development') {
-  console.log('development')
   require('./squarespace.css')
 }
 
