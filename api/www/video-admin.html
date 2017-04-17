@@ -1,13 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Video Admin</title>
-  </head>
-  <body>
-    <div style="max-width:900px">
-      <div id="app"></div>
-    </div>
-    <script src="/static/video-admin/build.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Video Admin</title>
+  <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
+  <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
+  <link href="http://vjs.zencdn.net/5.19.1/video-js.css" rel="stylesheet">
+
+  <script src="http://vjs.zencdn.net/5.19.1/video.js"></script>
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+
+<div>
+  <video id="video" class="video-js vjs-big-play-centered"></video>
+</div>
+
+<div id="jsGrid" style="margin-top: 20px"></div>
+
+
+<script>
+var player = videojs('video', {
+  controls: true,
+  autoplay: false,
+  width: 800,
+  height: 600,
+  playbackRates: [0.1, 0.25, 0.5, 1]
+});
+
+$.ajax({
+  url: 'https://myrwa-api.org/api/herring/videos?location=UML',
+  success: function (response) {
+    response.data.forEach(function (d) {
+      d.start_timestamp = new Date(d.start_timestamp);
+      d.start_timestamp = new Date(d.start_timestamp.getTime() + 4 * 60 * 60 * 1000);
+    });
+
+    var data = response.data;
+
+    $('#jsGrid').jsGrid({
+      width: '1000px',
+
+      inserting: false,
+      editing: false,
+      sorting: true,
+      paging: true,
+
+      pageSize: 10,
+
+      data: data,
+
+      fields: [
+        {
+          name: 'id',
+          title: 'ID',
+          type: 'number',
+          width: 20
+        },
+        {
+          name: 'filename',
+          title: 'Filename',
+          type: 'text',
+          width: 80
+        },
+        {
+          name: 'start_timestamp',
+          title: 'Start Time',
+          type: 'text',
+          sorter: 'date'
+        },
+        {
+          name: 'duration',
+          title: 'Duration (sec)',
+          type: 'number',
+          width: 40
+        }
+      ],
+
+      rowClick: function (args) {
+        console.log(args.item);
+        player.src({type: 'video/mp4', src: args.item.url});
+        player.load();
+      }
+    });
+  },
+  dataType: 'json'
+});
+</script>
+</body>
 </html>
