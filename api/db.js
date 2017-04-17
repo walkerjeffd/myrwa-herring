@@ -102,7 +102,10 @@ var getVideo = function (params) {
 
   var cte = knex('videos')
     .select()
-    .where('flagged', false);
+    .where('flagged', false)
+    .andWhere('start_timestamp', '>=', '2017-04-15 00:00:00+00')
+    .andWhere(knex.raw('date_part(\'hour\', start_timestamp)'), '>=', 6)
+    .andWhere(knex.raw('date_part(\'hour\', start_timestamp)'), '<=', 19);
 
   if (params.date) {
     cte = cte.andWhere(knex.raw('date_trunc(\'day\', start_timestamp)::date'), params.date)
