@@ -4,8 +4,6 @@ var Highcharts = require('highcharts'),
 
 require('./css/app.css')
 
-window.onload = function () {
-
 var state = {
   step: undefined,
   data: []
@@ -162,34 +160,36 @@ var steps = {
       console.log('step3:enter');
       $('.charts-a').show();
       $('.charts-c').hide();
-      state.chart.series[0].points[21].update({
+      state.chart.series[0].points[20].update({
         dataLabels: {
           enabled: true,
-          format: 'Some Herring<br>Start Arriving',
-          align: 'right',
+          format: 'Some Arrive',
+          align: 'center',
           verticalAlign: 'middle',
-          x: -20
+          x: 0,
+          y: 50
         }
       }, false);
-      state.chart.series[0].points[39].update({
+      state.chart.series[0].points[37].update({
         dataLabels: {
           enabled: true,
-          format: 'Most Herring<br>Start Arriving',
-          align: 'right',
+          format: 'Most Arrive',
+          align: 'center',
           verticalAlign: 'middle',
-          x: -20
+          x: 0,
+          y: 200
         }
       }, false);
       state.chart.redraw();
     },
     exit: function (next) {
       console.log('step3:exit');
-      state.chart.series[0].points[21].update({
+      state.chart.series[0].points[20].update({
         dataLabels: {
           enabled: false
         }
       }, false);
-      state.chart.series[0].points[39].update({
+      state.chart.series[0].points[37].update({
         dataLabels: {
           enabled: false
         }
@@ -421,28 +421,36 @@ function goToStep (step) {
   }
 }
 
-d3.csv('https://s3.amazonaws.com/mysticriver.org/herring/data/myrwa-herring-dataset.csv')
-  .row(function (d) {
-    return {
-      year: +d['Year'],
-      date: new Date(d['Date']),
-      fish: +d['# Fish'],
-      rain: +d['Rainfall (in)'],
-      flow: +d['Flow (cfs)'],
-      airtemp: +d['Avg Air Temperature (degF)'],
-      watertemp: +d['Avg Water Temperature (degF)'],
-    }
-  })
-  .get(function (data) {
-    state.data = {};
+window.onload = function () {
+  d3.csv('https://s3.amazonaws.com/mysticriver.org/herring/data/myrwa-herring-dataset.csv')
+    .row(function (d) {
+      return {
+        year: +d['Year'],
+        date: new Date(d['Date']),
+        fish: +d['# Fish'],
+        rain: +d['Rainfall (in)'],
+        flow: +d['Flow (cfs)'],
+        airtemp: +d['Avg Air Temperature (degF)'],
+        watertemp: +d['Avg Water Temperature (degF)'],
+      }
+    })
+    .get(function (err, data) {
+      if (err) {
+        $('#server-error').show();
+        $('#app').hide();
+        return;
+      }
 
-    [2012, 2013, 2014, 2015, 2016].forEach(function (year) {
-      state.data[year] = data.filter(function (d) {
-        return d.year === year;
+      $('#app').fadeIn();
+
+      state.data = {};
+
+      [2012, 2013, 2014, 2015, 2016].forEach(function (year) {
+        state.data[year] = data.filter(function (d) {
+          return d.year === year;
+        });
       });
+
+      goToStep(1);
     });
-
-    goToStep(1);
-  });
-
 }
