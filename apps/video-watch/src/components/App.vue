@@ -72,7 +72,7 @@ export default {
       overlays: [
         {
           content: tips,
-          align: 'bottom-left',
+          align: 'top-left',
           start: 'loadstart',
           end: 'playing',
           class: 'overlay'
