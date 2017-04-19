@@ -68,17 +68,17 @@ export default {
         vm.loadVideo(query);
       });
 
-player.overlay({
-  overlays: [
-    {
-      content: tips,
-      align: 'bottom-left',
-      start: 'loadstart',
-      end: 'playing',
-      class: 'overlay'
-    }
-  ]
-});
+    player.overlay({
+      overlays: [
+        {
+          content: tips,
+          align: 'bottom-left',
+          start: 'loadstart',
+          end: 'playing',
+          class: 'overlay'
+        }
+      ]
+    });
   },
   beforeDestroy: function () {
     console.log('app:beforeDestroy');
