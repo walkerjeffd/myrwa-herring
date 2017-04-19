@@ -26,8 +26,16 @@ Edit `config.json`
 
 ## Install Dependencies
 
+Required for `RPostgreSQL` package
+
+```bash
+sudo apt-get install libpq-dev
+```
+
+Install R packages
+
 ```r
-install.packages(c("dplyr", "tidyr", "ggplot2", "lubridate", "RColorBrewer", "gridExtra", "jsonlite"))
+install.packages(c("dplyr", "tidyr", "ggplot2", "RPostgreSQL", "lubridate", "RColorBrewer", "gridExtra", "jsonlite"))
 ```
 
 ## Generate Report
