@@ -16,10 +16,10 @@ var steps = {
     enter: function () {
       console.log('step1:enter');
 
-      $('.charts-a').show();
-      $('.charts-c').hide();
+      $('#chart-step').show();
+      $('#chart-year').hide();
 
-      state.chart = Highcharts.chart('chart-a', {
+      state.chartStep = Highcharts.chart('chart-step', {
         chart: {
           zoomType: 'xy',
           //width: 800,
@@ -147,9 +147,9 @@ var steps = {
   step2: {
     enter: function () {
       console.log('step3:enter');
-      $('.charts-a').show();
-      $('.charts-c').hide();
-      state.chart.series[0].points[20].update({
+      $('#chart-step').show();
+      $('#chart-year').hide();
+      state.chartStep.series[0].points[20].update({
         dataLabels: {
           enabled: true,
           format: 'Some Arrive',
@@ -159,7 +159,7 @@ var steps = {
           y: 50
         }
       }, false);
-      state.chart.series[0].points[37].update({
+      state.chartStep.series[0].points[37].update({
         dataLabels: {
           enabled: true,
           format: 'Most Arrive',
@@ -169,78 +169,78 @@ var steps = {
           y: 200
         }
       }, false);
-      state.chart.redraw();
+      state.chartStep.redraw();
     },
     exit: function (next) {
       console.log('step3:exit');
-      state.chart.series[0].points[20].update({
+      state.chartStep.series[0].points[20].update({
         dataLabels: {
           enabled: false
         }
       }, false);
-      state.chart.series[0].points[37].update({
+      state.chartStep.series[0].points[37].update({
         dataLabels: {
           enabled: false
         }
       }, false);
-      state.chart.redraw();
+      state.chartStep.redraw();
       next();
     }
   },
   step3: {
     enter: function () {
       console.log('step3:enter');
-      $('.charts-a').show();
-      $('.charts-c').hide();
-      state.chart.yAxis[1].update({visible: true}, false)
-      state.chart.series[1].update({visible: true}, false)
-      state.chart.redraw();
-      state.chart.series[1].setData(state.data[2016].map(function (d) {
+      $('#chart-step').show();
+      $('#chart-year').hide();
+      state.chartStep.yAxis[1].update({visible: true}, false)
+      state.chartStep.series[1].update({visible: true}, false)
+      state.chartStep.redraw();
+      state.chartStep.series[1].setData(state.data[2016].map(function (d) {
         return [d.date.valueOf(), d.watertemp];
       }), true);
     },
     exit: function (next) {
       console.log('step3:exit');
-      state.chart.series[1].update({visible: false}, false)
-      state.chart.yAxis[1].update({visible: false}, false)
-      state.chart.redraw();
+      state.chartStep.series[1].update({visible: false}, false)
+      state.chartStep.yAxis[1].update({visible: false}, false)
+      state.chartStep.redraw();
       next();
     }
   },
   step4: {
     enter: function () {
       console.log('step4:enter');
-      $('.charts-a').show();
-      $('.charts-c').hide();
-      state.chart.yAxis[1].update({visible: true}, false)
-      state.chart.series[1].setData(state.data[2016].map(function (d) {
+      $('#chart-step').show();
+      $('#chart-year').hide();
+      state.chartStep.yAxis[1].update({visible: true}, false)
+      state.chartStep.series[1].setData(state.data[2016].map(function (d) {
         return [d.date.valueOf(), d.watertemp];
       }), false);
-      state.chart.series[1].update({visible: true}, false)
-      state.chart.series[2].update({visible: true}, false)
+      state.chartStep.series[1].update({visible: true}, false)
+      state.chartStep.series[2].update({visible: true}, false)
 
-      state.chart.xAxis[0].addPlotBand({
+      state.chartStep.xAxis[0].addPlotBand({
         from: new Date('2016-04-21'),
         to: new Date('2016-05-03'),
         color: '#FCFFC5',
         id: 'plot-band-1'
       }, false);
-      state.chart.xAxis[0].addPlotBand({
+      state.chartStep.xAxis[0].addPlotBand({
         from: new Date('2016-05-08'),
         to: new Date('2016-06-28'),
         color: '#FCFFC5',
         id: 'plot-band-2'
       }, false);
-      state.chart.redraw();
+      state.chartStep.redraw();
     },
     exit: function (next) {
       console.log('step4:exit');
-      state.chart.yAxis[1].update({visible: false}, false)
-      state.chart.series[1].update({visible: false}, false)
-      state.chart.series[2].update({visible: false}, false)
-      state.chart.xAxis[0].removePlotBand('plot-band-1', false);
-      state.chart.xAxis[0].removePlotBand('plot-band-2', false);
-      state.chart.redraw();
+      state.chartStep.yAxis[1].update({visible: false}, false)
+      state.chartStep.series[1].update({visible: false}, false)
+      state.chartStep.series[2].update({visible: false}, false)
+      state.chartStep.xAxis[0].removePlotBand('plot-band-1', false);
+      state.chartStep.xAxis[0].removePlotBand('plot-band-2', false);
+      state.chartStep.redraw();
       next();
     }
   },
@@ -251,10 +251,10 @@ var steps = {
       $('.btn-year').removeClass('active');
       $('#btn-year-2012').addClass('active');
 
-      $('.charts-a').hide();
-      $('.charts-c').show();
+      $('#chart-step').hide();
+      $('#chart-year').show();
 
-      state.chartC = Highcharts.chart('chart-c', {
+      state.chartYear = Highcharts.chart('chart-year', {
         chart: {
           zoomType: 'xy',
           //width: 800,
@@ -353,34 +353,11 @@ var steps = {
           }
         ]
       })
-
-      $('.btn-year').click(function (evt) {
-        var year = +$(evt.target).text();
-
-        $('.btn-year').removeClass('active');
-        $('#btn-year-' + year).addClass('active');
-
-        state.chartC.series[0].setData(state.data[year].map(function (d) {
-          return [d.date.valueOf(), d.fish];
-        }), false);
-
-        state.chartC.series[1].setData(state.data[year].map(function (d) {
-          return [d.date.valueOf(), d.watertemp];
-        }), false);
-
-        state.chartC.series[2].setData(state.data[year].map(function (d) {
-          return [d.date.valueOf(), d.airtemp];
-        }), false);
-
-        state.chartC.update({title: {text: 'Year: ' + year}}, false)
-
-        state.chartC.redraw(false);
-      })
     },
     exit: function (next) {
       console.log('step5:exit');
-      state.chartC.destroy();
-      $('.charts-c').hide();
+      state.chartYear.destroy();
+      $('#chart-year').hide();
 
       next();
     }
@@ -421,6 +398,29 @@ window.onload = function () {
       goToStep(state.step + 1);
     }
   });
+
+  $('.btn-year').click(function (evt) {
+    var year = +$(evt.target).text();
+
+    $('.btn-year').removeClass('active');
+    $('#btn-year-' + year).addClass('active');
+
+    state.chartYear.series[0].setData(state.data[year].map(function (d) {
+      return [d.date.valueOf(), d.fish];
+    }), false);
+
+    state.chartYear.series[1].setData(state.data[year].map(function (d) {
+      return [d.date.valueOf(), d.watertemp];
+    }), false);
+
+    state.chartYear.series[2].setData(state.data[year].map(function (d) {
+      return [d.date.valueOf(), d.airtemp];
+    }), false);
+
+    state.chartYear.update({title: {text: 'Year: ' + year}}, false)
+
+    state.chartYear.redraw(false);
+  })
 
   d3.csv('https://s3.amazonaws.com/mysticriver.org/herring/data/myrwa-herring-dataset.csv')
     .row(function (d) {
