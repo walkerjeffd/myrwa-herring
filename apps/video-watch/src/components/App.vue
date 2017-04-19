@@ -11,6 +11,7 @@
 
 <script>
 import videojs from 'video.js'
+import videojsOverlay from 'videojs-overlay'
 import config from '../../../config'
 import queryString from 'query-string'
 
@@ -43,17 +44,48 @@ export default {
     console.log('app:mounted');
     const vm = this;
 
-    videojs('video', {
+    var tips = "<div class=\"counting-tips\">" +
+      "<h2>Counting Tips</h2>" +
+      "<ol>" +
+        "<li>Only count fish that swim completely out of view across the left edge of the video (going upstream), including any you might see at the start of the video</li>" +
+        "<li>If a fish swims into the video from the left side (going downstream), subtract it</li>" +
+        "<li>If you don't see any fish, submit a count of zero</li>" +
+        "<li>Use pause, slow down, or full screen if there are too many fish to count</li>" +
+      "</ol>" +
+      "See <a class=\"vjs-overlay-link\" href=\"/video/instructions\">Instructions</a> page for more details."
+    "</div>";
+
+
+    var player = videojs('video', {
         controls: true,
         autoplay: false,
-        width: 800,
-        height: 600,
+        width: 700,
+        height: 525,
         playbackRates: [0.1, 0.25, 0.5, 1]
       }).ready(function () {
         vm.player = this;
         var query = vm.query ? vm.query.data : {};
         vm.loadVideo(query);
       });
+
+player.overlay({
+  overlays: [
+    {
+      content: tips,
+      align: 'bottom-left',
+      start: 'loadstart',
+      end: 'playing',
+      class: 'overlay'
+    },
+    {
+      content: tips,
+      align: 'bottom-left',
+      start: 'pause',
+      end: 'playing',
+      class: 'overlay'
+    }
+  ]
+});
   },
   beforeDestroy: function () {
     console.log('app:beforeDestroy');
@@ -94,6 +126,6 @@ export default {
   margin-bottom: 25px;
 }
 .view-container {
-  max-width: 800px;
+  max-width: 701px;
 }
 </style>
