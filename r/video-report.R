@@ -91,7 +91,7 @@ videos_hour_tally <- videos %>%
 
 # pdf ---------------------------------------------------------------------
 
-updated_at <- paste0("Updated: ", now())
+updated_at <- paste0("Updated: ", with_tz(now(), "America/New_York"))
 
 pdf(cfg$out, width = 11, height = 8.5)
 
