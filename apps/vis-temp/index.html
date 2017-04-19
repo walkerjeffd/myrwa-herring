@@ -1,13 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Data Vis Temperature App</title>
-  </head>
-  <body>
-    <div style="max-width:900px">
-      <div id="app"></div>
+<head>
+  <meta charset="utf-8">
+  <title>Data Vis Temperature App</title>
+  <link rel="stylesheet" href="src/css/squarespace.css">
+  <!-- <link rel="stylesheet" href="src/css/bootstrap-btn.css"> -->
+</head>
+<body>
+
+<div id="siteWrapper" class="clearfix">
+  <main id="page" role="main">
+    <div id="content" class="main-content" data-content-field="main-content" data-edit-main-image="Banner">
+      <div class="sqs-layout sqs-grid-12 columns-12" data-type="page">
+        <div class="row sqs-row">
+          <div class="col sqs-col-12 span-12">
+            <div class="sqs-block code-block sqs-block-code" data-block-type="23">
+              <div class="sqs-block-content">
+
+                <h1>What causes the herring to start migrating each year?</h1>
+
+
+<!-- COPY TO SQUARESPACE CODE BLOCK -->
+<div id="app">
+
+  <div class="btn-group">
+    <button id="btn-step1" class="btn-step btn btn-default active">1</button>
+    <button id="btn-step2" class="btn-step btn btn-default">2</button>
+    <button id="btn-step3" class="btn-step btn btn-default">3</button>
+    <button id="btn-step4" class="btn-step btn btn-default">4</button>
+    <button id="btn-step5" class="btn-step btn btn-default">5</button>
+    <button id="btn-next" class="btn btn-default">Next &rarr;</button>
+  </div>
+
+  <div class="annotation-container">
+    <div class="annotation" id="annotation-step1">
+      This chart shows the number of river herring passing through Upper Mystic Lake Dam on each day in 2016.
     </div>
-    <script src="dist/build-dev.js"></script>
-  </body>
+
+    <div class="annotation" id="annotation-step2" style="display:none;">
+      Some herring started arriving on April 21, but most did not arrive until May 9. How do the herring decide when to begin migrating?
+    </div>
+
+    <div class="annotation" id="annotation-step3" style="display:none;">
+      During spring, water temperatures are rising. Could this be a trigger for the herring to start migrating?
+    </div>
+
+    <div class="annotation" id="annotation-step4" style="display:none;">
+      Based on this data, it looks like herring only migrate on days when the water temperature is 55 F or higher. Do you think this is true in all years?
+    </div>
+
+    <div class="annotation" id="annotation-step5" style="display:none;">
+      <p>Now let's look at the daily herring count along with both water and air temperature for the past five years. Water temperature was only measured in 2016, and therefore only air temperature is available for other years.</p>
+      <p>How does the start of the migration vary between years? Does air temperature seem to be a factor? In 2016, how are air temperature and water temperature related?</p>
+      <p>
+        <b>Switch Year: </b>
+        <span class="btn-group" style="margin-left:10px">
+          <button id="btn-year-2012" class="btn btn-default btn-year active">2012</button>
+          <button id="btn-year-2013" class="btn btn-default btn-year">2013</button>
+          <button id="btn-year-2014" class="btn btn-default btn-year">2014</button>
+          <button id="btn-year-2015" class="btn btn-default btn-year">2015</button>
+          <button id="btn-year-2016" class="btn btn-default btn-year">2016</button>
+        </span>
+      </p>
+    </div>
+  </div>
+
+  <div class="chart-container charts-a">
+    <div id="chart-a" class="mrh-chart"></div>
+  </div>
+  <div class="chart-container charts-c" style="display:none;">
+    <div id="chart-c" class="mrh-chart"></div>
+  </div>
+
+</div>
+<!-- END COPY -->
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="dist/build-dev.js"></script>
+
+</body>
 </html>
