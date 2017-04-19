@@ -44,7 +44,7 @@ var getStatus = function () {
     ORDER BY vc.date
   ),
   d AS (
-    SELECT generate_series('2017-04-01'::date, current_date, '1 day')::date as date
+    SELECT generate_series('2017-04-07'::date, current_date, '1 day')::date as date
   )
   SELECT
     d.date::text as date,
