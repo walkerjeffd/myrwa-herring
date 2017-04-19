@@ -11,7 +11,10 @@ var knex = require('knex')({
 var getStatus = function () {
   var sql = `
   WITH c AS (
-    SELECT video_id, count(*) as n_count, sum(count) as sum_count
+    SELECT
+      video_id,
+      count(*) as n_count,
+      avg(count) as mean_count
     FROM counts
     WHERE NOT flagged
     GROUP BY video_id
@@ -19,18 +22,14 @@ var getStatus = function () {
   vc AS (
     SELECT
       v.id,
-      v.start_timestamp,
-      date_trunc('day', v.start_timestamp AT TIME ZONE 'America/New_York')::date as date,
+      v.start_timestamp::date as date,
       COALESCE(c.n_count, 0)::integer as n_count,
-      COALESCE(c.sum_count, 0)::integer as sum_count
+      COALESCE(c.mean_count, 0)::integer as mean_count
     FROM videos v
     LEFT JOIN c
     ON v.id = c.video_id
     WHERE v.location_id = 'UML'
       AND NOT v.flagged
-      AND v.start_timestamp >= '2017-04-15 00:00:00+00'
-      AND date_part('hour', start_timestamp) >= 6
-      AND date_part('hour', start_timestamp) <= 19
     ORDER BY v.start_timestamp
   ),
   vcd AS (
@@ -39,7 +38,7 @@ var getStatus = function () {
       count(vc.id) as n_video,
       sum((n_count > 0)::integer)::integer as n_watched,
       sum(n_count) as n_count,
-      sum(sum_count) as sum_count
+      sum(mean_count) as sum_count
     FROM vc
     GROUP BY vc.date
     ORDER BY vc.date
@@ -48,7 +47,7 @@ var getStatus = function () {
     SELECT generate_series('2017-04-01'::date, current_date, '1 day')::date as date
   )
   SELECT
-    d.date,
+    d.date::text as date,
     COALESCE(n_video, 0)::integer as n_video,
     COALESCE(n_watched, 0)::integer as n_watched,
     COALESCE(n_count, 0)::integer as n_count,
@@ -63,10 +62,6 @@ var getStatus = function () {
     .raw(sql)
     .then(function (results) {
       var rows = results.rows;
-
-      rows.forEach(function (d) {
-        d.mean_count = d.n_count > 0 ? d.sum_count / d.n_count : 0;
-      });
 
       return data = {
         daily: rows,
