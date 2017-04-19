@@ -4,10 +4,10 @@
   "author": "Jeff Walker <jeff@walkerenvres.com>",
   "private": true,
   "scripts": {
-    "watchify": "cross-env NODE_ENV=development watchify -vd -g browserify-css -e src/main.js -o dist/build-dev.js",
+    "watchify": "NODE_ENV=development watchify -vd -g browserify-css -e src/main.js -o dist/build-dev.js",
     "serve": "http-server -o -s -c 1 -a localhost",
     "dev": "npm-run-all --parallel watchify serve",
-    "build": "cross-env NODE_ENV=production browserify -g envify src/main.js | uglifyjs -c warnings=false -m > dist/build.js"
+    "build": "NODE_ENV=production browserify -g envify src/main.js | uglifyjs -c warnings=false -m > dist/build.js"
   },
   "dependencies": {
     "d3-request": "^1.0.5",
@@ -31,6 +31,7 @@
   "browserify": {
     "transform": [
       "babelify",
+      "envify",
       "browserify-css"
     ]
   },

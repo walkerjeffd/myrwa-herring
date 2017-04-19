@@ -3,11 +3,7 @@ import VueResource from 'vue-resource'
 import VueRouter from 'vue-router'
 import VeeValidate from 'vee-validate'
 
-if (process.env.NODE_ENV === 'development') {
-  require('./squarespace.css')
-}
-
-require('./app.css')
+require('./css/app.css')
 
 Vue.use(VueResource)
 Vue.use(VueRouter)
