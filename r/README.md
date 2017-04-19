@@ -27,7 +27,7 @@ Edit `config.json`
 ## Install Dependencies
 
 ```r
-install.packages(c("tidyverse", "lubridate", "RColorBrewer", "gridExtra", "jsonlite"))
+install.packages(c("dplyr", "tidyr", "ggplot2", "lubridate", "RColorBrewer", "gridExtra", "jsonlite"))
 ```
 
 ## Generate Report
