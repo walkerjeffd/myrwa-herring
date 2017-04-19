@@ -76,13 +76,6 @@ player.overlay({
       start: 'loadstart',
       end: 'playing',
       class: 'overlay'
-    },
-    {
-      content: tips,
-      align: 'bottom-left',
-      start: 'pause',
-      end: 'playing',
-      class: 'overlay'
     }
   ]
 });
