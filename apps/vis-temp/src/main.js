@@ -11,17 +11,6 @@ var state = {
 
 var colors = Highcharts.getOptions().colors;
 
-$('.btn-step').click(function (evt) {
-  var step = +$(evt.target).text();
-  goToStep(step);
-});
-
-$('#btn-next').click(function (evt) {
-  if (state.step < 5) {
-    goToStep(state.step + 1);
-  }
-});
-
 var steps = {
   step1: {
     enter: function () {
@@ -422,6 +411,17 @@ function goToStep (step) {
 }
 
 window.onload = function () {
+  $('.btn-step').click(function (evt) {
+    var step = +$(evt.target).text();
+    goToStep(step);
+  });
+
+  $('#btn-next').click(function (evt) {
+    if (state.step < 5) {
+      goToStep(state.step + 1);
+    }
+  });
+
   d3.csv('https://s3.amazonaws.com/mysticriver.org/herring/data/myrwa-herring-dataset.csv')
     .row(function (d) {
       return {
