@@ -2,5 +2,6 @@
 @import url("node_modules/odometer/themes/odometer-theme-minimal.css");
 
 .mrh-chart {
-  margin-top: 20px !important;
+  padding-top: 20px !important;
+  padding-bottom: 50px !important;
 }
