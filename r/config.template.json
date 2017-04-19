@@ -1,0 +1,10 @@
+{
+  "out": "mysticherring-video-report.pdf", // report path
+  "db": {
+    "host": "",
+    "port": 5432,
+    "database": "",
+    "user": "",
+    "password": ""
+  }
+}
