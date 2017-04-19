@@ -43,6 +43,7 @@ app.use(allowCrossDomain);
 app.use('/static/video-watch', express.static(config.api.static.videoWatch));
 app.use('/static/video-status', express.static(config.api.static.videoStatus));
 app.use('/static/vis-temp', express.static(config.api.static.visTemp));
+app.use('/reports', express.static(config.api.static.reports));
 
 
 // pages

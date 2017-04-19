@@ -4,7 +4,8 @@ module.exports = {
     static: {
       videoWatch: '../apps/video-watch/dist',
       videoStatus: '../apps/video-status/dist',
-      visTemp: '../apps/vis-temp/dist'
+      visTemp: '../apps/vis-temp/dist',
+      reports: '../r/pdf'
     }
   },
   db: {
