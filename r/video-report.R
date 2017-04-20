@@ -65,7 +65,7 @@ stats_by_video_day <- videos %>%
 stats_by_count_day <- tbl_counts %>%
   filter(video_id %in% videos$id) %>%
   mutate(
-    date = as.Date(created_at, tz = "UTC")
+    date = as.Date(created_at, tz = "America/New_York")
   ) %>%
   group_by(date) %>%
   summarise(

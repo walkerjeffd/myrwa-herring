@@ -1,2 +1,4 @@
 pdf/*.pdf
 config.json
+.Rhistory
+.RData
