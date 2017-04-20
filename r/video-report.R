@@ -98,6 +98,9 @@ videos_hour_tally <- videos %>%
       n_count = 0,
       sum_count = 0
     )
+  ) %>%
+  filter(
+    date < as.Date(now()) | hour < hour(now(tzone = "America/New_York"))
   )
 
 
