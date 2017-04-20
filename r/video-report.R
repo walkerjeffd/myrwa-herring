@@ -74,6 +74,7 @@ stats_by_count_day <- tbl_counts %>%
   )
 
 videos_hour_tally <- videos %>%
+  filter(date >= ymd(20170411)) %>%
   mutate(
     hour = hour(with_tz(start_timestamp, "UTC"))
   ) %>%
@@ -85,8 +86,19 @@ videos_hour_tally <- videos %>%
     n_watched = sum(counted),
     n_count = sum(n_count),
     sum_count = sum(mean_count)
+  ) %>%
+  ungroup %>%
+  complete(
+    date, hour = seq(0, 23, by = 1),
+    fill = list(
+      n = 0,
+      mean_duration = 0,
+      sum_duration = 0,
+      n_watched = 0,
+      n_count = 0,
+      sum_count = 0
+    )
   )
-# complete(date, hour = seq(0, 23, by = 1), fill = list(n = 0))
 
 
 # pdf ---------------------------------------------------------------------
@@ -100,7 +112,7 @@ p1 <- videos_hour_tally %>%
   geom_tile() +
   scale_x_date(expand = c(0, 0)) +
   scale_y_continuous(breaks = seq(0, 23), expand = c(0, 0)) +
-  scale_fill_gradientn("# Videos\nRecorded", colours = rev(brewer.pal(8, "Spectral")), limits = c(1, NA)) +
+  scale_fill_gradientn("# Videos\nRecorded", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
   labs(
     x = "Date",
     y = "Hour of Day",
@@ -127,10 +139,11 @@ p2 <- videos_hour_tally %>%
 
 p3 <- videos_hour_tally %>%
   ggplot(aes(date, hour, fill = n_watched)) +
-  geom_tile() +
+  geom_tile(aes(alpha = n_watched > 0)) +
   scale_x_date(expand = c(0, 0)) +
   scale_y_continuous(breaks = seq(0, 23), expand = c(0, 0)) +
-  scale_fill_gradientn("# Videos\nCounted", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  scale_alpha_manual("", values = c("TRUE" = 1, "FALSE" = 0), guide = FALSE) +
+  scale_fill_gradientn("# Videos\nCounted", colours = rev(brewer.pal(8, "Spectral")), limits = c(1, NA)) +
   labs(
     x = "Date",
     y = "Hour of Day",
@@ -142,9 +155,10 @@ p3 <- videos_hour_tally %>%
 
 p4 <- videos_hour_tally %>%
   ggplot(aes(date, hour, fill = sum_count)) +
-  geom_tile() +
+  geom_tile(aes(alpha = n_watched > 0)) +
   scale_x_date(expand = c(0, 0)) +
   scale_y_continuous(breaks = seq(0, 23), expand = c(0, 0)) +
+  scale_alpha_manual("", values = c("TRUE" = 1, "FALSE" = 0), guide = FALSE) +
   scale_fill_gradientn("# Fish\nCounted", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
   labs(
     x = "Date",
