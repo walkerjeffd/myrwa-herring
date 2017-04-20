@@ -59,7 +59,8 @@ stats_by_video_day <- videos %>%
     n_watched = sum(counted),
     n_unwatched = n_video - n_watched,
     n_count = sum(n_count),
-    sum_count = sum(mean_count)
+    sum_count = sum(mean_count),
+    mean_count_per_min = mean(if_else(counted, mean_count / (duration / 60), 0))
   )
 
 stats_by_count_day <- tbl_counts %>%
@@ -69,12 +70,16 @@ stats_by_count_day <- tbl_counts %>%
   ) %>%
   group_by(date) %>%
   summarise(
-    n = n(),
-    sum = sum(count)
+    n_count = n(),
+    sum_count = sum(count),
+    n_session = length(unique(session))
   )
 
+
 videos_hour_tally <- videos %>%
-  filter(date >= ymd(20170411)) %>%
+  filter(
+    date >= ymd(20170411)
+  ) %>%
   mutate(
     hour = hour(with_tz(start_timestamp, "UTC"))
   ) %>%
@@ -109,6 +114,9 @@ videos_hour_tally <- videos %>%
 updated_at <- paste0("Updated: ", with_tz(now(), "America/New_York"))
 
 pdf(cfg$out, width = 11, height = 8.5)
+
+
+# HOURLY TILES ------------------------------------------------------------
 
 p1 <- videos_hour_tally %>%
   ggplot(aes(date, hour, fill = n)) +
@@ -176,6 +184,88 @@ grid.arrange(p1, p2, p3, p4, ncol = 2, top = "Mystic River Herring | Hourly Vide
 
 
 
+# HEX DENSITY -------------------------------------------------------------
+
+p1a <- videos %>%
+  filter(n_count > 0) %>%
+  ggplot(aes(duration, mean_count)) +
+  geom_point(shape = 21, alpha = 0.5) +
+  xlim(0, NA) +
+  labs(
+    x = "Video Duration (min)",
+    y = "# Fish per Video",
+    title = "# Fish per Video vs. Video Duration",
+    subtitle = "[ Scatter Plot ]"
+  ) +
+  theme(
+    aspect.ratio = 1
+  )
+
+p1b <- videos %>%
+  filter(n_count > 0) %>%
+  ggplot(aes(duration, mean_count)) +
+  geom_hex(bins = 30) +
+  xlim(0, NA) +
+  scale_fill_gradientn(
+    name = "# Videos",
+    colors = rev(RColorBrewer::brewer.pal(n = 8, name = "Spectral")),
+    limits = c(0, NA)
+  ) +
+  labs(
+    x = "Video Duration (min)",
+    y = "# Fish per Video",
+    title = "# Fish per Video vs. Video Duration",
+    subtitle = "[ 2D Density Hex ]"
+  ) +
+  theme(
+    aspect.ratio = 1
+  )
+
+p2a <- videos %>%
+  filter(n_count > 0) %>%
+  ggplot(aes(duration, mean_count/duration)) +
+  geom_point(shape = 21, alpha = 0.5) +
+  xlim(0, NA) +
+  labs(
+    x = "Video Duration (min)",
+    y = "# Fish per Minute",
+    title = "Duration v. # Fish per Minute",
+    subtitle = "[ Scatter Plot ]"
+  ) +
+  theme(
+    aspect.ratio = 1
+  )
+
+p2b <- videos %>%
+  filter(n_count > 0) %>%
+  ggplot(aes(duration, mean_count/duration)) +
+  geom_hex(bins = 30) +
+  xlim(0, NA) +
+  scale_fill_gradientn(
+    name = "# Videos",
+    colors = rev(RColorBrewer::brewer.pal(n = 8, name = "Spectral")),
+    limits = c(0, NA)
+  ) +
+  labs(
+    x = "Video Duration (min)",
+    y = "# Fish per Minute",
+    title = "Duration v. # Fish per Minute",
+    subtitle = "[ 2D Density Hex ]"
+  ) +
+  theme(
+    aspect.ratio = 1
+  )
+
+grid.arrange(p1a, p1b, p2a, p2b, ncol = 2, bottom = updated_at)
+
+
+
+
+
+# BAR CHARTS - DAILY VIDEOS -----------------------------------------------
+
+
+
 p <- stats_by_video_day %>%
   select(date, n_unwatched, n_watched) %>%
   gather(var, value, -date) %>%
@@ -199,51 +289,136 @@ p <- stats_by_video_day %>%
 grid.arrange(p, nrow = 2, bottom = updated_at)
 
 
+#### BAR CHARTS - BY VIDEO DATE
 
 p1 <- stats_by_video_day %>%
   ggplot(aes(date, n_count)) +
   geom_bar(fill = "orangered", stat = "identity") +
   labs(
-    x = "Date",
+    x = "Date Video was Recorded",
     y = "# Counts",
-    title = "Number of Counts per Day",
-    subtitle = "Date = when video was recorded"
+    title = "Number of Counts per Day"
   )
 
 p2 <- stats_by_video_day %>%
   ggplot(aes(date, sum_count)) +
   geom_bar(fill = "orangered", stat = "identity") +
   labs(
-    x = "Date",
+    x = "Date Video was Recorded",
     y = "# Fish",
-    title = "Number of Fish Counted per Day",
-    subtitle = "Date = when video was recorded"
+    title = "Number of Fish Counted per Day"
   )
 
-grid.arrange(p1, p2, ncol = 1, bottom = updated_at)
+p3 <- stats_by_video_day %>%
+  ggplot(aes(date, mean_count_per_min)) +
+  geom_bar(fill = "orangered", stat = "identity") +
+  labs(
+    x = "Date Video was Recorded",
+    y = "Average # Fish per Minute",
+    title = "Fish Passage Rate per Day"
+  )
+
+grid.arrange(p1, p2, p3, ncol = 2, bottom = updated_at)
 
 
+# BAR CHARTS - BY COUNT DATE ----------------------------------------------
 
 p1 <- stats_by_count_day %>%
-  ggplot(aes(date, n)) +
+  ggplot(aes(date, n_count)) +
   geom_bar(fill = "chartreuse3", stat = "identity") +
   labs(
-    x = "Date",
+    x = "Date Video was Counted",
     y = "# Video Counts",
-    title = "Number of Video Counts per Day",
-    subtitle = "Date = when video was counted"
+    title = "Number of Video Counts per Day"
   )
 
 p2 <- stats_by_count_day %>%
-  ggplot(aes(date, sum)) +
+  ggplot(aes(date, sum_count)) +
   geom_bar(fill = "chartreuse3", stat = "identity") +
   labs(
-    x = "Date",
+    x = "Date Video was Counted",
     y = "# Fish Counted",
-    title = "Number of Fish Counted per Day",
-    subtitle = "Date = when video was counted"
+    title = "Number of Fish Counted per Day"
   )
 
-grid.arrange(p1, p2, ncol = 1, bottom = updated_at)
+p3 <- stats_by_count_day %>%
+  ggplot(aes(date, sum_count)) +
+  geom_bar(fill = "chartreuse3", stat = "identity") +
+  labs(
+    x = "Date Video was Counted",
+    y = "# Fish Counted",
+    title = "Number of Fish Counted per Day"
+  )
+
+p4 <- stats_by_count_day %>%
+  ggplot(aes(date, n_count/n_session)) +
+  geom_bar(fill = "chartreuse3", stat = "identity") +
+  labs(
+    x = "Date Video was Counted",
+    y = "# Videos Counted",
+    title = "Average Number of Videos Counted per Session"
+  )
+
+grid.arrange(p1, p2, p3, p4, ncol = 2, bottom = updated_at)
+
+#### HISTOGRAMS
+
+p1 <- videos %>%
+  filter(mean_count > 0) %>%
+  ggplot(aes(mean_count)) +
+  geom_histogram(binwidth = 2) +
+  labs(
+    x = "# Fish / Video",
+    y = "# Videos",
+    title = "# Fish per Video",
+    subtitle = "How many fish are counted per video?"
+  ) +
+  theme(
+    strip.background = element_blank(),
+    strip.placement = "outside"
+  )
+p2 <- videos %>%
+  filter(!is.na(n_count), n_count > 0) %>%
+  ggplot(aes(factor(n_count))) +
+  geom_bar() +
+  labs(
+    x = "# Fish / Video",
+    y = "# Videos",
+    title = "# Counts per Video",
+    subtitle = "How many times has the same video been watched?"
+  ) +
+  theme(
+    strip.background = element_blank(),
+    strip.placement = "outside"
+  )
+p3 <- videos %>%
+  filter(duration < 100) %>%
+  ggplot(aes(duration)) +
+  geom_histogram() +
+  labs(
+    x = "Duration (minutes)",
+    y = "# Videos",
+    title = "Video Duration",
+    subtitle = "How long are the videos?"
+  ) +
+  theme(
+    strip.background = element_blank(),
+    strip.placement = "outside"
+  )
+p4 <- videos %>%
+  filter(n_count > 0) %>%
+  ggplot(aes(mean_count/duration)) +
+  geom_histogram(binwidth = 0.05) +
+  labs(
+    x = "# Fish / Minute",
+    y = "# Videos",
+    title = "# Fish per Video Minute",
+    subtitle = "How many fish pass per minute of video?"
+  ) +
+  theme(
+    strip.background = element_blank(),
+    strip.placement = "outside"
+  )
+grid.arrange(p1, p2, p3, p4, nrow = 2, top = "Histograms")
 
 dev.off()
