@@ -88,6 +88,7 @@ videos_hour_tally <- videos %>%
     n = n(),
     mean_duration = mean(duration)/60, # sec -> min
     sum_duration = sum(duration)/60, # sec -> min
+    sum_duration_watched = sum(duration * counted)/60,
     n_watched = sum(counted),
     n_count = sum(n_count),
     sum_count = sum(mean_count)
@@ -116,7 +117,8 @@ updated_at <- paste0("Updated: ", with_tz(now(), "America/New_York"))
 pdf(cfg$out, width = 11, height = 8.5)
 
 
-# HOURLY TILES ------------------------------------------------------------
+
+# TILES -------------------------------------------------------------------
 
 p1 <- videos_hour_tally %>%
   ggplot(aes(date, hour, fill = n)) +
@@ -422,3 +424,25 @@ p4 <- videos %>%
 grid.arrange(p1, p2, p3, p4, nrow = 2, top = "Histograms")
 
 dev.off()
+
+
+
+
+# SCRATCH -----------------------------------------------------------------
+
+videos_hour_tally %>%
+  ggplot(aes(date, hour, fill = sum_duration_watched / sum_duration)) +
+  geom_tile(aes(alpha = n > 0)) +
+  scale_x_date(expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 23), expand = c(0, 0)) +
+  scale_fill_gradientn("% Watched", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  scale_alpha_manual("", values = c("TRUE" = 1, "FALSE" = 0), guide = FALSE) +
+  labs(
+    x = "Date",
+    y = "Hour of Day",
+    title = "% of Total Video Duration Watched"
+  ) +
+  theme(
+    panel.grid.minor = element_blank()
+  )
+
