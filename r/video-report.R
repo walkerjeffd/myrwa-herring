@@ -415,19 +415,19 @@ dev.off()
 
 # SCRATCH -----------------------------------------------------------------
 
-videos_hour_tally %>%
-  ggplot(aes(date, hour, fill = sum_duration_watched / sum_duration)) +
-  geom_tile(aes(alpha = n > 0)) +
-  scale_x_date(expand = c(0, 0)) +
-  scale_y_continuous(breaks = seq(0, 23), expand = c(0, 0)) +
-  scale_fill_gradientn("% Watched", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
-  scale_alpha_manual("", values = c("TRUE" = 1, "FALSE" = 0), guide = FALSE) +
-  labs(
-    x = "Date",
-    y = "Hour of Day",
-    title = "% of Total Video Duration Watched"
-  ) +
-  theme(
-    panel.grid.minor = element_blank()
-  )
+# videos_hour_tally %>%
+#   ggplot(aes(date, hour, fill = sum_duration_watched / sum_duration)) +
+#   geom_tile(aes(alpha = n > 0)) +
+#   scale_x_date(expand = c(0, 0)) +
+#   scale_y_continuous(breaks = seq(0, 23), expand = c(0, 0)) +
+#   scale_fill_gradientn("% Watched", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+#   scale_alpha_manual("", values = c("TRUE" = 1, "FALSE" = 0), guide = FALSE) +
+#   labs(
+#     x = "Date",
+#     y = "Hour of Day",
+#     title = "% of Total Video Duration Watched"
+#   ) +
+#   theme(
+#     panel.grid.minor = element_blank()
+#   )
 
