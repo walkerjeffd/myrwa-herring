@@ -1,5 +1,4 @@
-var Promise = require('bluebird'),
-    d3 = require('d3');
+var Promise = require('bluebird');
 
 var config = require('../config');
 
@@ -99,20 +98,40 @@ var getVideo = function (params) {
       .where('id', params.id);
   }
 
-  var cte = knex('videos')
-    .select()
+  var counts = knex('counts')
+    .select('video_id', knex.raw('count(*)::integer as n_count'), knex.raw('avg(count)::real as mean_count'))
     .where('flagged', false)
-    .andWhere('start_timestamp', '>=', '2017-04-15 00:00:00+00')
+    .groupBy('video_id')
+    .as('c');
+
+  // select subset of videos
+  var videos = knex('videos')
+    .where('flagged', false)
+    // only daylight hours
     .andWhere(knex.raw('date_part(\'hour\', start_timestamp)'), '>=', 6)
     .andWhere(knex.raw('date_part(\'hour\', start_timestamp)'), '<=', 19);
 
   if (params.date) {
-    cte = cte.andWhere(knex.raw('date_trunc(\'day\', start_timestamp)::date'), params.date)
+    videos = videos.andWhere(knex.raw('start_timestamp::date::text'), params.date);
+  } else {
+    // only on or after April 15
+    videos = videos.andWhere('start_timestamp', '>=', '2017-04-15 00:00:00+00');
   }
 
   if (params.location) {
-    cte = cte.andWhere('location_id', params.location)
+    videos = videos.andWhere('location_id', params.location);
+  } else {
+    videos = videos.andWhere('location_id', 'UML');
   }
+
+  // join videos and counts
+  var cte = videos
+    .leftJoin(counts, 'videos.id', 'c.video_id')
+    .select()
+    .where(function() {
+      this.where(knex.raw('COALESCE(n_count, 0)'), '=', 0)
+        .orWhere(knex.raw('COALESCE(mean_count, 0)'), '>', 0)
+    });
 
   return knex
     .raw(
