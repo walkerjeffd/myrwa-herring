@@ -223,11 +223,11 @@ p1b <- videos %>%
 
 p2a <- videos %>%
   filter(n_count > 0) %>%
-  ggplot(aes(duration, mean_count/duration)) +
+  ggplot(aes(duration, mean_count / (duration / 60))) +
   geom_point(shape = 21, alpha = 0.5) +
   xlim(0, NA) +
   labs(
-    x = "Video Duration (min)",
+    x = "Video Duration (seconds)",
     y = "# Fish per Minute",
     title = "Duration v. # Fish per Minute",
     subtitle = "[ Scatter Plot ]"
@@ -238,7 +238,7 @@ p2a <- videos %>%
 
 p2b <- videos %>%
   filter(n_count > 0) %>%
-  ggplot(aes(duration, mean_count/duration)) +
+  ggplot(aes(duration, mean_count / (duration / 60))) +
   geom_hex(bins = 30) +
   xlim(0, NA) +
   scale_fill_gradientn(
@@ -247,7 +247,7 @@ p2b <- videos %>%
     limits = c(0, NA)
   ) +
   labs(
-    x = "Video Duration (min)",
+    x = "Video Duration (seconds)",
     y = "# Fish per Minute",
     title = "Duration v. # Fish per Minute",
     subtitle = "[ 2D Density Hex ]"
