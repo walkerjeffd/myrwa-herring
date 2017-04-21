@@ -70,15 +70,18 @@ export default {
         vm.player = this;
 
         vm.player.on('loadstart', function() {
-          console.log('loadstart');
+          console.log('video:loadstart');
         });
         vm.player.on('loadeddata', function() {
-          console.log('loadeddata');
+          console.log('video:loadeddata');
           vm.loading = false;
         });
         vm.player.on('error', function() {
-          console.log('error');
+          console.log('video:error');
           vm.error = true;
+        });
+        vm.player.on('ended', function() {
+          console.log('video:ended');
         });
 
         vm.loadVideo();
@@ -139,6 +142,8 @@ export default {
 </script>
 
 <style scoped>
+.vjs-volume-menu-button { display: none !important; }
+
 .video-container {
   margin-bottom: 25px;
 }
