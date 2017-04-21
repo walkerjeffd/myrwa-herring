@@ -4,7 +4,7 @@
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
           <div class="sqs-block-button-element--medium sqs-block-button-element">
-            <img src="//localhost:8000/static/video-watch/loading.gif" width="32" height="32" alt="">
+            <img v-bind:src="loadingSrc" width="32" height="32" alt="">
             <div>
               Loading
             </div>
@@ -25,11 +25,17 @@
 </template>
 
 <script>
+import config from '../../../config'
+
 export default {
   props: ['loading'],
+  data: function () {
+    return {
+      loadingSrc: config.api.url + '/static/video-watch/loading.gif'
+    };
+  },
   created: function () {
     console.log('watch:created');
-    console.log(this.loading);
   }
 };
 </script>
