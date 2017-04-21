@@ -357,7 +357,7 @@ p1 <- videos %>%
   labs(
     x = "# Fish / Video",
     y = "# Videos",
-    title = "# Fish per Video",
+    title = "# Fish per Video (excluding 0 counts)",
     subtitle = "How many fish are counted per video?"
   ) +
   theme(
@@ -365,13 +365,13 @@ p1 <- videos %>%
     strip.placement = "outside"
   )
 p2 <- videos %>%
-  filter(n_count > 0) %>%
+  filter(mean_count > 0) %>%
   ggplot(aes(mean_count/(duration / 60))) +
   geom_histogram() +
   labs(
     x = "# Fish / Minute",
     y = "# Videos",
-    title = "# Fish per Video Minute",
+    title = "# Fish per Video Minute (excluding 0 counts)",
     subtitle = "How many fish pass per minute of video?"
   ) +
   theme(
