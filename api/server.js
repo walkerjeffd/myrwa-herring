@@ -61,7 +61,7 @@ app.get('/status/', function (req, res, next) {
 app.get('/video/', function (req, res, next) {
   db.getVideo(req.query)
     .then(function (result) {
-      debug('served video id=%d', result.length > 0 ? result[0].id : 'unknown');
+      debug('served video id=%d ip=%s', result.length > 0 ? result[0].id : 'unknown', req.headers['x-real-ip'] || req.connection.remoteAddress);
       return res.status(200).json({status: 'ok', data: result});
     })
     .catch(next);
@@ -76,6 +76,7 @@ app.get('/videos/', function (req, res, next) {
 });
 
 app.post('/count/', function (req, res, next) {
+  debug('received count=%d video_id=%d ip=%s', req.body.count, req.body.video_id, req.headers['x-real-ip'] || req.connection.remoteAddress);
   db.saveCount(req.body)
     .then(function (result) {
       return res.status(201).json({status: 'ok', data: result});
