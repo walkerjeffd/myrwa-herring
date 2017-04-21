@@ -81,8 +81,7 @@ export default {
           vm.error = true;
         });
 
-        var query = vm.query ? vm.query.data : {};
-        vm.loadVideo(query);
+        vm.loadVideo();
 
       });
 
@@ -108,6 +107,8 @@ export default {
       var vm = this;
 
       vm.loading = true;
+
+      var params = vm.query ? vm.query.data : {};
 
       vm.$http.get(config.api.url + '/video/', {
           params: params
