@@ -4,7 +4,8 @@
       <video id="video" class="video-js vjs-big-play-centered"></video>
     </div>
     <div class="view-container">
-      <router-view :video="video" :load-video="loadVideo" :session="session"></router-view>
+      <p v-show="error">Error occurred fetching video from the server, please refresh the page and try again. If the problem continues, please contact us at <a href="mailto:herring.education@mysticriver.org">herring.education@mysticriver.org</a>.</p>
+      <router-view :loading="loading" :video="video" :load-video="loadVideo" :session="session" v-show="!error"></router-view>
     </div>
   </div>
 </template>
@@ -23,6 +24,8 @@ export default {
   data: function () {
     return {
       session: uuid(),
+      loading: true,
+      error: false,
       video: undefined,
       query: {
         data: undefined
@@ -65,8 +68,22 @@ export default {
         inactivityTimeout: 0
       }).ready(function () {
         vm.player = this;
+
+        vm.player.on('loadstart', function() {
+          console.log('loadstart');
+        });
+        vm.player.on('loadeddata', function() {
+          console.log('loadeddata');
+          vm.loading = false;
+        });
+        vm.player.on('error', function() {
+          console.log('error');
+          vm.error = true;
+        });
+
         var query = vm.query ? vm.query.data : {};
         vm.loadVideo(query);
+
       });
 
     player.overlay({
@@ -88,8 +105,10 @@ export default {
   methods: {
     loadVideo: function (params) {
       console.log('app:loadVideo');
-
       var vm = this;
+
+      vm.loading = true;
+
       vm.$http.get(config.api.url + '/video/', {
           params: params
         })
@@ -97,17 +116,20 @@ export default {
           var videos = response.body.data;
 
           if (!videos || videos.length === 0) {
-            alert('No videos are available, try refreshing.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');
+            vm.loading = false;
+            vm.error = true;
             console.log(response);
           } else {
             vm.video = videos[0];
             if (vm.video) {
+              console.log('app:loadVideo id=', vm.video.id);
               vm.player.src({type: 'video/mp4', src: vm.video.url});
               vm.player.load();
             }
           }
         }, function(response) {
-          alert('Error occurred getting video from the server, try refreshing.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');
+          vm.loading = false;
+          vm.error = true;
           console.log(response);
         });
     }
