@@ -61,7 +61,8 @@ export default {
         autoplay: false,
         width: 700,
         height: 525,
-        playbackRates: [0.1, 0.25, 0.5, 1]
+        playbackRates: [0.1, 0.25, 0.5, 1],
+        inactivityTimeout: 0
       }).ready(function () {
         vm.player = this;
         var query = vm.query ? vm.query.data : {};
