@@ -8,6 +8,7 @@ library(jsonlite)
 
 theme_set(theme_bw())
 
+updated_at <- paste0("Updated: ", with_tz(now(), "America/New_York"))
 
 # load config -------------------------------------------------------------
 
@@ -112,10 +113,7 @@ videos_hour_tally <- videos %>%
 
 # pdf ---------------------------------------------------------------------
 
-updated_at <- paste0("Updated: ", with_tz(now(), "America/New_York"))
-
 pdf(cfg$out, width = 11, height = 8.5)
-
 
 
 # TILES -------------------------------------------------------------------
@@ -261,12 +259,7 @@ p2b <- videos %>%
 grid.arrange(p1a, p1b, p2a, p2b, ncol = 2, bottom = updated_at)
 
 
-
-
-
 # BAR CHARTS - DAILY VIDEOS -----------------------------------------------
-
-
 
 p <- stats_by_video_day %>%
   select(date, n_unwatched, n_watched) %>%
@@ -344,26 +337,18 @@ p2 <- stats_by_count_day %>%
   )
 
 p3 <- stats_by_count_day %>%
-  ggplot(aes(date, sum_count)) +
-  geom_bar(fill = "chartreuse3", stat = "identity") +
-  labs(
-    x = "Date Video was Counted",
-    y = "# Fish Counted",
-    title = "Number of Fish Counted per Day"
-  )
-
-p4 <- stats_by_count_day %>%
   ggplot(aes(date, n_count/n_session)) +
   geom_bar(fill = "chartreuse3", stat = "identity") +
   labs(
     x = "Date Video was Counted",
     y = "# Videos Counted",
-    title = "Average Number of Videos Counted per Session"
+    title = "Avg Number of Videos Counted per Session"
   )
 
-grid.arrange(p1, p2, p3, p4, ncol = 2, bottom = updated_at)
+grid.arrange(p1, p2, p3, ncol = 2, bottom = updated_at)
 
-#### HISTOGRAMS
+
+# HISTOGRAMS --------------------------------------------------------------
 
 p1 <- videos %>%
   filter(mean_count > 0) %>%
@@ -380,14 +365,14 @@ p1 <- videos %>%
     strip.placement = "outside"
   )
 p2 <- videos %>%
-  filter(!is.na(n_count), n_count > 0) %>%
-  ggplot(aes(factor(n_count))) +
-  geom_bar() +
+  filter(n_count > 0) %>%
+  ggplot(aes(mean_count/(duration / 60))) +
+  geom_histogram() +
   labs(
-    x = "# Fish / Video",
+    x = "# Fish / Minute",
     y = "# Videos",
-    title = "# Counts per Video",
-    subtitle = "How many times has the same video been watched?"
+    title = "# Fish per Video Minute",
+    subtitle = "How many fish pass per minute of video?"
   ) +
   theme(
     strip.background = element_blank(),
@@ -398,7 +383,7 @@ p3 <- videos %>%
   ggplot(aes(duration)) +
   geom_histogram() +
   labs(
-    x = "Duration (minutes)",
+    x = "Duration (seconds)",
     y = "# Videos",
     title = "Video Duration",
     subtitle = "How long are the videos?"
@@ -408,14 +393,14 @@ p3 <- videos %>%
     strip.placement = "outside"
   )
 p4 <- videos %>%
-  filter(n_count > 0) %>%
-  ggplot(aes(mean_count/duration)) +
-  geom_histogram(binwidth = 0.05) +
+  filter(!is.na(n_count), n_count > 0) %>%
+  ggplot(aes(factor(n_count))) +
+  geom_bar() +
   labs(
-    x = "# Fish / Minute",
+    x = "# Times Video was Counted",
     y = "# Videos",
-    title = "# Fish per Video Minute",
-    subtitle = "How many fish pass per minute of video?"
+    title = "# Counts per Video",
+    subtitle = "How many times has the same video been watched?"
   ) +
   theme(
     strip.background = element_blank(),
