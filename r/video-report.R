@@ -72,6 +72,7 @@ stats_by_count_day <- tbl_counts %>%
   group_by(date) %>%
   summarise(
     n_count = n(),
+    n_count_zero = sum(count == 0),
     sum_count = sum(count),
     n_session = length(unique(session))
   )
@@ -107,7 +108,7 @@ videos_hour_tally <- videos %>%
     )
   ) %>%
   filter(
-    date < as.Date(now()) | hour < hour(now(tzone = "America/New_York"))
+    date < as.Date(now(), tz = "America/New_York") | hour < hour(now(tzone = "America/New_York"))
   )
 
 
@@ -313,7 +314,7 @@ p3 <- stats_by_video_day %>%
     title = "Fish Passage Rate per Day"
   )
 
-grid.arrange(p1, p2, p3, ncol = 2, bottom = updated_at)
+grid.arrange(p1, p2, p3, ncol = 2, top = "Daily Stats by Count Date", bottom = updated_at)
 
 
 # BAR CHARTS - BY COUNT DATE ----------------------------------------------
@@ -345,7 +346,17 @@ p3 <- stats_by_count_day %>%
     title = "Avg Number of Videos Counted per Session"
   )
 
-grid.arrange(p1, p2, p3, ncol = 2, bottom = updated_at)
+p4 <- stats_by_count_day %>%
+  ggplot(aes(date, n_count_zero / n_count)) +
+  geom_bar(fill = "chartreuse3", stat = "identity") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    x = "Date Video was Counted",
+    y = "% Videos with Zero Count",
+    title = "Percent of Videos Watched with Zero Fish"
+  )
+
+grid.arrange(p1, p2, p3, p4, ncol = 2, top = "Daily Stats by Count Date", bottom = updated_at)
 
 
 # HISTOGRAMS --------------------------------------------------------------
@@ -406,7 +417,7 @@ p4 <- videos %>%
     strip.background = element_blank(),
     strip.placement = "outside"
   )
-grid.arrange(p1, p2, p3, p4, nrow = 2, top = "Histograms")
+grid.arrange(p1, p2, p3, p4, nrow = 2, top = "Histograms", bottom = updated_at)
 
 dev.off()
 
