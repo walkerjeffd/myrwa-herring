@@ -109,13 +109,13 @@ var getVideo = function (params) {
     .where('flagged', false)
     // only daylight hours
     .andWhere(knex.raw('date_part(\'hour\', start_timestamp)'), '>=', 6)
-    .andWhere(knex.raw('date_part(\'hour\', start_timestamp)'), '<=', 19);
+    .andWhere(knex.raw('date_part(\'hour\', start_timestamp)'), '<=', 21);
 
   if (params.date) {
     videos = videos.andWhere(knex.raw('start_timestamp::date::text'), params.date);
   } else {
-    // only on or after April 15
-    videos = videos.andWhere('start_timestamp', '>=', '2017-04-15 00:00:00+00');
+    // only on or after April 24
+    videos = videos.andWhere('start_timestamp', '>=', '2017-04-24 00:00:00+00');
   }
 
   if (params.location) {
