@@ -314,7 +314,7 @@ p3 <- stats_by_video_day %>%
     title = "Fish Passage Rate per Day"
   )
 
-grid.arrange(p1, p2, p3, ncol = 2, top = "Daily Stats by Count Date", bottom = updated_at)
+grid.arrange(p1, p2, p3, ncol = 2, top = "Daily Stats by Date Video was Recorded", bottom = updated_at)
 
 
 # BAR CHARTS - BY COUNT DATE ----------------------------------------------
