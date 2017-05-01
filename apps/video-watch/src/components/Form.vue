@@ -1,11 +1,11 @@
 <template>
   <div class="form-wrapper">
     <div class="form-inner-wrapper">
-      <form>
+      <div>
         <div class="field-list clear">
           <div id="" class="form-item field number">
             <label class="title" for="count">How many fish did you count?</label>
-            <input v-validate="'required|numeric'" :class="{'input': true, 'is-danger': errors.has('email') }" class="field-element" type="text" name="count" v-model="form.count">
+            <input v-validate="'required|numeric'" :class="{'input': true, 'is-danger': errors.has('email') }" class="field-element" type="text" name="count" v-model="form.count" @keydown.enter="submit">
             <span v-show="errors.has('count')" class="help is-danger">{{ errors.first('count') }}</span>
           </div>
           <div class="form-item field textarea">
@@ -27,7 +27,7 @@
             </div>
           </div>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
