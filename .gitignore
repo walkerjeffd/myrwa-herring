@@ -7,3 +7,4 @@ config/*.js
 apps/config/*.js
 !apps/config/index.template.js
 sandbox/
+.Rproj.user

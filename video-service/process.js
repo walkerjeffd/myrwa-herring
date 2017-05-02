@@ -1,7 +1,8 @@
 var Promise = require('bluebird'),
     path = require('path'),
     fs = require('fs'),
-    ffprobe = Promise.promisify(require('fluent-ffmpeg').ffprobe),
+    ffmpeg = require('fluent-ffmpeg'),
+    ffprobe = Promise.promisify(ffmpeg.ffprobe),
     s3 = require('s3'),
     moment = require('moment-timezone'),
     winston = require('winston');
@@ -52,8 +53,22 @@ const locationIds = config.videoService.locationIds;
 
 Promise.mapSeries(locationIds, processLocationDir)
   .then((locations) => {
-    var count = locations.reduce(function (p, v) { return p + v.videos.length; }, 0);
-    logger.info('uploaded %d file(s) to the server', count);
+    var uploadCount = locations.reduce(function (p, v) {
+      var uploadedVideos = v.videos.filter(function (video) {
+        return !video.skip;
+      });
+      return p + uploadedVideos.length;
+    }, 0);
+
+    var skipCount = locations.reduce(function (p, v) {
+      var skippedVideos = v.videos.filter(function (video) {
+        return video.skip;
+      });
+      return p + skippedVideos.length;
+    }, 0);
+
+    logger.info('processed %d file(s) (skipped %d)', uploadCount, skipCount);
+
     var endTime = new Date();
     logger.info('done (duration = %d sec)', (endTime - startTime) / 1000)
   })
@@ -76,7 +91,7 @@ function checkVideoExistsInDb (video) {
     .then(function (results) {
       if (results.length >= 1) {
         logger.warn('video already exists in database, skipping', {filename: video.location_id + '/' + video.filename})
-        video.ok = false;
+        video.skip = true;
       }
 
       return video;
@@ -93,7 +108,7 @@ function processLocationDir (locationId) {
   return getLocationDb(location)
     .then(function (locationDb) {
       location.db = locationDb;
-      location.dir = path.join(config.videoService.inDir, location.id);
+      location.dir = path.join(config.videoService.dirs.new, location.id);
 
       return readdir(location.dir)
         .then(function (files) {
@@ -119,14 +134,7 @@ function processLocationDir (locationId) {
     .then(function (videos) {
       return Promise.mapSeries(videos, checkVideoExistsInDb);
     })
-    .filter(function (videos) {
-      return videos.ok;
-    })
     .then(function (videos) {
-      if (videos.length > 0) {
-        logger.info('uploading %d file(s) for location %s', videos.length, locationId);
-      }
-
       return Promise.mapSeries(videos, processVideo);
     })
     .then(function (videos) {
@@ -154,7 +162,7 @@ function getLocationDb (location) {
 function getVideoMetadata (video) {
   logger.debug('getting video metadata', {filename: video.location_id + '/' + video.filename});
 
-  video.ok = false;
+  video.skip = true;
 
   return ffprobe(video.filepath)
     .then(function (metadata) {
@@ -177,31 +185,22 @@ function getVideoMetadata (video) {
       video.filesize = format.size;
       video.start_timestamp = start.toISOString();
       video.end_timestamp = end.toISOString();
-      video.ok = true;
+      video.skip = false;
 
       return video;
     })
     .catch(function (err) {
       logger.warn('unable to read video file, skipping', {filename: video.location_id + '/' + video.filename})
-      video.ok = false;
+      video.skip = true;
       return video;
     });
 }
 
-function uploadFileToS3 (video) {
-  if (config.s3.disable) {
-    logger.info('skipping s3');
-    return Promise.resolve(video);
-  }
-
-  logger.debug('uploading file to s3', {filename: video.location_id + '/' + video.filename});
-
-  var filename = video.filename,
-      bucket = config.s3.bucket,
-      key = path.join(config.s3.path, video.location_id, filename);
+function uploadFileToS3 (bucket, key, filepath) {
+  logger.debug('uploading file to s3', {key: key, filepath: filepath});
 
   var params = {
-    localFile: video.filepath,
+    localFile: filepath,
 
     s3Params: {
       Bucket: bucket,
@@ -215,36 +214,75 @@ function uploadFileToS3 (video) {
       Key: key
     }, function (err, data) {
       if (data) {
-        logger.warn('file already exists on s3', {filename: video.location_id + '/' + video.filename});
+        logger.warn('file already exists on s3', {key: key});
       }
     });
 
-  var uploader = s3Client.uploadFile(params);
-
   return new Promise(function (resolve, reject) {
-    uploader.on('error', function(err) {
-      logger.error('failed to upload file to s3', {filename: video.location_id + '/' + video.filename});
-      reject(err);
-    });
-    uploader.on('end', function() {
-      logger.debug('successfully uploaded file to s3', {filename: video.location_id + '/' + video.filename});
+    s3Client.uploadFile(params)
+      .on('error', function(err) {
+        logger.error('failed to upload file to s3', {key: key});
 
-      var url = s3.getPublicUrl(bucket, key);
-      video.url = url;
-      resolve(video);
-    });
+        return reject(err);
+      })
+      .on('end', function() {
+        logger.debug('successfully uploaded file to s3', {key: key});
+
+        var url = s3.getPublicUrl(bucket, key);
+
+        return resolve(url);
+      });
   })
 }
 
-function moveFileToSaveDir (video) {
-  logger.debug('moving file to %s', config.videoService.saveDir, {filename: video.location_id + '/' + video.filename});
+function uploadVideoToS3 (video) {
+  if (config.s3.disable) {
+    logger.info('skipping s3');
+    return Promise.resolve(video);
+  }
+
+  return Promise.all([
+      uploadFileToS3(config.s3.bucket, path.join(config.s3.path, video.location_id, video.filename), video.filepath),
+      uploadFileToS3(config.s3.bucket, path.join(config.s3.path, video.location_id, video.filename_webm), video.filepath_webm)
+    ])
+    .then(function (urls) {
+      video.url = urls[0];
+      video.url_webm = urls[1];
+      return Promise.resolve(video);
+    });
+}
+
+function moveFilesToSaveDir (video) {
+  logger.debug('moving files to %s', config.videoService.dirs.save, {
+    filename_mp4: video.location_id + '/' + video.filename,
+    filename_webm: video.location_id + '/' + video.filename_webm
+  });
+
+  var savePathMp4 = path.join(config.videoService.dirs.save, video.location_id, video.filename),
+      savePathWebM = path.join(config.videoService.dirs.save, video.location_id, video.filename_webm);
+
+  return rename(video.filepath, savePathMp4)
+    .then(function () {
+      video.filepath = savePathMp4;
+      return video;
+    })
+    .then(function () {
+      return rename(video.filepath_webm, savePathWebM)
+    })
+    .then(function () {
+      video.filepath_webm = savePathWebM;
+      return video;
+    });
+}
+
+function moveFileToSkipDir (video) {
+  logger.debug('moving file to %s', config.videoService.dirs.skip, {filename: video.location_id + '/' + video.filename});
 
   var inPath = video.filepath,
-      savePath = path.join(config.videoService.saveDir, video.location_id, video.filename);
+      skipPath = path.join(config.videoService.dirs.skip, video.location_id, video.filename);
 
-  return rename(inPath, savePath)
+  return rename(inPath, skipPath)
     .then(function () {
-      video.filepath = savePath;
       return video;
     });
 }
@@ -254,6 +292,7 @@ function saveVideoToDb (video) {
 
   var data = [
     video.url,
+    video.url_webm,
     video.filename,
     video.duration,
     video.filesize,
@@ -266,6 +305,7 @@ function saveVideoToDb (video) {
     .returning('*')
     .insert({
       url: video.url,
+      url_webm: video.url_webm,
       filename: video.filename,
       duration: video.duration,
       filesize: video.filesize,
@@ -283,18 +323,60 @@ function saveVideoToDb (video) {
     });
 }
 
+function convertFileToWebM (video) {
+  video.filename_webm = video.filename.replace('.mp4', '.webm');
+  video.filepath_webm = path.join(config.videoService.dirs.convert, video.location_id, video.filename_webm);
+
+  logger.debug('video file conversion starting', {
+    mp4: path.join(video.location_id, video.filename),
+    webm: path.join(video.location_id, video.filename_webm)
+  });
+
+
+  return new Promise(function (resolve, reject) {
+    ffmpeg(video.filepath)
+      .videoCodec('libvpx')
+      .videoBitrate('1000')
+      .outputOptions('-crf 10')
+      .audioCodec('libvorbis')
+      .on('start', function(command) {
+        logger.debug('spawned ffmpeg', { command: command });
+      })
+      .on('error', function(err) {
+        logger.error('failed to convert file', {
+          mp4: path.join(video.location_id, video.filename),
+          webm: path.join(video.location_id, video.filename_webm)
+        });
+        return reject(err);
+      })
+      .on('end', function() {
+        logger.debug('video file conversion complete', {
+          mp4: path.join(video.location_id, video.filename),
+          webm: path.join(video.location_id, video.filename_webm)
+        });
+        return resolve(video);
+      })
+      .save(video.filepath_webm);
+  });
+}
+
 function processVideo (video) {
   logger.debug('video processing started', {filename: video.location_id + '/' + video.filename});
 
-  return uploadFileToS3(video)
-    .then(moveFileToSaveDir)
-    .then(saveVideoToDb)
-    .then(function (row) {
-      logger.debug('video processing complete', {filename: video.location_id + '/' + video.filename});
+  if (video.skip) {
+    return moveFileToSkipDir(video);
+  } else {
+    return convertFileToWebM(video)
+      .then(uploadVideoToS3)
+      .then(moveFilesToSaveDir)
+      .then(saveVideoToDb)
+      .then(function (row) {
+        logger.debug('video processing complete', {filename: video.location_id + '/' + video.filename});
 
-      video.db = row;
+        video.db = row;
 
-      return video;
-    });
+        return video;
+      });
+  }
 }
 

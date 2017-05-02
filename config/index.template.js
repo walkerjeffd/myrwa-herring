@@ -18,9 +18,15 @@ module.exports = {
   },
   videoService: {
     logLevel: 'debug', // minimum logging level
-    inDir: '',         // directory containing new videos
-    saveDir: '',       // directory to save videos after processing
+    dirs: {
+      new: '',         // directory containing new videos
+      save: '',        // directory to save videos after processing
+      skip: '',        // directory to save skipped videos
+      convert: ''      // directory to save converted videos
+    },
     locationIds: ['TEST', 'UML', 'WIN'], // location IDs to process
+    maxConvert: 100,   // maximum number of files to convert
+    chunkSize: 3       // number of files to convert simultaneously (limit to # cpu cores)
   },
   s3: {
     disable: false, // disable S3 uploading
