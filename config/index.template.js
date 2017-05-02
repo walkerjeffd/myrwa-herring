@@ -16,8 +16,9 @@ module.exports = {
     password: ''
   },
   videoService: {
-    inDir: '',     // directory containing new videos
-    saveDir: '',   // directory to save videos after processing
+    logLevel: 'debug', // minimum logging level
+    inDir: '',         // directory containing new videos
+    saveDir: '',       // directory to save videos after processing
     locationIds: ['TEST', 'UML', 'WIN'], // location IDs to process
   },
   s3: {

@@ -10,7 +10,10 @@ var config = require('../config');
 
 var logger = new (winston.Logger)({
   transports: [
-    new (winston.transports.Console)()
+    new (winston.transports.Console)({
+      level: config.videoService.logLevel,
+      timestamp: true
+    })
   ]
 });
 
@@ -32,7 +35,7 @@ if (!config.mail.disable) {
 
 var startTime = new Date();
 
-logger.info('starting %s', startTime.toISOString());
+logger.info('starting');
 
 var s3Client = s3.createClient(config.s3.client);
 
@@ -49,8 +52,10 @@ const locationIds = config.videoService.locationIds;
 
 Promise.mapSeries(locationIds, processLocationDir)
   .then((locations) => {
+    var count = locations.reduce(function (p, v) { return p + v.videos.length; }, 0);
+    logger.info('uploaded %d file(s) to the server', count);
     var endTime = new Date();
-    logger.info('done %s (duration = %d ms)', endTime.toISOString(), (endTime - startTime))
+    logger.info('done (duration = %d sec)', (endTime - startTime) / 1000)
   })
   .catch(function (err) {
     logger.error(err.toString());
@@ -79,7 +84,7 @@ function checkVideoExistsInDb (video) {
 }
 
 function processLocationDir (locationId) {
-  logger.info('processing location folder %s', locationId);
+  logger.debug('processing location folder %s', locationId);
 
   var location = {
     id: locationId
@@ -96,7 +101,7 @@ function processLocationDir (locationId) {
             return path.join(location.dir, filename);
           });
 
-          logger.info('location folder %s contains %d file(s)', locationId, files.length);
+          logger.info('processing %d file(s) for location %s', files.length, locationId);
 
           return location;
         });
@@ -118,6 +123,10 @@ function processLocationDir (locationId) {
       return videos.ok;
     })
     .then(function (videos) {
+      if (videos.length > 0) {
+        logger.info('uploading %d file(s) for location %s', videos.length, locationId);
+      }
+
       return Promise.mapSeries(videos, processVideo);
     })
     .then(function (videos) {
@@ -127,7 +136,7 @@ function processLocationDir (locationId) {
 }
 
 function getLocationDb (location) {
-  logger.info('getting location from db', {id: location.id});
+  logger.debug('getting location from db', {id: location.id});
 
   return knex('locations')
     .select()
@@ -143,7 +152,7 @@ function getLocationDb (location) {
 }
 
 function getVideoMetadata (video) {
-  logger.info('getting video metadata', {filename: video.location_id + '/' + video.filename});
+  logger.debug('getting video metadata', {filename: video.location_id + '/' + video.filename});
 
   video.ok = false;
 
@@ -185,7 +194,7 @@ function uploadFileToS3 (video) {
     return Promise.resolve(video);
   }
 
-  logger.info('uploading file to s3', {filename: video.location_id + '/' + video.filename});
+  logger.debug('uploading file to s3', {filename: video.location_id + '/' + video.filename});
 
   var filename = video.filename,
       bucket = config.s3.bucket,
@@ -218,7 +227,7 @@ function uploadFileToS3 (video) {
       reject(err);
     });
     uploader.on('end', function() {
-      logger.info('successfully uploaded file to s3', {filename: video.location_id + '/' + video.filename});
+      logger.debug('successfully uploaded file to s3', {filename: video.location_id + '/' + video.filename});
 
       var url = s3.getPublicUrl(bucket, key);
       video.url = url;
@@ -228,7 +237,7 @@ function uploadFileToS3 (video) {
 }
 
 function moveFileToSaveDir (video) {
-  logger.info('moving file to %s', config.videoService.saveDir, {filename: video.location_id + '/' + video.filename});
+  logger.debug('moving file to %s', config.videoService.saveDir, {filename: video.location_id + '/' + video.filename});
 
   var inPath = video.filepath,
       savePath = path.join(config.videoService.saveDir, video.location_id, video.filename);
@@ -241,7 +250,7 @@ function moveFileToSaveDir (video) {
 }
 
 function saveVideoToDb (video) {
-  logger.info('saving video to database', {filename: video.location_id + '/' + video.filename});
+  logger.debug('saving video to database', {filename: video.location_id + '/' + video.filename});
 
   var data = [
     video.url,
@@ -266,7 +275,7 @@ function saveVideoToDb (video) {
     })
     .then(function (results) {
       if (results.length > 0) {
-        logger.info('video saved to database', {filename: video.location_id + '/' + video.filename});
+        logger.debug('video saved to database', {filename: video.location_id + '/' + video.filename});
       } else {
         logger.error('failed to save video to database', {filename: video.location_id + '/' + video.filename});
       }
@@ -275,13 +284,13 @@ function saveVideoToDb (video) {
 }
 
 function processVideo (video) {
-  logger.info('video processing starting', {filename: video.location_id + '/' + video.filename});
+  logger.debug('video processing started', {filename: video.location_id + '/' + video.filename});
 
   return uploadFileToS3(video)
     .then(moveFileToSaveDir)
     .then(saveVideoToDb)
     .then(function (row) {
-      logger.info('video processing complete', {filename: video.location_id + '/' + video.filename});
+      logger.debug('video processing complete', {filename: video.location_id + '/' + video.filename});
 
       video.db = row;
 
