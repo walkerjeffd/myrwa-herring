@@ -1,7 +1,15 @@
 <template>
   <div id="app">
     <div class="video-container">
-      <video id="video" class="video-js vjs-big-play-centered"></video>
+      <video id="video" class="video-js vjs-big-play-centered">
+        <p class="vjs-no-js">
+          To view this video please enable JavaScript, and consider upgrading to a
+          web browser that
+          <a href="http://videojs.com/html5-video-support/" target="_blank">
+            supports HTML5 video
+          </a>
+        </p>
+      </video>
     </div>
     <div class="view-container">
       <p v-show="error">Error occurred fetching video from the server, please refresh the page and try again. If the problem continues, please contact us at <a href="mailto:herring.education@mysticriver.org">herring.education@mysticriver.org</a>.</p>
@@ -73,11 +81,15 @@ export default {
           console.log('video:loadstart');
         });
         vm.player.on('loadeddata', function() {
-          console.log('video:loadeddata');
+          console.log('video:loadeddata', vm.player.currentSource());
           vm.loading = false;
         });
         vm.player.on('error', function() {
           console.log('video:error');
+          vm.error = true;
+        });
+        vm.player.on('abort', function() {
+          console.log('video:abort');
           vm.error = true;
         });
         vm.player.on('ended', function() {
@@ -127,7 +139,15 @@ export default {
             vm.video = videos[0];
             if (vm.video) {
               console.log('app:loadVideo id=', vm.video.id);
-              vm.player.src({type: 'video/mp4', src: vm.video.url});
+
+              var src = [];
+              src.push({type: 'video/mp4', src: vm.video.url});
+
+              if (vm.video.url_webm) {
+                src.push({type: 'video/webm', src: vm.video.url_webm});
+              }
+
+              vm.player.src(src);
               vm.player.load();
             }
           }
