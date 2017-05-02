@@ -153,7 +153,8 @@ var saveCount = function(data) {
       video_id: data.video_id,
       count: data.count,
       comment: data.comment,
-      session: data.session
+      session: data.session,
+      flagged: data.count >= config.api.maxCount
     });
 }
 

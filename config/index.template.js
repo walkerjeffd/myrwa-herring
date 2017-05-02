@@ -1,6 +1,7 @@
 module.exports = {
   api: {
     port: 8000, // API listening port
+    maxCount: 200,
     static: {
       videoWatch: '../apps/video-watch/dist',
       videoStatus: '../apps/video-status/dist',
