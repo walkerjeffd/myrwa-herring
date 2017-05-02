@@ -7,6 +7,7 @@ CREATE TABLE videos (
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   url TEXT,
+  url_webm TEXT,
   filename TEXT,
   duration REAL,
   filesize REAL,
