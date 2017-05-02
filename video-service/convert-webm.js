@@ -48,6 +48,7 @@ function fetchVideosFromDb() {
   return knex('videos')
     .select()
     .where('start_timestamp', '>=', '2017-04-24 00:00:00+00')
+    .whereNull('url_webm')
     .limit(config.videoService.maxConvert)
     .then(function (rows) {
       logger.info('fetched %d video(s) from database', rows.length);
