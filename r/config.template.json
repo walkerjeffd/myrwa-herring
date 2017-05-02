@@ -6,5 +6,11 @@
     "database": "",
     "user": "",
     "password": ""
+  },
+  "s3": {
+    "accessKeyId": "",
+    "secretAccessKey": "",
+    "bucket": "",
+    "path": ""
   }
 }

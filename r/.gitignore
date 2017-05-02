@@ -1,4 +1,6 @@
 pdf/*.pdf
 config.json
+config.local.json
+config.production.json
 .Rhistory
 .RData
