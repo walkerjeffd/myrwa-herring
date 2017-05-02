@@ -47,6 +47,7 @@ var readdir = Promise.promisify(fs.readdir),
 function fetchVideosFromDb() {
   return knex('videos')
     .select()
+    .where('start_timestamp', '>=', '2017-04-24 00:00:00+00')
     .limit(config.videoService.maxConvert)
     .then(function (rows) {
       logger.info('fetched %d video(s) from database', rows.length);
