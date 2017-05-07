@@ -1,14 +1,12 @@
-var Promise = require('bluebird');
+const config = require('../config');
 
-var config = require('../config');
-
-var knex = require('knex')({
+const knex = require('knex')({
   client: 'pg',
-  connection: config.db
+  connection: config.db,
 });
 
-var getStatus = function () {
-  var sql = `
+function getStatus() {
+  const sql = `
   WITH c AS (
     SELECT
       video_id,
@@ -59,53 +57,53 @@ var getStatus = function () {
 
   return knex
     .raw(sql)
-    .then(function (results) {
-      var rows = results.rows;
+    .then((results) => {
+      const rows = results.rows;
 
-      return data = {
+      return {
         daily: rows,
         summary: rows.reduce((p, v) => {
-            p.n_video += v.n_video;
-            p.n_watched += v.n_watched;
-            p.n_count += v.n_count;
-            p.sum_count += v.sum_count;
-            return p;
-          }, {
-            n_video: 0,
-            n_watched: 0,
-            n_count: 0,
-            sum_count: 0
-        })
-      }
+          p.n_video += v.n_video;
+          p.n_watched += v.n_watched;
+          p.n_count += v.n_count;
+          p.sum_count += v.sum_count;
+          return p;
+        }, {
+          n_video: 0,
+          n_watched: 0,
+          n_count: 0,
+          sum_count: 0,
+        }),
+      };
     });
 }
 
-var getVideos = function (params) {
-  var qry = knex('videos')
+function getVideos(params) {
+  let qry = knex('videos')
     .select();
 
   if (params.location) {
-    qry = qry.where('location_id', params.location)
+    qry = qry.where('location_id', params.location);
   }
 
   return qry.orderBy('location_id').orderBy('start_timestamp');
 }
 
-var getVideo = function (params) {
+function getVideo(params) {
   if (params.id) {
     return knex('videos')
       .select()
       .where('id', params.id);
   }
 
-  var counts = knex('counts')
+  const counts = knex('counts')
     .select('video_id', knex.raw('count(*)::integer as n_count'), knex.raw('avg(count)::real as mean_count'))
     .where('flagged', false)
     .groupBy('video_id')
     .as('c');
 
   // select subset of videos
-  var videos = knex('videos')
+  let videos = knex('videos')
     .where('flagged', false)
     // only daylight hours
     .andWhere(knex.raw('date_part(\'hour\', start_timestamp)'), '>=', 6)
@@ -125,28 +123,22 @@ var getVideo = function (params) {
   }
 
   // join videos and counts
-  var cte = videos
+  const cte = videos
     .leftJoin(counts, 'videos.id', 'c.video_id')
     .select()
-    .where(function() {
+    .where(() => {
       this.where(knex.raw('COALESCE(n_count, 0)'), '=', 0)
-        .orWhere(knex.raw('COALESCE(mean_count, 0)'), '>', 0)
+        .orWhere(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
     });
 
   return knex
     .raw(
-      'with v as (?) ?',
-      [
-        cte,
-        knex.raw('select * from v offset floor( random() * (select count(*) from v) ) limit 1')
-      ]
+      'with v as (?) ?', [cte, knex.raw('select * from v offset floor( random() * (select count(*) from v) ) limit 1')],
     )
-    .then(function (results) {
-      return results.rows;
-    });
+    .then(results => results.rows);
 }
 
-var saveCount = function(data) {
+function saveCount(data) {
   return knex('counts')
     .returning('*')
     .insert({
@@ -154,13 +146,13 @@ var saveCount = function(data) {
       count: data.count,
       comment: data.comment,
       session: data.session,
-      flagged: data.count >= config.api.maxCount
+      flagged: data.count >= config.api.maxCount,
     });
 }
 
 module.exports = {
-  getStatus: getStatus,
-  getVideo: getVideo,
-  getVideos: getVideos,
-  saveCount: saveCount
+  getStatus,
+  getVideo,
+  getVideos,
+  saveCount,
 };
