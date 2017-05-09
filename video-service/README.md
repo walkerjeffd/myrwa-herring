@@ -8,9 +8,17 @@ See `/config/index.template.js`
 ```js
 {
   videoService: {
-    inDir: 'path/to/video inbox',       // discover new videos
-    saveDir: 'path/to/video storage',   // move video files here after processing
-    locationIds: ['TEST', 'UML', 'WIN'] // list of location IDs to process
+    logLevel: 'debug',                    // log level (winston)
+    logFile: '/path/to/logs/process.log', // log file
+    dirs: {
+      new: '/path/to/new',                // new videos
+      skip: '/path/to/skip',              // skipped videos
+      save: '/path/to/save',              // saved videos (cleared)
+      convert: '/path/to/convert'         // converted videos (cleared)
+    },
+    locationIds: ['TEST', 'UML', 'WIN'],  // list of location IDs to process
+    maxConvert: 100,                      // max number of files to convert at once
+    chunkSize: 2                          // number of files to convert in parallel (<= # cores)
   },
   ...
 }
@@ -36,5 +44,5 @@ Add crontab line to run at minute 5 of each hour
 ```bash
 crontab -e
 
-# 5 * * * * cd /home/myrwa/apps/myrwa-herring-web/video-service && /home/myrwa/.nvm/versions/node/v7.7.4/bin/node process.js >> process.log 2>&1
+# 5 * * * * cd /home/myrwa/apps/myrwa-herring-web/video-service && /home/myrwa/.nvm/versions/node/v7.7.4/bin/node process.js > /dev/null 2>&1
 ```

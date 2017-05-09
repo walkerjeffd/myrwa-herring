@@ -12,8 +12,15 @@ var config = require('../config');
 var logger = new (winston.Logger)({
   transports: [
     new (winston.transports.Console)({
-      level: config.videoService.logLevel,
+      level: 'debug',
       timestamp: true
+    }),
+    new (winston.transports.File)({
+      level: config.videoService.logLevel,
+      filename: config.videoService.logFile,
+      timestamp: true,
+      json: false,
+      humanReadableUnhandledException: true
     })
   ]
 });

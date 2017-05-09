@@ -13,6 +13,11 @@ Copy config template to active file and enter parameters. See README files in ea
 nano config/index.js                          # edit config
 ```
 
+## System Requirements
+
+- [ffmpeg/ffprobe](https://ffmpeg.org/)
+- [nvm/node](https://github.com/creationix/nvm)
+
 ## Components
 
 ```
@@ -27,7 +32,11 @@ nano config/index.js                          # edit config
 /video-service   # video processing service
 ```
 
-## System Requirements
+## Log Files
 
-- [ffmpeg/ffprobe](https://ffmpeg.org/)
-- [nvm/node](https://github.com/creationix/nvm)
+```
+~/.pm2/logs/mrh-api-out.log   -> ~/data/herring/logs/api-out.log    | API stdout logs
+~/.pm2/logs/mrh-api-error.log -> ~/data/herring/logs/api-err.log    | API stderror logs
+api/access.log                -> ~/data/herring/logs/api-access.log | API HTTP logs
+video-service/process.log     -> ~/data/herring/logs/process.log    | Video processing service logs
+```

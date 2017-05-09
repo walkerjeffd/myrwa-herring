@@ -7,7 +7,8 @@ module.exports = {
       videoStatus: '../apps/video-status/dist',
       visTemp: '../apps/vis-temp/dist',
       reports: '../r/pdf'
-    }
+    },
+    logFile: '/path/to/api-access.log'
   },
   db: {
     host: '',
@@ -18,6 +19,7 @@ module.exports = {
   },
   videoService: {
     logLevel: 'debug', // minimum logging level
+    logFile: '/path/to/process.log', // log file
     dirs: {
       new: '',         // directory containing new videos
       save: '',        // directory to save videos after processing

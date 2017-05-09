@@ -11,30 +11,40 @@ See `/config/index.template.js`
     url: 'http://localhost:8000', // api url (for access from apps)
     port: 8000,                   // api listening port
     static: {
-      // paths to static folders containing app builds
+      // paths to static folders containing app builds, pdfs, datasets, etc
       videoWatch: '../video-watch/dist',
       videoStatus: '../video-status/dist',
-      visTemp: '../vis-temp/dist'
-    }
+      visTemp: '../vis-temp/dist',
+      reports: '../r/pdf'
+    },
+    logFile: '/path/to/api-access.log'
   },
   ...
 }
 ```
 
-## Run Server
-
-Run local development server
+## Run Development Server
 
 ```
 # sudo ufw allow <config.api.port>     # open port, if necessary
 npm start
 ```
 
-Run production server using pm2
+## Run Production Server Using pm2
+
+Set up configuration file
 
 ```
-cd ..                          # back to project root
-pm2 start ./pm2/herring.js
+cd ../pm2
+cp herring.template.json herring.json
+nano herring.json    # define log file paths
+```
+
+Load and save pm2 configuration
+
+```
+cd ..
+pm2 start ./pm2/herring.json
 pm2 save
 ```
 
