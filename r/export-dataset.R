@@ -2,7 +2,6 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 library(jsonlite)
-library(readr)
 
 # load config -------------------------------------------------------------
 
@@ -68,5 +67,5 @@ df %>%
     video_end_timestamp = format(video_end_timestamp, format = "%Y-%m-%d %H:%M:%S", tz = "America/New_York"),
     count_timestamp = format(count_timestamp, format = "%Y-%m-%d %H:%M:%S", tz = "America/New_York")
   ) %>%
-  write_csv("csv/herring-dataset.csv", na = "")
+  write.csv("csv/herring-dataset.csv", row.names = FALSE, na = "")
 
