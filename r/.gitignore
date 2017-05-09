@@ -1,5 +1,5 @@
 pdf/*.pdf
-csv/
+csv/*.csv
 config.json
 config.local.json
 config.production.json
