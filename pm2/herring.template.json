@@ -8,8 +8,7 @@
     "out_file": "/path/to/api-out.log",
     "log_date_format" : "YYYY-MM-DDTHH:mm:ss.SSSZ",
     "env": {
-      "NODE_ENV": "production",
-      "DEBUG": "mrh-api"
+      "NODE_ENV": "production"
     }
   }]
 }

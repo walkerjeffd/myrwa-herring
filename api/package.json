@@ -5,14 +5,13 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "DEBUG=mrh-api nodemon server.js"
+    "start": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
-    "debug": "^2.6.3",
     "express": "^4.15.2",
     "knex": "^0.12.9",
     "morgan": "^1.8.1",
