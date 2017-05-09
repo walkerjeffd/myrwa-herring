@@ -29,7 +29,9 @@ tbl_videos <- pg %>%
   filter(!flagged, location_id == "UML")  %>%
   collect() %>%
   mutate(
-    date = as.Date(start_timestamp, tz = "UTC")
+    start_timestamp = with_tz(start_timestamp, tzone = "America/New_York"),
+    end_timestamp = with_tz(end_timestamp, tzone = "America/New_York"),
+    date = as.Date(start_timestamp, tz = "America/New_York")
   )
 
 tbl_counts <- pg %>%
@@ -83,7 +85,7 @@ videos_hour_tally <- videos %>%
     date >= ymd(20170411)
   ) %>%
   mutate(
-    hour = hour(with_tz(start_timestamp, "UTC"))
+    hour = hour(start_timestamp)
   ) %>%
   group_by(date, hour) %>%
   summarise(
@@ -262,7 +264,7 @@ grid.arrange(p1a, p1b, p2a, p2b, ncol = 2, bottom = updated_at)
 
 # BAR CHARTS - DAILY VIDEOS -----------------------------------------------
 
-p <- stats_by_video_day %>%
+p1 <- stats_by_video_day %>%
   select(date, n_unwatched, n_watched) %>%
   gather(var, value, -date) %>%
   mutate(
@@ -275,6 +277,7 @@ p <- stats_by_video_day %>%
     values = c("n_unwatched" = "gray50", "n_watched" = "deepskyblue"),
     labels = c("n_unwatched" = "Not Watched", "n_watched" = "Watched")
   ) +
+  scale_x_date(expand = c(0, 0)) +
   labs(
     x = "Date",
     y = "# Videos",
@@ -282,7 +285,24 @@ p <- stats_by_video_day %>%
     subtitle = "Date = when video was recorded"
   )
 
-grid.arrange(p, nrow = 2, bottom = updated_at)
+p2 <- stats_by_video_day %>%
+  select(date, n_video, n_watched) %>%
+  ggplot(aes(date, n_watched / n_video, fill = "% Watched")) +
+  geom_bar(position = "stack", stat = "identity") +
+  scale_fill_manual(
+    "",
+    values = c("deepskyblue")
+  ) +
+  scale_x_date(expand = c(0, 0)) +
+  scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, 1)) +
+  labs(
+    x = "Date",
+    y = "% Videos Watched",
+    title = "Percent of Videos Watched per Day",
+    subtitle = "Date = when video was recorded"
+  )
+
+grid.arrange(p1, p2, nrow = 2, bottom = updated_at)
 
 
 #### BAR CHARTS - BY VIDEO DATE
