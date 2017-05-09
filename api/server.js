@@ -1,5 +1,6 @@
+/* eslint no-console: "off" */
+
 const fs = require('fs');
-const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
@@ -38,6 +39,7 @@ app.use('/static/video-watch', express.static(config.api.static.videoWatch));
 app.use('/static/video-status', express.static(config.api.static.videoStatus));
 app.use('/static/vis-temp', express.static(config.api.static.visTemp));
 app.use('/reports', express.static(config.api.static.reports));
+app.use('/datasets', express.static(config.api.static.datasets));
 
 
 // pages
@@ -73,7 +75,7 @@ app.post('/count/', (req, res, next) => {
 });
 
 // error handler
-function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res, next) { // eslint-disable-line no-unused-vars
   console.error(err.toString());
   return res.status(500).json({
     status: 'error',

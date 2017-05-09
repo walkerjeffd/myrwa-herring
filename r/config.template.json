@@ -1,5 +1,4 @@
 {
-  "out": "/path/to/video-report.pdf", // absolute path
   "db": {
     "host": "",
     "port": 5432,

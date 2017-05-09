@@ -63,11 +63,13 @@ function getStatus() {
       return {
         daily: rows,
         summary: rows.reduce((p, v) => {
+          /* eslint-disable */
           p.n_video += v.n_video;
           p.n_watched += v.n_watched;
           p.n_count += v.n_count;
           p.sum_count += v.sum_count;
           return p;
+          /* eslint-enable */
         }, {
           n_video: 0,
           n_watched: 0,
