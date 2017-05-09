@@ -175,16 +175,22 @@ function getVideoMetadata (video) {
         return video;
       }
 
+      // filename specifies end time stamp + about 2-3 seconds (short delay between saving file and actual end timestamp)
       var timestring = filename.substr(2, 19);
-      var start = moment(timestring, 'YYYY-MM-DD_HH-mm-ss').tz("America/New_York");
-      var end = moment(start).add(Math.round(format.duration), 's');
+      var end = moment(timestring, 'YYYY-MM-DD_HH-mm-ss').tz("America/New_York").subtract(2, 's');
+      var start = moment(end).subtract(Math.round(format.duration), 's');
 
       video.filepath = format.filename;
       video.filename = filename;
       video.duration = format.duration;
       video.filesize = format.size;
+
       video.start_timestamp = start.toISOString();
       video.end_timestamp = end.toISOString();
+
+      // auto-flag if duration > 80 seconds
+      video.flagged = video.duration > 80;
+
       video.skip = false;
 
       return video;
