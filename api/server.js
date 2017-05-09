@@ -77,17 +77,17 @@ app.post('/count/', (req, res, next) => {
 });
 
 // error handler
-// function errorHandler(err, req, res) {
-  // debug('error', err);
-  // return res.status(500).json({
-  //   status: 'error',
-  //   error: {
-  //     data: err,
-  //     message: err.toString(),
-  //   },
-  // });
-// }
-// app.use(errorHandler);
+function errorHandler(err, req, res, next) {
+  debug('error', err);
+  return res.status(500).json({
+    status: 'error',
+    error: {
+      data: err,
+      message: err.toString(),
+    },
+  });
+}
+app.use(errorHandler);
 
 // start server
 app.listen(config.api.port, () => {

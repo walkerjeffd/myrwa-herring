@@ -19,7 +19,7 @@ function getStatus() {
   vc AS (
     SELECT
       v.id,
-      v.start_timestamp::date as date,
+      (v.start_timestamp AT TIME ZONE 'America/New_York')::date as date,
       COALESCE(c.n_count, 0)::integer as n_count,
       COALESCE(c.mean_count, 0)::integer as mean_count
     FROM videos v
@@ -106,14 +106,14 @@ function getVideo(params) {
   let videos = knex('videos')
     .where('flagged', false)
     // only daylight hours
-    .andWhere(knex.raw('date_part(\'hour\', start_timestamp)'), '>=', 6)
-    .andWhere(knex.raw('date_part(\'hour\', start_timestamp)'), '<=', 21);
+    .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '>=', 6)
+    .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '<=', 21);
 
   if (params.date) {
-    videos = videos.andWhere(knex.raw('start_timestamp::date::text'), params.date);
+    videos = videos.andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date::text'), params.date);
   } else {
     // only on or after April 24
-    videos = videos.andWhere('start_timestamp', '>=', '2017-04-24 00:00:00+00');
+    videos = videos.andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date'), '>=', knex.raw('\'2017-04-24\'::date'));
   }
 
   if (params.location) {
