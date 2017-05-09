@@ -1,3 +1,4 @@
+/* eslint-disable */
 var Promise = require('bluebird'),
     path = require('path'),
     fs = require('fs'),
