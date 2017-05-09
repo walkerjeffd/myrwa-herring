@@ -411,15 +411,15 @@ function processLocation(id) {
 
 Promise.mapSeries(locationIds, processLocation)
   .then((locations) => {
-    locations.forEach((location) => {
-      logger.debug('---------------------------------------------------------');
-      logger.debug('LOCATION: %s', location.id);
-      logger.debug('FILES:', location.files);
-      location.videos.forEach((video, index) => {
-        logger.debug('VIDEO %d:', index, video);
-      });
-    });
-    logger.debug('---------------------------------------------------------');
+    // locations.forEach((location) => {
+    //   logger.debug('---------------------------------------------------------');
+    //   logger.debug('LOCATION: %s', location.id);
+    //   logger.debug('FILES:', location.files);
+    //   location.videos.forEach((video, index) => {
+    //     logger.debug('VIDEO %d:', index, video);
+    //   });
+    // });
+    // logger.debug('---------------------------------------------------------');
 
     const uploadCount = locations.reduce((p, v) => {
       const uploadedVideos = v.videos.filter(video => !video.skip);
