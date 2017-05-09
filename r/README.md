@@ -57,3 +57,17 @@ Add job to run every hour on minute 30
 ```
 30 * * * * cd /home/myrwa/apps/myrwa-herring-web/r && Rscript video-report.R > /dev/null 2>&1
 ```
+
+## Automated Video-Count Dataset
+
+Set up cron
+
+```bash
+crontab -e
+```
+
+Add job to run every hour on minute 15
+
+```
+15 * * * * cd /home/myrwa/apps/myrwa-herring-web/r && Rscript export-dataset.R > /dev/null 2>&1
+```
