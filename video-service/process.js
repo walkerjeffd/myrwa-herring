@@ -411,14 +411,14 @@ function processLocation(id) {
 Promise.mapSeries(locationIds, processLocation)
   .then((locations) => {
     locations.forEach((location) => {
-      logger.info('---------------------------------------------------------');
-      logger.info('LOCATION: %s', location.id);
-      logger.info('FILES:', location.files);
+      logger.debug('---------------------------------------------------------');
+      logger.debug('LOCATION: %s', location.id);
+      logger.debug('FILES:', location.files);
       location.videos.forEach((video, index) => {
-        logger.info('VIDEO %d:', index, video);
+        logger.debug('VIDEO %d:', index, video);
       });
     });
-    logger.info('---------------------------------------------------------');
+    logger.debug('---------------------------------------------------------');
 
     const uploadCount = locations.reduce((p, v) => {
       const uploadedVideos = v.videos.filter(video => !video.skip);
@@ -434,6 +434,7 @@ Promise.mapSeries(locationIds, processLocation)
 
     const endTime = new Date();
     logger.info('done (duration = %d sec)', (endTime - startTime) / 1000);
+    logger.info('---------------------------------------------------------');
   })
   .catch((err) => {
     logger.error(err.toString());
