@@ -177,7 +177,7 @@ function getVideoMetadata (video) {
 
       // filename specifies end time stamp + about 2-3 seconds (short delay between saving file and actual end timestamp)
       var timestring = filename.substr(2, 19);
-      var end = moment(timestring, 'YYYY-MM-DD_HH-mm-ss').tz("America/New_York").subtract(2, 's');
+      var end = moment.tz(timestring, 'YYYY-MM-DD_HH-mm-ss', 'America/New_York').subtract(2, 's');
       var start = moment(end).subtract(Math.round(format.duration), 's');
 
       video.filepath = format.filename;
