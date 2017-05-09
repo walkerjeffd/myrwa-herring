@@ -328,7 +328,8 @@ function saveVideoToDb(video) {
       filesize: video.filesize,
       start_timestamp: video.start_timestamp,
       end_timestamp: video.end_timestamp,
-      location_id: video.location_id
+      location_id: video.location_id,
+      mp4_converted: true
     })
     .then((results) => {
       if (results.length > 0) {
