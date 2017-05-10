@@ -33,22 +33,22 @@ var knex = require('knex')({
 
 var readdir = Promise.promisify(fs.readdir),
     rename = Promise.promisify(fs.rename),
-    open = Promise.promisify(fs.open);
+    open = Promise.promisify(fs.open)
+    unlink = Promise.promisify(fs.unlink);
 
 // 1. get videos list from database
 // 2. filter for missing videos.url_webm
 // 3. for each video
-//    a. download mp4 from s3
+//    a. download mp4 from s3 to save directory
 //    b. convert to webm
 //    c. upload webm to s3
 //    d. update video.url_webm in db
-//    e. move mp4 and webm to save directory
+//    e. delete webm from convert directory
 
 // get videos list from database
 function fetchVideosFromDb() {
   return knex('videos')
     .select()
-    .where('start_timestamp', '>=', '2017-04-24 00:00:00+00')
     .whereNull('url_webm')
     .limit(config.videoService.maxConvert)
     .then(function (rows) {
@@ -58,17 +58,20 @@ function fetchVideosFromDb() {
 }
 
 function downloadVideoFromS3(video) {
-  var url = video.url,
-      directory = path.join(config.videoService.dirs.convert, video.location_id),
-      filename = video.filename;
+  const url = video.url;
+  const directory = path.dirname(video.filepath);
+  const filename = video.filename;
+
+  if (fs.existsSync(video.filepath)) {
+    logger.info('file already downloaded', { filepath: video.filepath });
+    return Promise.resolve(video);
+  }
 
   logger.debug('downloading file', {url, filepath: path.join(directory, filename)})
 
   return new Promise((resolve, reject) => {
     download(url, { directory, filename }, err => {
       if (err) return reject(err);
-
-      video.filepath = path.join(directory, filename);
 
       return resolve(video);
     })
@@ -175,6 +178,15 @@ function updateDb(video) {
     });
 }
 
+function deleteConvertedFile(video) {
+  logger.debug('deleting converted video files', {
+    webm: video.filepath_webm
+  });
+
+  return unlink(video.filepath_webm)
+    .then(() => video);
+}
+
 function moveFilesToSaveDir(video) {
   logger.debug('moving files to save dir', {id: video.id, filepath: video.filepath, filepath_webm: video.filepath_webm});
 
@@ -201,7 +213,7 @@ function convertVideo(video) {
     .then(convertToWebM)
     .then(uploadWebMToS3)
     .then(updateDb)
-    .then(moveFilesToSaveDir)
+    .then(deleteConvertedFile)
     .then((video) => {
       logger.info('video conversion complete', {id: video.id, filename: video.location_id + '/' + video.filename})
       return video;
@@ -221,6 +233,10 @@ fetchVideosFromDb()
       logger.info('no videos to convert');
       return videos;
     }
+
+    videos.forEach((video) => {
+      video.filepath = path.join(config.videoService.dirs.save, video.location_id, video.filename);
+    });
 
     logger.info('converting %d video(s)', videos.length);
 
