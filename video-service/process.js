@@ -293,23 +293,31 @@ function uploadToS3(video) {
     return Promise.resolve(video);
   }
 
-  return Promise.all([
-    uploadFileToS3(
+  // return Promise.all([
+  //   uploadFileToS3(
+  //     config.s3.bucket,
+  //     path.join(config.s3.path, video.location_id, video.mp4_filename),
+  //     video.mp4_path
+  //   ),
+  //   uploadFileToS3(
+  //     config.s3.bucket,
+  //     path.join(config.s3.path, video.location_id, video.webm_filename),
+  //     video.webm_path
+  //   )
+  // ])
+  // .then((urls) => {
+  //   video.url = urls[0];
+  //   video.url_webm = urls[1];
+  //   return Promise.resolve(video);
+  // });
+  return uploadFileToS3(
       config.s3.bucket,
       path.join(config.s3.path, video.location_id, video.mp4_filename),
       video.mp4_path
-    ),
-    uploadFileToS3(
-      config.s3.bucket,
-      path.join(config.s3.path, video.location_id, video.webm_filename),
-      video.webm_path
-    )
-  ])
-  .then((urls) => {
-    video.url = urls[0];
-    video.url_webm = urls[1];
-    return Promise.resolve(video);
-  });
+    ).then((url) => {
+      video.url = url;
+      return video;
+    })
 }
 
 function saveVideoToDb(video) {
@@ -322,7 +330,7 @@ function saveVideoToDb(video) {
     .returning('*')
     .insert({
       url: video.url,
-      url_webm: video.url_webm,
+      // url_webm: video.url_webm,
       filename: video.filename,
       duration: video.duration,
       filesize: video.filesize,
@@ -345,11 +353,11 @@ function saveVideoToDb(video) {
 function deleteConvertedFiles(video) {
   logger.debug('deleting converted video files', {
     mp4_path: video.mp4_path,
-    webm_path: video.webm_path
+    // webm_path: video.webm_path
   });
 
   return unlink(video.mp4_path)
-    .then(() => unlink(video.webm_path))
+    // .then(() => unlink(video.webm_path))
     .then(() => video);
 }
 
@@ -361,7 +369,7 @@ function processRawVideo(video) {
   }
 
   return convertToMp4(video)
-    .then(convertToWebM)
+    // .then(convertToWebM)
     .then(uploadToS3)
     .then(saveRawVideo)
     .then(saveVideoToDb)
