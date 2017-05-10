@@ -8,16 +8,16 @@ See `/config/index.template.js`
 ```js
 {
   api: {
-    url: 'http://localhost:8000', // api url (for access from apps)
-    port: 8000,                   // api listening port
+    url: 'http://localhost:8000',        // api url (for access from apps)
+    port: 8000,                          // api listening port
+    logFile: '/path/to/api-access.log',  // absolute path to log file
     static: {
       // paths to static folders containing app builds, pdfs, datasets, etc
       videoWatch: '../video-watch/dist',
       videoStatus: '../video-status/dist',
       visTemp: '../vis-temp/dist',
       reports: '../r/pdf'
-    },
-    logFile: '/path/to/api-access.log'
+    }
   },
   ...
 }
@@ -66,12 +66,18 @@ All responses follow the general format:
 ## Endpoints
 
 ```js
-GET  /watch   // get video to watch
+GET  /static  // static builds
+GET  /www     // static webpages
+GET  /reports // static reports (r/pdf)
+GET  /dataset // static datasets (r/csv)
+
+GET  /video   // get random video to watch
+GET  /videos  // get all videos for admin page
 GET  /status  // get count status
 POST /count   // submit count
 ```
 
-### `/watch`
+### `/video`
 
 **Query Parameters**
 
@@ -94,6 +100,40 @@ Returns array of video objects with length 0 or 1. Array has length of 0 if no v
     "id": <int>,
     "created_at": <timestamp utc>,
     "url": <url>,
+    "url_webm": <url>,
+    "filename": <filename>,
+    "duration": <real>,
+    "filesize": <int>,
+    "start_timestamp": <timestamp utc>,
+    "end_timestamp": <timestamp utc>,
+    "location_id": <text>,
+    "flagged": <boolean>
+  }]
+}
+```
+
+### `/videos`
+
+**Query Parameters**
+
+Limit to subset of entire collection.
+
+```js
+?location=<locations.id::text>             // location id
+```
+
+**Response**
+
+Returns array of video objects. Array has length of 0 if no videos are available based on query parameters.
+
+```json
+{
+  "status": "ok",
+  "data": [{
+    "id": <int>,
+    "created_at": <timestamp utc>,
+    "url": <url>,
+    "url_webm": <url>,
     "filename": <filename>,
     "duration": <real>,
     "filesize": <int>,

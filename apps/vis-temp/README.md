@@ -17,7 +17,7 @@ npm i
 
 Build development version and run local development server [http://localhost:8080/]()
 
-```
+```bash
 npm run dev # -> dist/build-dev.js
 ```
 
@@ -25,6 +25,6 @@ npm run dev # -> dist/build-dev.js
 
 Build production version with minification
 
-```
+```bash
 npm run build # -> dist/build.js
 ```

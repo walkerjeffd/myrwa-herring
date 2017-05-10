@@ -13,7 +13,6 @@ Edit `config.json`
 
 ```js
 {
-  "out": "/path/to/video-report.pdf", // absolute path to save report
   "db": {
     "host": "",
     "port": 5432,
@@ -38,36 +37,36 @@ Install R packages
 install.packages(c("dplyr", "tidyr", "ggplot2", "RPostgreSQL", "lubridate", "RColorBrewer", "gridExtra", "jsonlite"))
 ```
 
-## Generate Report
+## Video Report
+
+### Manual
 
 ```bash
-Rscript video-report.R
+Rscript video-report.R # -> pdf/video-report.R
 ```
 
-## Automated Report
+### Automated
 
-Set up cron
-
-```bash
-crontab -e
-```
-
-Add job to run every hour on minute 30
-
-```
-30 * * * * cd /home/myrwa/apps/myrwa-herring-web/r && Rscript video-report.R > /dev/null 2>&1
-```
-
-## Automated Video-Count Dataset
-
-Set up cron
+Add cron job to run every hour on minute 30
 
 ```bash
 crontab -e
+# 30 * * * * cd /home/myrwa/apps/myrwa-herring-web/r && Rscript video-report.R > /dev/null 2>&1
 ```
 
-Add job to run every hour on minute 15
+## Video-Count Dataset
 
+### Manual
+
+```bash
+Rscript export-dataset.R # -> csv/herring-dataset.csv
 ```
-15 * * * * cd /home/myrwa/apps/myrwa-herring-web/r && Rscript export-dataset.R > /dev/null 2>&1
+
+### Automated
+
+Add cron job to run every hour on minute 15
+
+```bash
+crontab -e
+# 15 * * * * cd /home/myrwa/apps/myrwa-herring-web/r && Rscript export-dataset.R > /dev/null 2>&1
 ```

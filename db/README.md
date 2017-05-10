@@ -38,9 +38,12 @@ psql -d herring -f db/permissions.sql
 
 ## Populate with Fixtures
 
-Add locations
+Add location fixtures
 
 ```
 psql -h <hostname> -p 5432 -U myrwa_admin -d herring -f fixtures/locations.sql
 ```
 
+## Migrations
+
+Manually migrate database using scripts in `migrations/`. Only necessary if database schema is outdated. The `schema.sql` will always be up to date and match the latest migration.

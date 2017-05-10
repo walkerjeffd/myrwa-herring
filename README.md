@@ -6,10 +6,10 @@ Jeffrey D Walker, PhD
 
 ## Configuration
 
-Copy config template to active file and enter parameters. See README files in each component folder for details.
+Copy configuration template and set parameters. See README files in each component folder for details.
 
-```
-# cp config/index.template.js config/index.js # copy config template
+```bash
+cp config/index.template.js config/index.js   # copy config template
 nano config/index.js                          # edit config
 ```
 
@@ -20,7 +20,7 @@ nano config/index.js                          # edit config
 
 ## Components
 
-```
+```text
 /api             # api server
 /apps            # client-side applications
   /video-status  # video status app
@@ -29,14 +29,8 @@ nano config/index.js                          # edit config
 /config          # common configuration
 /db              # database
 /nginx           # proxy server configuration
+/pm2             # pm2 configuration
+/r               # R scripts
+/sandbox         # development and testing environment
 /video-service   # video processing service
-```
-
-## Log Files
-
-```
-~/.pm2/logs/mrh-api-out.log   -> ~/data/herring/logs/api-out.log    | API stdout logs
-~/.pm2/logs/mrh-api-error.log -> ~/data/herring/logs/api-err.log    | API stderror logs
-api/access.log                -> ~/data/herring/logs/api-access.log | API HTTP logs
-video-service/process.log     -> ~/data/herring/logs/process.log    | Video processing service logs
 ```
