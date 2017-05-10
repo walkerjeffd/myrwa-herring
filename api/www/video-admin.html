@@ -8,10 +8,7 @@
   <link href="//vjs.zencdn.net/5.19.1/video-js.css" rel="stylesheet">
 
   <script src="//vjs.zencdn.net/5.19.1/video.js"></script>
-  <script
-  src="//code.jquery.com/jquery-3.2.1.min.js"
-  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-  crossorigin="anonymous"></script>
+  <script src="//code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
 
   <style>
@@ -44,13 +41,15 @@ $.ajax({
   success: function (response) {
     response.data.forEach(function (d) {
       d.start_timestamp = new Date(d.start_timestamp);
-      d.start_timestamp = new Date(d.start_timestamp.getTime() + 4 * 60 * 60 * 1000);
+      d.end_timestamp = new Date(d.end_timestamp);
     });
 
-    var data = response.data;
+    var data = response.data.sort(function (a, b) {
+      return b.start_timestamp - a.start_timestamp;
+    });
 
     $('#jsGrid').jsGrid({
-      width: '1000px',
+      width: '1200px',
 
       inserting: false,
       editing: false,
@@ -77,6 +76,12 @@ $.ajax({
         {
           name: 'start_timestamp',
           title: 'Start Time',
+          type: 'text',
+          sorter: 'date'
+        },
+        {
+          name: 'end_timestamp',
+          title: 'End Time',
           type: 'text',
           sorter: 'date'
         },
