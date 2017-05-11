@@ -128,6 +128,7 @@ function getVideo(params) {
   const cte = videos
     .leftJoin(counts, 'videos.id', 'c.video_id')
     .select()
+    .where(knex.raw('COALESCE(n_count, 0)'), '<=', 3)
     .where(function () {
       this.where(knex.raw('COALESCE(n_count, 0)'), '=', 0)
         .orWhere(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
