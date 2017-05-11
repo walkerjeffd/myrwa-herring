@@ -59,14 +59,14 @@ window.onload = function () {
         min: 0,
         title: {
           text: '# Videos'
-        },
-        stackLabels: {
-          enabled: true,
-          style: {
-            fontWeight: 'bold',
-            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
-          }
         }
+        // stackLabels: {
+        //   enabled: true,
+        //   style: {
+        //     fontWeight: 'bold',
+        //     color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+        //   }
+        // }
       },
       series: [
         {
@@ -114,14 +114,14 @@ window.onload = function () {
         min: 0,
         title: {
           text: '# Fish'
-        },
-        stackLabels: {
-          enabled: true,
-          style: {
-            fontWeight: 'bold',
-            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
-          }
         }
+        // stackLabels: {
+        //   enabled: true,
+        //   style: {
+        //     fontWeight: 'bold',
+        //     color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+        //   }
+        // }
       },
       series: [
         {
