@@ -236,7 +236,7 @@ function convertToMp4(video) {
         logger.debug('spawned ffmpeg', { command });
       })
       .on('error', (err) => {
-        logger.error('failed to convert raw video to mp4', debugInfo);
+        video.skip = true;
         return reject(err);
       })
       .on('end', () => {
@@ -273,8 +273,6 @@ function uploadFileToS3(bucket, key, filepath) {
   return new Promise((resolve, reject) => {
     s3Client.uploadFile(params)
       .on('error', (err) => {
-        logger.error('failed to upload file to s3', { key, error: err.toString() });
-
         return reject(err);
       })
       .on('end', () => {
@@ -380,6 +378,12 @@ function processRawVideo(video) {
       video.db = row;
 
       return video;
+    })
+    .catch((err) => {
+      logger.debug('video processing failed, moving to skip', { raw_path: video.raw_path });
+      video.skip = true;
+      return skipRawVideo(video)
+        .then(() => video);
     });
 }
 
