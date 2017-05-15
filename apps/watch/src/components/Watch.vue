@@ -4,10 +4,10 @@
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
           <div class="sqs-block-button-element--medium sqs-block-button-element">
-            <img v-bind:src="loadingSrc" width="32" height="32" alt="">
-            <div>
+            <div style="margin-bottom:10px">
               Loading
             </div>
+            <icon name="spinner" scale="2" spin></icon>
           </div>
         </div>
       </div>
@@ -29,16 +29,14 @@ import config from '../../../config'
 
 export default {
   props: ['loading'],
-  data: function () {
-    return {
-      loadingSrc: config.api.url + '/static/video-watch/loading.gif'
-    };
-  },
   created: function () {
     console.log('watch:created');
   }
 };
 </script>
 
-<style scoped>
+<style>
+.fa-spin {
+  animation: fa-spin 2s 0s infinite linear;
+}
 </style>

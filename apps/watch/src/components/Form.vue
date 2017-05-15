@@ -8,9 +8,9 @@
             <input v-validate="'required|numeric'" :class="{'input': true, 'is-danger': errors.has('email') }" class="field-element" type="text" name="count" v-model="form.count" @keydown.enter="submit">
             <span v-show="errors.has('count')" class="help is-danger">{{ errors.first('count') }}</span>
           </div>
-          <div class="form-item field textarea">
-            <label class="title" for="comment">Any comments about the video? Did you see anything interesting? <i>(optional)</i></label>
-            <textarea class="field-element" name="comment" v-model="form.comment"></textarea>
+          <div class="form-item field number">
+            <label class="title" for="comment">Any comments about the video? See anything interesting? <i>(optional)</i></label>
+            <input type="text" class="field-element" name="comment" v-model="form.comment">
           </div>
         </div>
         <div class="form-button-wrapper form-button-wrapper--align-left">
@@ -63,9 +63,11 @@ export default {
 
           this.$http.post(config.api.url + '/count/', payload)
             .then((response) => {
+              this.session.count++;
+              this.session.total = payload.count;
+
               this.form.count = '';
               this.form.comment = '';
-              this.session.count++;
               this.$router.push({path: '/confirm'});
             }, (response) => {
               alert('Error occurred saving count to the server, try submitting again.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');
