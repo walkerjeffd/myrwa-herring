@@ -46,6 +46,10 @@ app.use('/datasets', express.static(config.api.static.datasets));
 app.use('/www/', express.static('./www/'));
 
 // endpoints
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'ok', data: [] });
+});
+
 app.get('/status/', (req, res, next) => {
   db.getStatus()
     .then(result => res.status(200).json({ status: 'ok', data: result }))
