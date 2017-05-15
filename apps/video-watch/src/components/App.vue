@@ -61,8 +61,8 @@ export default {
     var tips = "<div class=\"counting-tips\">" +
       "<h2>Counting Tips</h2>" +
       "<ol>" +
-        "<li>Only count fish that swim completely out of view across the left edge of the video (going upstream), including any you might see at the start of the video</li>" +
-        "<li>If a fish swims into the video from the left side (going downstream), subtract it</li>" +
+        "<li>Only count fish that swim completely upstream (across the left edge of the video), including any you might see at the start of the video</li>" +
+        "<li>Ignore any fish that swim back downstream (to the right)</li>" +
         "<li>If you don't see any fish, submit a count of zero</li>" +
         "<li>Use pause, slow down, or full screen if there are too many fish to count</li>" +
       "</ol>" +
