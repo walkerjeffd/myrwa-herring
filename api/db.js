@@ -130,8 +130,10 @@ function getVideo(params) {
     .select()
     .where(knex.raw('COALESCE(n_count, 0)'), '<=', 2)
     .where(function () {
-      this.where(knex.raw('COALESCE(n_count, 0)'), '=', 0)
-        .orWhere(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
+      this.where(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
+      if (!params.first) {
+        this.orWhere(knex.raw('COALESCE(n_count, 0)'), '=', 0);
+      }
     });
 
   return knex

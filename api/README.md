@@ -84,6 +84,7 @@ POST /count   // submit count
 Limit random sample to subset of entire collection.
 
 ```js
+?id=<boolean>                              // first video of session?
 ?id=<videos.id::int>                       // specific video
 ?date=<videos.start_timestamp::yyyy-mm-dd> // date recorded
 ?location=<locations.id::text>             // location id

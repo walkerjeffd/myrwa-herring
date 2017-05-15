@@ -58,13 +58,14 @@ export default {
             video_id: this.video.id,
             count: +this.form.count,
             comment: this.form.comment,
-            session: this.session
+            session: this.session.id
           };
 
           this.$http.post(config.api.url + '/count/', payload)
             .then((response) => {
               this.form.count = '';
               this.form.comment = '';
+              this.session.count++;
               this.$router.push({path: '/confirm'});
             }, (response) => {
               alert('Error occurred saving count to the server, try submitting again.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');

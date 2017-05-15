@@ -31,12 +31,15 @@ export default {
   name: 'app',
   data: function () {
     return {
-      session: uuid(),
+      session: {
+        id: uuid(),
+        count: 0
+      },
       loading: true,
       error: false,
       video: undefined,
       query: {
-        data: undefined
+        data: {}
       }
     }
   },
@@ -124,6 +127,10 @@ export default {
       vm.loading = true;
 
       var params = vm.query ? vm.query.data : {};
+
+      if (vm.session.count === 0) {
+        params.first = true;
+      }
 
       vm.$http.get(config.api.url + '/video/', {
           params: params
