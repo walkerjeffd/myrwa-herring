@@ -131,7 +131,7 @@ function getVideo(params) {
     .where(knex.raw('COALESCE(n_count, 0)'), '<=', 2)
     .where(function () {
       this.where(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
-      if (!params.first) {
+      if (!params.first || params.first === 'false') {
         this.orWhere(knex.raw('COALESCE(n_count, 0)'), '=', 0);
       }
     });

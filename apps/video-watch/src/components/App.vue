@@ -130,6 +130,8 @@ export default {
 
       if (vm.session.count === 0) {
         params.first = true;
+      } else {
+        params.first = false;
       }
 
       vm.$http.get(config.api.url + '/video/', {
