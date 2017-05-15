@@ -7,6 +7,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const s3 = require('s3');
 const moment = require('moment-timezone');
 const winston = require('winston');
+const lockFile = require('lockfile');
 
 const readdir = Promise.promisify(fs.readdir);
 const rename = Promise.promisify(fs.rename);
@@ -14,6 +15,8 @@ const unlink = Promise.promisify(fs.unlink);
 const ffprobe = Promise.promisify(ffmpeg.ffprobe);
 
 const config = require('../config');
+
+const lock = 'process.lock';
 
 const logger = new (winston.Logger)({
   transports: [
@@ -419,41 +422,58 @@ function processLocation(id) {
     .then(location => Promise.mapSeries(location.videos, processRawVideo).then(() => location));
 }
 
+function quit() {
+  setTimeout(() => {
+    process.exit(0);
+  }, 1000 * 10);
+}
+
 // run ------------------------------------------------------------------------
 
-Promise.mapSeries(locationIds, processLocation)
-  .then((locations) => {
-    // locations.forEach((location) => {
-    //   logger.debug('---------------------------------------------------------');
-    //   logger.debug('LOCATION: %s', location.id);
-    //   logger.debug('FILES:', location.files);
-    //   location.videos.forEach((video, index) => {
-    //     logger.debug('VIDEO %d:', index, video);
-    //   });
-    // });
-    // logger.debug('---------------------------------------------------------');
-
-    const uploadCount = locations.reduce((p, v) => {
-      const uploadedVideos = v.videos.filter(video => !video.skip);
-      return p + uploadedVideos.length;
-    }, 0);
-
-    const skipCount = locations.reduce((p, v) => {
-      const skippedVideos = v.videos.filter(video => video.skip);
-      return p + skippedVideos.length;
-    }, 0);
-
-    logger.info('processed %d file(s) (skipped %d)', uploadCount, skipCount);
-
-    const endTime = new Date();
-    logger.info('done (duration = %d sec)', (endTime - startTime) / 1000);
-    logger.info('---------------------------------------------------------');
-  })
-  .catch((err) => {
+lockFile.lock(lock, {}, (err) => {
+  if (err) {
     logger.error(err.toString());
-  })
-  .finally(() => {
-    setTimeout(() => {
-      process.exit(0);
-    }, 1000 * 10);
-  });
+    quit();
+    return;
+  }
+
+  Promise.mapSeries(locationIds, processLocation)
+    .then((locations) => {
+      // locations.forEach((location) => {
+      //   logger.debug('---------------------------------------------------------');
+      //   logger.debug('LOCATION: %s', location.id);
+      //   logger.debug('FILES:', location.files);
+      //   location.videos.forEach((video, index) => {
+      //     logger.debug('VIDEO %d:', index, video);
+      //   });
+      // });
+      // logger.debug('---------------------------------------------------------');
+
+      const uploadCount = locations.reduce((p, v) => {
+        const uploadedVideos = v.videos.filter(video => !video.skip);
+        return p + uploadedVideos.length;
+      }, 0);
+
+      const skipCount = locations.reduce((p, v) => {
+        const skippedVideos = v.videos.filter(video => video.skip);
+        return p + skippedVideos.length;
+      }, 0);
+
+      logger.info('processed %d file(s) (skipped %d)', uploadCount, skipCount);
+
+      const endTime = new Date();
+      logger.info('done (duration = %d sec)', (endTime - startTime) / 1000);
+      logger.info('---------------------------------------------------------');
+    })
+    .catch((err) => { // eslint-disable-line no-shadow
+      logger.error(err.toString());
+    })
+    .finally(() => {
+      lockFile.unlock(lock, (err) => { // eslint-disable-line no-shadow
+        if (err) {
+          logger.error(err.toString());
+        }
+        quit();
+      });
+    });
+});
