@@ -3,8 +3,8 @@ module.exports = {
     port: 8000, // API listening port
     maxCount: 200,
     static: {
-      videoWatch: '../apps/video-watch/dist',
-      videoStatus: '../apps/video-status/dist',
+      videoWatch: '../apps/watch/dist',
+      videoStatus: '../apps/status/dist',
       visTemp: '../apps/vis-temp/dist',
       reports: '../r/pdf'
     },
