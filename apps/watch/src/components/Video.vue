@@ -84,17 +84,19 @@ export default {
         vm.loadVideo();
       });
 
-    player.overlay({
-      overlays: [
-        {
-          content: tips,
-          align: 'top-left',
-          start: 'loadstart',
-          end: 'playing',
-          class: 'overlay'
-        }
-      ]
-    });
+    if (vm.session.count === 0) {
+      player.overlay({
+        overlays: [
+          {
+            content: tips,
+            align: 'top-left',
+            start: 'loadstart',
+            end: 'playing',
+            class: 'overlay'
+          }
+        ]
+      });
+    }
   },
   beforeDestroy: function () {
     console.log('video:beforeDestroy');
