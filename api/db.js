@@ -1,64 +1,93 @@
+const Promise = require('bluebird');
 const config = require('../config');
+
 
 const knex = require('knex')({
   client: 'pg',
   connection: config.db,
 });
 
-function getStatus() {
+function getStatusCountDate() {
   const sql = `
-  WITH c AS (
+    WITH c AS (
+      SELECT
+        (created_at AT TIME ZONE 'America/New_York')::date as date,
+        count(*) as n_count
+      FROM counts
+      WHERE NOT flagged
+      GROUP BY (created_at AT TIME ZONE 'America/New_York')::date
+    ),
+    d AS (
+      SELECT generate_series('2017-04-10'::date, current_date, '1 day')::date as date
+    )
     SELECT
-      video_id,
-      count(*) as n_count,
-      avg(count) as mean_count
-    FROM counts
-    WHERE NOT flagged
-    GROUP BY video_id
-  ),
-  vc AS (
-    SELECT
-      v.id,
-      (v.start_timestamp AT TIME ZONE 'America/New_York')::date as date,
-      COALESCE(c.n_count, 0)::integer as n_count,
-      COALESCE(c.mean_count, 0)::integer as mean_count
-    FROM videos v
+      d.date::text as date,
+      COALESCE(c.n_count, 0)::integer as n_count
+    FROM d
     LEFT JOIN c
-    ON v.id = c.video_id
-    WHERE v.location_id = 'UML'
-      AND NOT v.flagged
-    ORDER BY v.start_timestamp
-  ),
-  vcd AS (
-    SELECT
-      vc.date,
-      count(vc.id) as n_video,
-      sum((n_count > 0)::integer)::integer as n_watched,
-      sum(n_count) as n_count,
-      sum(mean_count) as sum_count
-    FROM vc
-    GROUP BY vc.date
-    ORDER BY vc.date
-  ),
-  d AS (
-    SELECT generate_series('2017-04-07'::date, current_date, '1 day')::date as date
-  )
-  SELECT
-    d.date::text as date,
-    COALESCE(n_video, 0)::integer as n_video,
-    COALESCE(n_watched, 0)::integer as n_watched,
-    COALESCE(n_count, 0)::integer as n_count,
-    COALESCE(sum_count, 0)::integer as sum_count
-  FROM d
-  LEFT JOIN vcd
-  ON d.date = vcd.date
-  ORDER BY d.date;
+    ON d.date=c.date
+    ORDER BY d.date;
   `;
 
   return knex
     .raw(sql)
-    .then((results) => {
-      const rows = results.rows;
+    .then(result => result.rows);
+}
+
+function getStatusVideoDate() {
+  const sql = `
+    WITH c AS (
+      SELECT
+        video_id,
+        count(*) as n_count,
+        avg(count) as mean_count
+      FROM counts
+      WHERE NOT flagged
+      GROUP BY video_id
+    ),
+    vc AS (
+      SELECT
+        v.id,
+        (v.start_timestamp AT TIME ZONE 'America/New_York')::date as date,
+        COALESCE(c.n_count, 0)::integer as n_count,
+        COALESCE(c.mean_count, 0)::integer as mean_count
+      FROM videos v
+      LEFT JOIN c
+      ON v.id = c.video_id
+      WHERE v.location_id = 'UML'
+        AND NOT v.flagged
+      ORDER BY v.start_timestamp
+    ),
+    vcd AS (
+      SELECT
+        vc.date,
+        count(vc.id) as n_video,
+        sum((n_count > 0)::integer)::integer as n_watched,
+        sum(n_count) as n_count,
+        sum(mean_count) as sum_count
+      FROM vc
+      GROUP BY vc.date
+      ORDER BY vc.date
+    ),
+    d AS (
+      SELECT generate_series('2017-04-10'::date, current_date, '1 day')::date as date
+    )
+    SELECT
+      d.date::text as date,
+      COALESCE(n_video, 0)::integer as n_video,
+      COALESCE(n_watched, 0)::integer as n_watched,
+      COALESCE(n_count, 0)::integer as n_count,
+      COALESCE(sum_count, 0)::integer as sum_count
+    FROM d
+    LEFT JOIN vcd
+    ON d.date = vcd.date
+    ORDER BY d.date;
+  `;
+
+  return knex
+    .raw(sql)
+    .then((result) => {
+      const rows = result.rows;
 
       return {
         daily: rows,
@@ -76,6 +105,17 @@ function getStatus() {
           n_count: 0,
           sum_count: 0,
         }),
+      };
+    });
+}
+
+function getStatus() {
+  return Promise.all([getStatusVideoDate(), getStatusCountDate()])
+    .then((results) => { // eslint-disable-line arrow-body-style
+      return {
+        summary: results[0].summary,
+        byVideoDate: results[0].daily,
+        byCountDate: results[1]
       };
     });
 }
