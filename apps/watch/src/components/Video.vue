@@ -56,7 +56,7 @@ export default {
         controls: true,
         autoplay: false,
         width: 700,
-        height: 525,
+        height: 480,
         playbackRates: [0.1, 0.25, 0.5, 1],
         inactivityTimeout: 0
       }).ready(function () {
