@@ -1,12 +1,11 @@
 <template>
   <div style="text-align:center">
-    <p>Thanks! You're count has been received.</p>
-    <p>What would you like to do next?</p>
+    <h2>{{message}}</h2>
+    <p>Each count brings us one step closer to knowing how many herring migrated up the Mystic River this year.</p>
     <div class="sqs-block button-block sqs-block-button" data-block-type="53">
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
-          <a class="sqs-block-button-element--medium sqs-block-button-element" @click="restart()">Watch Another</a>
-          <a href="/video/status" class="sqs-block-button-element--medium sqs-block-button-element">View Count Status</a>
+          <a class="sqs-block-button-element--medium sqs-block-button-element" @click="restart()">Let's watch another!</a>
         </div>
       </div>
     </div>
@@ -33,8 +32,30 @@
 </template>
 
 <script>
+var messages = [
+  'Great job!',
+  'Thank you!',
+  'Nice work!',
+  'Bravo!',
+  'Well done!',
+  'Excellent!',
+  'Fantastic!',
+  'Way to go!'
+];
+
 export default {
   props: ['session'],
+  data: function () {
+    var message;
+    if (this.session.total === 0) {
+      message = 'No fish in that one? Thanks for letting us know!';
+    } else {
+      message = messages[Math.floor(Math.random() * messages.length)];
+    }
+    return {
+      message: message
+    };
+  },
   computed: {
     title: function () {
       return 'I just counted ' + this.session.total + ' river herring migrating up the Mystic River!'
