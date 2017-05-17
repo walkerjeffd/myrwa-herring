@@ -39,6 +39,8 @@ install.packages(c("dplyr", "tidyr", "ggplot2", "RPostgreSQL", "lubridate", "RCo
 
 ## Video Report
 
+The `video-report.R` script fetches the video and count data from the database and generates a pdf of various plots for tracking the system.
+
 ### Manual
 
 ```bash
@@ -54,7 +56,9 @@ crontab -e
 # 30 * * * * cd /home/myrwa/apps/myrwa-herring-web/r && Rscript video-report.R > /dev/null 2>&1
 ```
 
-## Video-Count Dataset
+## Export Video-Count Dataset
+
+The `export-dataset.R` script fetches the video and count data from the database, merges the two tables, and saves the result to a csv file.
 
 ### Manual
 

@@ -26,12 +26,12 @@ See `/config/index.template.js`
 
 ## Video Processor
 
-The `process.js` script checks for new video files, converts them to different formats, uploads the converted files to AWS S3, and saves the metadata to the database.
+The `process.js` script checks for new video files in the `dirs.new` directory, converts each new video to an accessible mp4 format, uploads the converted file to AWS S3, saves the metadata to the database, and lastly moves the original file to the `dirs.save` directory. If any error occurs during the processing, the original file is moved to the `dirs.skip` directory.
 
 ### Manual Run
 
 ```
-npm start
+node.process
 ```
 
 ## Automated Run

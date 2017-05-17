@@ -37,7 +37,7 @@ Set up configuration file
 ```
 cd ../pm2
 cp herring.template.json herring.json
-nano herring.json    # define log file paths
+nano herring.json    # set log file paths
 ```
 
 Load and save pm2 configuration

@@ -6,12 +6,20 @@ Jeffrey D Walker, PhD
 
 ## Configuration
 
-Copy configuration template and set parameters. See README files in each component folder for details.
+Copy server configuration template and set parameters. See README files in each component folder for details.
 
 ```bash
 cp config/index.template.js config/index.js   # copy config template
 nano config/index.js                          # edit config
 ```
+
+Copy client configuration template and set API url.
+
+```bash
+cp apps/config/index.template.js apps/config/index.js  # copy config template
+nano apps/config/index.js
+```
+
 
 ## System Requirements
 
@@ -23,14 +31,13 @@ nano config/index.js                          # edit config
 ```text
 /api             # api server
 /apps            # client-side applications
-  /video-status  # video status app
-  /video-watch   # video watch app
+  /status        # video count status app
+  /watch         # video count watch app
   /vis-temp      # data vis temperature app
 /config          # common configuration
 /db              # database
 /nginx           # proxy server configuration
 /pm2             # pm2 configuration
 /r               # R scripts
-/sandbox         # development and testing environment
 /video-service   # video processing service
 ```
