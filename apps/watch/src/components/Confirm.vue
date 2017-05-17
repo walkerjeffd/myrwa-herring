@@ -61,6 +61,9 @@ export default {
       return 'I just counted ' + this.session.total + ' river herring migrating up the Mystic River!'
     }
   },
+  created: function () {
+    window.scrollTo(0, 100);
+  },
   methods: {
     restart: function () {
       this.$router.push('/');
