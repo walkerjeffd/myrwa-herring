@@ -74,7 +74,10 @@ function getRandomVideo(params) {
     videos = videos.andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date::text'), params.date);
   } else {
     // only on or after April 24
-    videos = videos.andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date'), '>=', knex.raw('\'2017-04-24\'::date'));
+    videos = videos.whereRaw(
+      '(start_timestamp at time zone \'America/New_York\')::date > ((current_timestamp at time zone \'America/New_York\')::date) - interval \'1 day\' * ?',
+      config.api.window
+    );
   }
 
   if (params.location) {
