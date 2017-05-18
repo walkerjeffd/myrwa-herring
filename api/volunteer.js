@@ -69,13 +69,13 @@ function getData(docId) {
 
 function parseRows(rows) {
   const dateParse = d3.timeParse('%m/%d/%Y');
-  const timestampParse = d3.timeParse('%m/%d/%Y %I:%M:%S %p');
+  const timestampParse = d3.timeParse('%m/%d/%Y %I:%M:%S %p %Z');
 
   return rows.map((d) => {
     return {
       date: dateParse(d.date),
-      start: timestampParse(`${d.date} ${d.timestarted}`),
-      end: timestampParse(`${d.date} ${d.timeend}`),
+      start: timestampParse(`${d.date} ${d.timestarted} -04`),
+      end: timestampParse(`${d.date} ${d.timeend} -04`),
       count: +d.howmanyfishdidyoucountgoinguptheladder
     };
   });
