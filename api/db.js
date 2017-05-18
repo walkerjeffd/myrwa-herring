@@ -18,7 +18,7 @@ function getStatus() {
       GROUP BY (created_at AT TIME ZONE 'America/New_York')::date
     ),
     d AS (
-      SELECT generate_series('2017-04-10'::date, current_date, '1 day')::date as date
+      SELECT generate_series('2017-04-10'::date, current_date at time zone 'America/New_York', '1 day')::date as date
     )
     SELECT
       d.date::text as date,
