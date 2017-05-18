@@ -9,6 +9,7 @@
 <div id="chart-count"></div>
 <div id="chart-count-2"></div>
 <div id="chart-video"></div>
+<div id="chart-count-today"></div>
 
 </body>
 
@@ -31,6 +32,7 @@ function drawCountChart (data) {
     chart: {
       type: 'bubble',
       width: 900,
+      height: 900,
       zoomType: 'xy'
     },
     title: {
@@ -214,6 +216,60 @@ function drawVideoChart (data) {
     ]
   })
 }
+
+
+function drawCountTodayChart (data) {
+  Highcharts.chart('chart-count-today', {
+    chart: {
+      type: 'scatter',
+      width: 900,
+      zoomType: 'xy'
+    },
+    title: {
+      text: 'Activity Tracker (Today): By Count Timestamp (when video was counted)'
+    },
+    subtitle: {
+      text: 'No bubble sizing'
+    },
+    xAxis: {
+      type: 'datetime',
+      dateTimeLabelFormats: {
+        month: '%b %d',
+        day: '%b %d',
+        hour: '%H:%M'
+      },
+      title: {
+        text: 'Time'
+      }
+    },
+    yAxis: {
+      title: {
+        text: '# Fish Counted'
+      },
+      min: 0
+    },
+    plotOptions: {
+      scatter: {
+        marker: {
+          opacity: 0.2,
+          radius: 5
+        }
+      }
+    },
+    legend: {
+      enabled: false
+    },
+    series: [
+      {
+        name: 'Video Count',
+        data: data.map(function (d) {
+          return [d.count_timestamp.valueOf(), d.count];
+        })
+      }
+    ]
+  })
+}
+
 d3.csv("https://myrwa-api.org/api/herring/datasets/herring-dataset.csv")
   .row(function (d) {
     return {
@@ -246,12 +302,16 @@ d3.csv("https://myrwa-api.org/api/herring/datasets/herring-dataset.csv")
     var videoData = data.filter(function (d) {
       return d.video_date >= d3.timeDay.offset(today, -7);
     });
+    var todayData = data.filter(function (d, i) {
+      return (d.count_timestamp - today) > 0;
+    });
 
     d3.select('#loading').style('display', 'none');
 
     drawCountChart(countData);
     // drawCountChart2(countData);
     drawVideoChart(videoData);
+    drawCountTodayChart(todayData);
   });
 </script>
 
