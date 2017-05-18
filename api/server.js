@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 
 const config = require('../config');
 const db = require('./db');
+const volunteer = require('./volunteer');
 
 const app = express();
 
@@ -34,6 +35,23 @@ const allowCrossDomain = (req, res, next) => {
 app.use(allowCrossDomain);
 
 
+// set up priority queue
+let volunteerQueue = [];
+function refreshVolunteerQueue() {
+  volunteer.getVideos(config.volunteer.docId)
+    .then((data) => {
+      const videos = data.map((row) => { // eslint-disable-line
+        return row.videos
+          .filter(d => d.n_count === 0)
+          .map(d => d.id);
+      });
+      volunteerQueue = [].concat.apply([], videos); // eslint-disable-line
+      console.log(`updated volunteerQueue (n = ${volunteerQueue.length})`);
+    });
+}
+refreshVolunteerQueue();
+setInterval(refreshVolunteerQueue, config.volunteer.interval * 1000);
+
 // paths to app builds
 app.use('/static/video-watch', express.static(config.api.static.videoWatch));
 app.use('/static/video-status', express.static(config.api.static.videoStatus));
@@ -57,12 +75,24 @@ app.get('/status/', (req, res, next) => {
 });
 
 app.get('/video/', (req, res, next) => {
-  db.getVideo(req.query)
-    .then((result) => {
-      console.log('served video id=%d ip=%s', result.length > 0 ? result[0].id : 'unknown', req.headers['x-real-ip'] || req.connection.remoteAddress);
-      return res.status(200).json({ status: 'ok', data: result });
-    })
-    .catch(next);
+  const first = req.query && req.query.first && req.query.first === 'true';
+
+  if (first || volunteerQueue.length === 0) {
+    db.getRandomVideo(req.query)
+      .then((result) => {
+        console.log('served random video id=%d first=%s ip=%s', result.length > 0 ? result[0].id : 'unknown', first, req.headers['x-real-ip'] || req.connection.remoteAddress);
+        return res.status(200).json({ status: 'ok', data: result });
+      })
+      .catch(next);
+  } else {
+    const index = Math.floor(Math.random() * volunteerQueue.length);
+    db.getVideoById(volunteerQueue.splice(index, 1)[0])
+      .then((result) => {
+        console.log('served volunteer video id=%d ip=%s', result.length > 0 ? result[0].id : 'unknown', req.headers['x-real-ip'] || req.connection.remoteAddress);
+        return res.status(200).json({ status: 'ok', data: result });
+      })
+      .catch(next);
+  }
 });
 
 app.get('/videos/', (req, res, next) => {

@@ -46,11 +46,15 @@ function getVideos(params) {
   return qry.orderBy('location_id').orderBy('start_timestamp');
 }
 
-function getVideo(params) {
+function getVideoById(id) {
+  return knex('videos')
+    .select()
+    .where('id', id);
+}
+
+function getRandomVideo(params) {
   if (params.id) {
-    return knex('videos')
-      .select()
-      .where('id', params.id);
+    return getVideoById(params.id);
   }
 
   const counts = knex('counts')
@@ -113,7 +117,8 @@ function saveCount(data) {
 
 module.exports = {
   getStatus,
-  getVideo,
+  getRandomVideo,
+  getVideoById,
   getVideos,
   saveCount,
 };

@@ -47,6 +47,10 @@ module.exports = {
       }
     }
   },
+  volunteer: {
+    docId: '',      // google sheet ID for volunteer counts
+    interval: 3600  // update interval (seconds, default = 1 hr)
+  },
   mail: {
     disable: false, // disable email notifications
     notify: '',     // email address for notifications
