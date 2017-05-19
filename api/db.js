@@ -99,12 +99,12 @@ function activityStatus() {
   const sql = `
     SELECT
       c.id,
-      c.created_at AT TIME ZONE 'America/New_York' as count_timestamp,
+      c.created_at as count_timestamp,
       c.video_id,
       c.count,
       c.comment,
-      v.start_timestamp AT TIME ZONE 'America/New_York' as video_start,
-      v.end_timestamp AT TIME ZONE 'America/New_York' as video_end,
+      v.start_timestamp as video_start,
+      v.end_timestamp as video_end,
       v.duration as duration,
       v.url as url
     FROM counts c
