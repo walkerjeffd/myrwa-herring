@@ -118,7 +118,8 @@ window.onload = function () {
           '<tr><th style="text-align:right">Video Recorded At:</th><td style="padding-left:10px">{point.video_timestamp}</td></tr>'+
           '<tr><th style="text-align:right">Video Duration:</th><td style="padding-left:10px">{point.duration} sec</td></tr>',
         footerFormat: '</table>',
-        followPointer: true
+        followPointer: false,
+        hideDelay: 250
       },
       series: [
         {
