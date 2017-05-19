@@ -5,6 +5,7 @@ library(lubridate)
 library(RColorBrewer)
 library(gridExtra)
 library(jsonlite)
+library(purrr)
 
 theme_set(theme_bw())
 
@@ -113,6 +114,30 @@ videos_hour_tally <- videos %>%
     date < as.Date(now(), tz = "America/New_York") | hour < hour(now(tzone = "America/New_York"))
   )
 
+
+# load volunteer counts ---------------------------------------------------
+
+volunteer <- fromJSON("json/volunteer-counts.json") %>%
+  mutate(
+    start = mdy_hms(paste(date, timestarted), tz = "America/New_York"),
+    end = mdy_hms(paste(date, timeend), tz = "America/New_York"),
+    count = as.numeric(count),
+    video = map2(start, end, function (start, end) {
+      filter(videos, start_timestamp >= start, start_timestamp <= end) %>%
+        select(id, filename, video_start = start_timestamp, video_end = end_timestamp, n_count, mean_count, counted)
+    })
+  ) %>%
+  unnest(video)
+
+volunteer_summary <- volunteer %>%
+  group_by(lastname, start, end, count) %>%
+  summarise(
+    n_video = n(),
+    n_video_counted = sum(counted),
+    # n_video_uncounted = sum(!counted),
+    video_count = sum(mean_count)
+  ) %>%
+  ungroup
 
 # pdf ---------------------------------------------------------------------
 
@@ -438,6 +463,21 @@ p4 <- videos %>%
     strip.placement = "outside"
   )
 grid.arrange(p1, p2, p3, p4, nrow = 2, top = "Histograms", bottom = updated_at)
+
+volunteer_summary %>%
+  select(lastname, start, end, n_video, n_video_counted, count, video_count) %>%
+  arrange(start) %>%
+  rename(
+    `Last Name` = lastname,
+    `Start Timestamp` = start,
+    `End Timestamp` = end,
+    `# Videos` = n_video,
+    `# Videos Counted` = n_video_counted,
+    `Human Count` = count,
+    `Video Count` = video_count
+  ) %>%
+  tableGrob() %>%
+  grid.arrange(top = "Volunteer Counts", bottom = updated_at)
 
 dev.off()
 
