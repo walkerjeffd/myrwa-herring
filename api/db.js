@@ -6,33 +6,129 @@ const knex = require('knex')({
   connection: config.db,
 });
 
-function getStatus() {
+function fishStatus() {
   const sql = `
     WITH c AS (
       SELECT
-        (created_at AT TIME ZONE 'America/New_York')::date as date,
+        video_id,
         count(*) as n_count,
-        sum(count) as sum_count
+        avg(count) as mean_count
       FROM counts
       WHERE NOT flagged
-      GROUP BY (created_at AT TIME ZONE 'America/New_York')::date
+      GROUP BY video_id
+    ),
+    vc AS (
+      SELECT
+        v.id,
+        (v.start_timestamp AT TIME ZONE 'America/New_York')::date as date,
+        c.mean_count as mean_count
+      FROM videos v
+      LEFT JOIN c ON v.id = c.video_id
+      WHERE NOT v.flagged
+    ),
+    vcd AS (
+      SELECT
+        vc.date,
+        sum(vc.mean_count) as count
+      FROM vc
+      GROUP BY vc.date
     ),
     d AS (
       SELECT generate_series('2017-04-10'::date, (current_timestamp at time zone 'America/New_York')::date, '1 day')::date as date
     )
     SELECT
       d.date::text as date,
-      COALESCE(c.n_count, 0)::integer as n_count,
-      COALESCE(c.sum_count, 0)::integer as sum_count
+      COALESCE(vcd.count, 0)::real as count
     FROM d
-    LEFT JOIN c
-    ON d.date=c.date
+    LEFT JOIN vcd
+    ON d.date = vcd.date
     ORDER BY d.date;
   `;
 
   return knex
     .raw(sql)
     .then(result => result.rows);
+}
+
+function videoStatus() {
+  const sql = `
+    WITH c AS (
+      SELECT
+        video_id,
+        count(*) as n_count
+      FROM counts
+      WHERE NOT flagged
+      GROUP BY video_id
+    ),
+    vc AS (
+      SELECT
+        v.id,
+        (v.start_timestamp AT TIME ZONE 'America/New_York')::date as date,
+        (COALESCE(c.n_count, 0) > 0)::integer as counted
+      FROM videos v
+      LEFT JOIN c on v.id = c.video_id
+      WHERE NOT flagged
+    ),
+    vcd AS (
+      SELECT
+        vc.date,
+        count(*) as n_total,
+        sum(counted) as n_counted
+      FROM vc
+      GROUP BY vc.date
+    ),
+    d AS (
+      SELECT generate_series('2017-04-10'::date, (current_timestamp at time zone 'America/New_York')::date, '1 day')::date as date
+    )
+    SELECT
+      d.date::text as date,
+      vcd.n_total::integer as n_total,
+      vcd.n_counted::integer as n_counted
+    FROM d
+    LEFT JOIN vcd
+    ON d.date = vcd.date
+    ORDER BY d.date;
+  `;
+
+  return knex
+    .raw(sql)
+    .then(result => result.rows);
+}
+
+function activityStatus() {
+  const sql = `
+    SELECT
+      c.id,
+      c.created_at AT TIME ZONE 'America/New_York' as count_timestamp,
+      c.video_id,
+      c.count,
+      c.comment,
+      v.start_timestamp AT TIME ZONE 'America/New_York' as video_start,
+      v.end_timestamp AT TIME ZONE 'America/New_York' as video_end,
+      v.duration as duration,
+      v.url as url
+    FROM counts c
+    LEFT JOIN videos v ON c.video_id = v.id
+    WHERE NOT c.flagged
+      AND NOT v.flagged
+      AND (c.created_at at time zone 'America/New_York')::date = (current_timestamp at time zone 'America/New_York')::date
+    ORDER BY c.created_at;
+  `;
+
+  return knex
+    .raw(sql)
+    .then(result => result.rows);
+}
+
+function getStatus() {
+  return Promise.all([fishStatus(), videoStatus(), activityStatus()])
+    .then((results) => {
+      return {
+        fish: results[0],
+        video: results[1],
+        activity: results[2]
+      };
+    });
 }
 
 function getVideos(params) {
