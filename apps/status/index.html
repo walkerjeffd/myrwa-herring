@@ -54,102 +54,104 @@ p.odometer-label {
               <div class="sqs-block-content">
 
 <!-- COPY TO SQUARESPACE CODE BLOCK -->
-<div class="row sqs-row">
-  <div class="col sqs-col-12 span-12">
+<div style="margin-left:-17px">
+  <div class="row sqs-row">
+    <div class="col sqs-col-12 span-12">
 
-    <!-- ACTIVITY TRACKER -->
-    <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
-      <div class="sqs-block-content">
-        <h1 class="count-title">Today's Activity</h1>
-        <p class="small-text">Each bubble represents one video count from today. The size of the bubble indicates how many fish were counted in that video. Mouse over the bubbles to see more information, or click and drag to zoom in.</p>
+      <!-- ACTIVITY TRACKER -->
+      <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
+        <div class="sqs-block-content">
+          <h1 class="count-title">Today's Activity</h1>
+          <p class="small-text">Each bubble represents one video count from today. The size of the bubble indicates how many fish were counted in that video. Mouse over the bubbles to see more information, or click and drag to zoom in.</p>
+        </div>
       </div>
-    </div>
-    <div class="row sqs-row">
-      <div class="col sqs-col-3 span-3">
-        <div class="sqs-block html-block sqs-block-html" data-block-type="2">
-          <div class="sqs-block-content">
-            <div class="odometer-wrapper" style="padding-top:10px">
-              <div class="text-align-center odometer-value">
-                <span id="odometer-activity-total" class="odometer">0</span>
+      <div class="row sqs-row">
+        <div class="col sqs-col-3 span-3">
+          <div class="sqs-block html-block sqs-block-html" data-block-type="2">
+            <div class="sqs-block-content">
+              <div class="odometer-wrapper" style="padding-top:30px">
+                <div class="text-align-center odometer-value">
+                  <span id="odometer-activity-total" class="odometer">0</span>
+                </div>
+                <p class="text-align-center odometer-label">Videos Counted Today</p>
               </div>
-              <p class="text-align-center odometer-label">Videos Counted Today</p>
+            </div>
+          </div>
+        </div>
+        <div class="col sqs-col-9 span-9">
+          <div class="sqs-block image-block sqs-block-image" data-block-type="5">
+            <div class="sqs-block-content">
+              <div id="chart-activity"></div>
             </div>
           </div>
         </div>
       </div>
-      <div class="col sqs-col-9 span-9">
-        <div class="sqs-block image-block sqs-block-image" data-block-type="5">
-          <div class="sqs-block-content">
-            <div id="chart-activity"></div>
-          </div>
+
+      <!-- FISH STATUS -->
+      <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
+        <div class="sqs-block-content">
+          <h1 class="count-title">Number of Fish Counted</h1>
+          <p class="small-text">Each bar shows how many fish were migrating each day based on the current video counts. These totals will increase as more videos are watched. Once all of the videos have been watched, we will know exactly how many fish were migrating each day.</p>
         </div>
       </div>
-    </div>
-
-    <!-- FISH STATUS -->
-    <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
-      <div class="sqs-block-content">
-        <h1 class="count-title">Number of Fish Counted</h1>
-        <p class="small-text">Each bar shows how many fish were migrating each day based on the current video counts. These totals will increase as more videos are watched. Once all of the videos have been watched, we will know exactly how many fish were migrating each day.</p>
-      </div>
-    </div>
-    <div class="row sqs-row">
-      <div class="col sqs-col-3 span-3">
-        <div class="sqs-block html-block sqs-block-html" data-block-type="2">
-          <div class="sqs-block-content">
-            <div class="odometer-wrapper" style="padding-top:70px">
-              <div class="text-align-center odometer-value">
-                <span id="odometer-fish-total" class="odometer">0</span>
+      <div class="row sqs-row">
+        <div class="col sqs-col-3 span-3">
+          <div class="sqs-block html-block sqs-block-html" data-block-type="2">
+            <div class="sqs-block-content">
+              <div class="odometer-wrapper" style="padding-top:70px">
+                <div class="text-align-center odometer-value">
+                  <span id="odometer-fish-total" class="odometer">0</span>
+                </div>
+                <p class="text-align-center odometer-label">Total Fish Counted</p>
               </div>
-              <p class="text-align-center odometer-label">Total Fish Counted</p>
+            </div>
+          </div>
+        </div>
+        <div class="col sqs-col-9 span-9">
+          <div class="sqs-block image-block sqs-block-image" data-block-type="5">
+            <div class="sqs-block-content">
+              <div id="chart-fish"></div>
             </div>
           </div>
         </div>
       </div>
-      <div class="col sqs-col-9 span-9">
-        <div class="sqs-block image-block sqs-block-image" data-block-type="5">
-          <div class="sqs-block-content">
-            <div id="chart-fish"></div>
-          </div>
+
+      <!-- VIDEO STATUS -->
+      <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
+        <div class="sqs-block-content">
+          <h1 class="count-title">Number of Videos Counted</h1>
+          <p class="small-text">Each bar shows how many videos were recorded each day, plus how many of those have been counted and how many remain to be counted. The number of recorded videos depends on how active the fish were on that day, but also whether the camera was properly configured to only record when it detected fish and not other things floating by.</p>
         </div>
       </div>
-    </div>
-
-    <!-- VIDEO STATUS -->
-    <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
-      <div class="sqs-block-content">
-        <h1 class="count-title">Number of Videos Counted</h1>
-        <p class="small-text">Each bar shows how many videos were recorded each day, plus how many of those have been counted and how many remain to be counted. The number of recorded videos depends on how active the fish were on that day, but also whether the camera was properly configured to only record when it detected fish and not other things floating by.</p>
-      </div>
-    </div>
-    <div class="row sqs-row">
-      <div class="col sqs-col-3 span-3">
-        <div class="sqs-block html-block sqs-block-html" data-block-type="2">
-          <div class="sqs-block-content">
-            <div class="odometer-wrapper" style="padding-top:30px">
-              <div class="text-align-center odometer-value">
-                <span id="odometer-video-counted" class="odometer">0</span>
+      <div class="row sqs-row">
+        <div class="col sqs-col-3 span-3">
+          <div class="sqs-block html-block sqs-block-html" data-block-type="2">
+            <div class="sqs-block-content">
+              <div class="odometer-wrapper" style="padding-top:30px">
+                <div class="text-align-center odometer-value">
+                  <span id="odometer-video-counted" class="odometer">0</span>
+                </div>
+                <p class="text-align-center odometer-label">Total Videos<br /> Counted</p>
               </div>
-              <p class="text-align-center odometer-label">Total Videos<br /> Counted</p>
-            </div>
-            <div class="odometer-wrapper" style="padding-top:10px">
-              <div class="text-align-center odometer-value">
-                <span id="odometer-video-remaining" class="odometer">0</span>
+              <div class="odometer-wrapper" style="padding-top:10px">
+                <div class="text-align-center odometer-value">
+                  <span id="odometer-video-remaining" class="odometer">0</span>
+                </div>
+                <p class="text-align-center odometer-label">Total Videos Remaining</p>
               </div>
-              <p class="text-align-center odometer-label">Total Videos Remaining</p>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col sqs-col-9 span-9">
-        <div class="sqs-block image-block sqs-block-image" data-block-type="5">
-          <div class="sqs-block-content">
-            <div id="chart-video"></div>
+        <div class="col sqs-col-9 span-9">
+          <div class="sqs-block image-block sqs-block-image" data-block-type="5">
+            <div class="sqs-block-content">
+              <div id="chart-video"></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
+    </div>
   </div>
 </div>
 <!-- END COPY -->
