@@ -38,7 +38,10 @@ window.onload = function () {
   });
 
   var dateFormat = d3TimeFormat.timeFormat('%b %d');
-  var timestampFormat = d3TimeFormat.timeFormat('%b %d %I:%M %p')
+  var utcFormat = d3TimeFormat.utcFormat('%b %d %I:%M %p EDT');
+  var edtFormat = function (x) {
+    return utcFormat(d3Time.timeHour.offset(x, -4));
+  };
 
   $.get(config.api.url + '/status/', function (response) {
     var data = response.data;
@@ -142,8 +145,8 @@ window.onload = function () {
               z: d.count,
               // date: dateFormat(d.count_date),
               duration: d.duration,
-              video_timestamp: timestampFormat(d.video_start),
-              count_timestamp: timestampFormat(d.count_timestamp)
+              video_timestamp: edtFormat(d.video_start),
+              count_timestamp: edtFormat(d.count_timestamp)
             }
           })
         }
