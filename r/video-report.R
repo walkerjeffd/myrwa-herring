@@ -135,7 +135,7 @@ volunteer_summary <- volunteer %>%
     n_video = n(),
     n_video_counted = sum(counted),
     # n_video_uncounted = sum(!counted),
-    video_count = sum(mean_count)
+    video_count = as.integer(sum(mean_count))
   ) %>%
   ungroup
 
