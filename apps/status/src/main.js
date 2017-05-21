@@ -1,7 +1,8 @@
 var $ = require('jquery'),
     Odometer = require('odometer'),
     Highcharts = require('highcharts'),
-    d3 = require('d3-time-format');
+    d3Time = require('d3-time'),
+    d3TimeFormat = require('d3-time-format');
 
 require('highcharts/highcharts-more.js')(Highcharts);
 
@@ -10,6 +11,13 @@ var config = require('../../config');
 require('./css/app.css')
 
 var colors = Highcharts.getOptions().colors;
+
+Highcharts.setOptions({
+  global: {
+    useUTC: true,
+    timezoneOffset: 240
+  }
+});
 
 window.onload = function () {
   var odActivityTotal = new Odometer({
@@ -29,22 +37,23 @@ window.onload = function () {
     value: 0
   });
 
-  var dateFormat = d3.timeFormat('%b %d');
-  var timestampFormat = d3.timeFormat('%b %d %I:%M %p')
+  var dateFormat = d3TimeFormat.timeFormat('%b %d');
+  var timestampFormat = d3TimeFormat.timeFormat('%b %d %I:%M %p')
 
   $.get(config.api.url + '/status/', function (response) {
     var data = response.data;
 
     data.fish.forEach(function (d) {
-      d.date = new Date(d.date);
+      d.date = d3Time.timeHour.offset(new Date(d.date), 4);
       d.count = Math.round(d.count);
     });
     data.video.forEach(function (d) {
-      d.date = new Date(d.date);
+      d.date = d3Time.timeHour.offset(new Date(d.date), 4);
       d.n_remaining = d.n_total - d.n_counted;
     });
     data.activity.forEach(function (d) {
       d.count_timestamp = new Date(d.count_timestamp);
+      d.video_start_timestamp = d.video_start;
       d.video_start = new Date(d.video_start);
       d.video_end = new Date(d.video_end);
       d.duration = Math.round(d.duration);
@@ -69,8 +78,10 @@ window.onload = function () {
     odVideoCounted.update(totals.video.counted);
     odVideoRemaining.update(totals.video.remaining);
 
-    var today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+    var today = d3Time.timeDay.floor(new Date());
+    if (today.getUTCHours() < 4) {
+      today = new Date(today.getTime() - 86400 * 1000);
+    }
     var tomorrow = new Date(today.getTime() + 86400 * 1000);
 
     Highcharts.chart('chart-activity', {
@@ -126,7 +137,7 @@ window.onload = function () {
           name: 'Video Count',
           data: data.activity.map(function (d) {
             return {
-              x: d.count_timestamp.valueOf() - 4 * 3600 * 1000,
+              x: d.count_timestamp.valueOf(),
               y: 0,
               z: d.count,
               // date: dateFormat(d.count_date),
