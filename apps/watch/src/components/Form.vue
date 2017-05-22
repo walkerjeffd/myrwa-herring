@@ -70,7 +70,7 @@ export default {
               this.form.comment = '';
               this.$router.push({path: '/confirm'});
             }, (response) => {
-              alert('Error occurred saving count to the server, try submitting again.\n\nIf the problem continues, please contact Jeff Walker at jeff@walkerenvres.com.');
+              alert('Error occurred saving count to the server, try submitting again.\n\nIf the problem continues, please let us know using the Contact Us form, or email us at herring.education@mysticriver.org.');
               console.log(response);
             });
         })
