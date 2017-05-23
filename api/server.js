@@ -56,6 +56,7 @@ setInterval(refreshVolunteerQueue, config.volunteer.interval * 1000);
 app.use('/static/video-watch', express.static(config.api.static.videoWatch));
 app.use('/static/video-status', express.static(config.api.static.videoStatus));
 app.use('/static/vis-temp', express.static(config.api.static.visTemp));
+app.use('/static/vis-count', express.static(config.api.static.visCount));
 app.use('/reports', express.static(config.api.static.reports));
 app.use('/datasets', express.static(config.api.static.datasets));
 
