@@ -423,7 +423,7 @@ window.onload = function () {
   });
 
   $('#btn-next').click(function (evt) {
-    if (state.step < 5) {
+    if (state.step < 6) {
       goToStep(state.step + 1);
     }
   });
