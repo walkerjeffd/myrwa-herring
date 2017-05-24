@@ -41,6 +41,8 @@ tbl_counts <- pg %>%
   collect()
 
 
+# merge -------------------------------------------------------------------
+
 counts_by_video <- tbl_counts %>%
   group_by(video_id) %>%
   summarise(
@@ -79,7 +81,6 @@ stats_by_count_day <- tbl_counts %>%
     sum_count = sum(count),
     n_session = length(unique(session))
   )
-
 
 videos_hour_tally <- videos %>%
   filter(
@@ -122,20 +123,22 @@ volunteer <- fromJSON("json/volunteer-counts.json") %>%
     start = mdy_hms(paste(date, timestarted), tz = "America/New_York"),
     end = mdy_hms(paste(date, timeend), tz = "America/New_York"),
     count = as.numeric(count),
+    human_duration = as.numeric(difftime(end, start, units = "mins")),
     video = map2(start, end, function (start, end) {
       filter(videos, start_timestamp >= start, start_timestamp <= end) %>%
-        select(id, filename, video_start = start_timestamp, video_end = end_timestamp, n_count, mean_count, counted)
+        select(id, filename, video_start = start_timestamp, video_end = end_timestamp, duration, n_count, mean_count, counted)
     })
   ) %>%
   unnest(video)
 
 volunteer_summary <- volunteer %>%
-  group_by(lastname, start, end, count) %>%
+  group_by(lastname, date, start, end, human_duration, count) %>%
   summarise(
     n_video = n(),
     n_video_counted = sum(counted),
     # n_video_uncounted = sum(!counted),
-    video_count = as.integer(sum(mean_count))
+    video_count = as.integer(sum(mean_count)),
+    video_duration = round(sum(duration) / 60, 1)
   ) %>%
   ungroup
 
@@ -465,16 +468,23 @@ p4 <- videos %>%
 grid.arrange(p1, p2, p3, p4, nrow = 2, top = "Histograms", bottom = updated_at)
 
 volunteer_summary %>%
-  select(lastname, start, end, n_video, n_video_counted, count, video_count) %>%
+  select(lastname, date, start, end, n_video, n_video_counted, human_duration, video_duration, count, video_count) %>%
   arrange(start) %>%
+  mutate(
+    start = format(start, "%H:%M"),
+    end = format(end, "%H:%M")
+  ) %>%
   rename(
     `Last Name` = lastname,
-    `Start Timestamp` = start,
-    `End Timestamp` = end,
-    `# Videos` = n_video,
-    `# Videos Counted` = n_video_counted,
-    `Human Count` = count,
-    `Video Count` = video_count
+    `Date` = date,
+    `Start\nTime` = start,
+    `End\nTime` = end,
+    `# Videos\nRecorded` = n_video,
+    `# Videos\nCounted` = n_video_counted,
+    `Human Duration\n(min)` = human_duration,
+    `Video Duration\n(min)` = video_duration,
+    `Human\nCount` = count,
+    `Video\nCount` = video_count
   ) %>%
   tableGrob() %>%
   grid.arrange(top = "Volunteer Counts", bottom = updated_at)
