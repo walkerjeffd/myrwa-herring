@@ -43,6 +43,9 @@ tbl_counts <- pg %>%
 
 # merge -------------------------------------------------------------------
 
+counts <- tbl_counts %>%
+  left_join(select(tbl_videos, id, start_timestamp), by = c("video_id" = "id"))
+
 counts_by_video <- tbl_counts %>%
   group_by(video_id) %>%
   summarise(
@@ -466,6 +469,26 @@ p4 <- videos %>%
     strip.placement = "outside"
   )
 grid.arrange(p1, p2, p3, p4, nrow = 2, top = "Histograms", bottom = updated_at)
+
+p <- counts %>%
+  ggplot(aes(created_at, start_timestamp)) +
+  geom_point(size = 1) +
+  scale_x_datetime(
+    breaks = scales::date_breaks("6 days"),
+    labels = scales::date_format("%b %d"),
+    limits = ymd_hm("2017-04-10 00:00", paste0(today(tzone = "America/New_York") + days(1), " 00:00"), tz = "America/New_York")
+  ) +
+  scale_y_datetime(
+    breaks = scales::date_breaks("6 days"),
+    labels = scales::date_format("%b %d"),
+    limits = ymd_hm("2017-04-10 00:00", paste0(today(tzone = "America/New_York") + days(1), " 00:00"), tz = "America/New_York")
+  ) +
+  labs(
+    x = "Timestamp of Count",
+    y = "Start Timestamp of Video"
+  ) +
+  theme(aspect = 1)
+grid.arrange(p, top = "Count Timestamp vs Video Timestamp", bottom = updated_at)
 
 volunteer_summary %>%
   select(lastname, date, start, end, n_video, n_video_counted, human_duration, video_duration, count, video_count) %>%
