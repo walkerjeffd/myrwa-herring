@@ -12,7 +12,8 @@ var state = {
   charts: {}
 }
 
-var colors = Highcharts.getOptions().colors;
+// var colors = Highcharts.getOptions().colors;
+var colors = ['#496FB0', '#4EAB68', '#C84B51', '#826EB2', '#CDBB74'];
 
 Highcharts.setOptions({
   lang: {
@@ -54,6 +55,7 @@ function initCharts() {
       zoomType: 'x',
       type: 'column'
     },
+    colors: colors,
     title: {
       align: 'left',
       text: ''
@@ -100,6 +102,7 @@ function initCharts() {
       zoomType: 'x',
       type: 'column'
     },
+    colors: colors,
     title: {
       align: 'left',
       text: ''
@@ -149,6 +152,7 @@ function initCharts() {
     chart: {
       type: 'column'
     },
+    colors: [colors[0]],
     title: {
       text: ''
     },
@@ -351,6 +355,7 @@ var steps = {
       state.charts.total.series[0].points[0].update({
         dataLabels: {
           enabled: true,
+          color: 'black',
           format: 'New Fish Ladder Installed<br/>Allows More Fish to Spawn',
           inside: true,
           align: 'center',
@@ -361,6 +366,7 @@ var steps = {
       }, false);
       state.charts.total.series[0].points[3].update({
         dataLabels: {
+          color: 'black',
           enabled: true,
           format: 'Fish Born in 2012<br/>Return as Adults to Spawn',
           inside: true,
