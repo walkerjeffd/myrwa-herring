@@ -126,24 +126,60 @@ volunteer <- fromJSON("json/volunteer-counts.json") %>%
     start = mdy_hms(paste(date, timestarted), tz = "America/New_York"),
     end = mdy_hms(paste(date, timeend), tz = "America/New_York"),
     count = as.numeric(count),
-    human_duration = as.numeric(difftime(end, start, units = "mins")),
+    human_duration = as.numeric(difftime(end, start, units = "mins"))
+  ) %>%
+  arrange(start) %>%
+  distinct %>%
+  mutate(
+    id = row_number()
+  )
+
+volunteer_videos <- volunteer %>%
+  select(id, start, end) %>%
+  mutate(
     video = map2(start, end, function (start, end) {
       filter(videos, start_timestamp >= start, start_timestamp <= end) %>%
-        select(id, filename, video_start = start_timestamp, video_end = end_timestamp, duration, n_count, mean_count, counted)
+        select(video_id = id, filename, video_start = start_timestamp, video_end = end_timestamp, duration, n_count, mean_count, counted)
     })
   ) %>%
-  unnest(video)
-
-volunteer_summary <- volunteer %>%
-  group_by(lastname, date, start, end, human_duration, count) %>%
+  unnest(video) %>%
+  group_by(id, start, end) %>%
   summarise(
     n_video = n(),
     n_video_counted = sum(counted),
-    # n_video_uncounted = sum(!counted),
     video_count = as.integer(sum(mean_count)),
     video_duration = round(sum(duration) / 60, 1)
   ) %>%
   ungroup
+
+volunteer_videos <- volunteer %>%
+  left_join(volunteer_videos, by = c("id", "start", "end")) %>%
+  mutate(
+    n_video = ifelse(is.na(n_video), 0, n_video),
+    n_video_counted = ifelse(is.na(n_video_counted), 0, n_video_counted),
+    video_count = ifelse(is.na(video_count), 0, video_count),
+    video_duration = ifelse(is.na(video_duration), 0, video_duration)
+  )
+
+volunteer_tbl <- volunteer_videos %>%
+  select(lastname, date, start, end, n_video, n_video_counted, human_duration, video_duration, count, video_count) %>%
+  arrange(start) %>%
+  mutate(
+    start = format(start, "%H:%M"),
+    end = format(end, "%H:%M")
+  ) %>%
+  rename(
+    `Last Name` = lastname,
+    `Date` = date,
+    `Start\nTime` = start,
+    `End\nTime` = end,
+    `# Videos\nRecorded` = n_video,
+    `# Videos\nCounted` = n_video_counted,
+    `Human Duration\n(min)` = human_duration,
+    `Video Duration\n(min)` = video_duration,
+    `Human\nCount` = count,
+    `Video\nCount` = video_count
+  )
 
 # pdf ---------------------------------------------------------------------
 
@@ -490,27 +526,12 @@ p <- counts %>%
   theme(aspect = 1)
 grid.arrange(p, top = "Count Timestamp vs Video Timestamp", bottom = updated_at)
 
-volunteer_summary %>%
-  select(lastname, date, start, end, n_video, n_video_counted, human_duration, video_duration, count, video_count) %>%
-  arrange(start) %>%
-  mutate(
-    start = format(start, "%H:%M"),
-    end = format(end, "%H:%M")
-  ) %>%
-  rename(
-    `Last Name` = lastname,
-    `Date` = date,
-    `Start\nTime` = start,
-    `End\nTime` = end,
-    `# Videos\nRecorded` = n_video,
-    `# Videos\nCounted` = n_video_counted,
-    `Human Duration\n(min)` = human_duration,
-    `Video Duration\n(min)` = video_duration,
-    `Human\nCount` = count,
-    `Video\nCount` = video_count
-  ) %>%
-  tableGrob() %>%
-  grid.arrange(top = "Volunteer Counts", bottom = updated_at)
+for (i in seq(1, nrow(volunteer_tbl), by = 25)) {
+  i_max <- min(nrow(volunteer_tbl), i + 24)
+  volunteer_tbl[i:i_max, ] %>%
+    tableGrob() %>%
+    grid.arrange(top = "Volunteer Counts", bottom = updated_at)
+}
 
 dev.off()
 
