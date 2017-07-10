@@ -2,7 +2,6 @@ module.exports = {
   api: {
     port: 8000,       // API listening port
     maxCount: 300,    // counts exceeding this are auto-flagged
-    window: 7,        // window to choose random video (days)
     static: {
       videoWatch: '../apps/watch/dist',
       videoStatus: '../apps/status/dist',
