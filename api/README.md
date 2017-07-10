@@ -8,16 +8,16 @@ See `/config/index.template.js`
 ```js
 {
   api: {
-    url: 'http://localhost:8000',        // api url (for access from apps)
     port: 8000,                          // api listening port
-    logFile: '/path/to/api-access.log',  // absolute path to log file
+    maxCount: 300,                       // max count for auto-flagging
     static: {
       // paths to static folders containing app builds, pdfs, datasets, etc
       videoWatch: '../video-watch/dist',
       videoStatus: '../video-status/dist',
       visTemp: '../vis-temp/dist',
       reports: '../r/pdf'
-    }
+    },
+    logFile: '/path/to/api-access.log'   // absolute path to log file
   },
   ...
 }
