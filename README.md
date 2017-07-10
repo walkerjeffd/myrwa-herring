@@ -20,7 +20,6 @@ cp apps/config/index.template.js apps/config/index.js  # copy config template
 nano apps/config/index.js
 ```
 
-
 ## System Requirements
 
 - [ffmpeg/ffprobe](https://ffmpeg.org/)
@@ -31,9 +30,11 @@ nano apps/config/index.js
 ```text
 /api             # api server
 /apps            # client-side applications
+  /config        # client-side configuration
   /status        # video count status app
   /watch         # video count watch app
   /vis-temp      # data vis temperature app
+  /vis-count     # data vis annual count app
 /config          # common configuration
 /db              # database
 /nginx           # proxy server configuration
