@@ -38,6 +38,7 @@ app.use(allowCrossDomain);
 // set up priority queue
 let volunteerQueue = [];
 function refreshVolunteerQueue() {
+  console.log('updating volunteerQueue');
   volunteer.getVideos(config.volunteer.docId)
     .then((data) => {
       const videos = data.map((row) => { // eslint-disable-line

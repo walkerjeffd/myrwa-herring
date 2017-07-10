@@ -170,8 +170,7 @@ function getRandomVideo(params) {
     videos = videos.andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date::text'), params.date);
   } else {
     videos = videos.whereRaw(
-      '(start_timestamp at time zone \'America/New_York\')::date > ((current_timestamp at time zone \'America/New_York\')::date) - interval \'1 day\' * ?',
-      config.api.window
+      '(start_timestamp at time zone \'America/New_York\')::date > \'2017-05-14\'::date'
     );
   }
 

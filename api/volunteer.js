@@ -52,12 +52,12 @@ function getData(docId) {
     doc.getInfo((err, info) => {
       if (err) return reject(err);
       // console.log(`Loaded doc: ${info.title} by ${info.author.email}`);
-      const sheet = info.worksheets[0];
+      const sheet = info.worksheets[1];
 
       sheet.getRows({
         offset: 1,
         limit: 1000,
-        orderby: 'col2'
+        orderby: 'col1'
       }, (err, rows) => {
         if (err) return reject(err);
         // console.log(`Read ${rows.length} rows`);
@@ -74,19 +74,30 @@ function parseRows(rows) {
   return rows.map((d) => {
     return {
       date: dateParse(d.date),
-      start: timestampParse(`${d.date} ${d.timestarted} -04`),
-      end: timestampParse(`${d.date} ${d.timeend} -04`),
-      count: +d.howmanyfishdidyoucountgoinguptheladder
+      start: timestampParse(`${d.date} ${d.starttime} -04`),
+      end: timestampParse(`${d.date} ${d.endtime} -04`),
+      count: +d.count
     };
   });
+}
+
+function filterRows(rows) {
+  const filteredRows = rows.filter((d) => {
+    return d.count > 0;
+  });
+  // console.log(`Filtered rows: ${filteredRows.length}`);
+  return filteredRows;
 }
 
 function getVideos(docId) {
   return getData(docId)
     .then(parseRows)
+    .then(filterRows)
     .then(data => Promise.mapSeries(data, fetchVideos));
 }
 
 module.exports = {
-  getVideos
+  getVideos,
+  getData,
+  parseRows
 };
