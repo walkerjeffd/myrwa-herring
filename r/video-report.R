@@ -526,6 +526,41 @@ p <- counts %>%
   theme(aspect = 1)
 grid.arrange(p, top = "Count Timestamp vs Video Timestamp", bottom = updated_at)
 
+# volunteer counts figure
+volunteer_plot_data <- volunteer_videos %>%
+  filter(n_video == n_video_counted)
+
+lm_counts <- lm(video_count ~ count, data = volunteer_plot_data)
+
+p <- volunteer_plot_data %>%
+  ggplot(aes(count, video_count)) +
+  geom_abline() +
+  geom_point(size = 1) +
+  geom_smooth(method = "lm", se = FALSE) +
+  annotate(
+    "text", x = 0, y = 1000,
+    label = paste0(
+      "Video Count = ",
+      format(coef(lm_counts)[1], digits = 3),
+      " + ",
+      format(coef(lm_counts)[2], digits = 3),
+      " * Human Count\nR^2 = ",
+      format(summary(lm_counts)$r.squared, digits = 3)
+    ),
+    hjust = 0, vjust = 0
+  ) +
+  coord_equal() +
+  labs(
+    x = "Human Count",
+    y = "Video Count",
+    title = "Human (in-person volunteer) vs. Video Counts",
+    subtitle = "Only includes video counts if all videos during 10-minute period have been counted\nBlack Line = 1:1 Line, Blue Line = Linear Regression"
+  )
+print(p)
+
+
+# Volunteer counts table
+
 for (i in seq(1, nrow(volunteer_tbl), by = 25)) {
   i_max <- min(nrow(volunteer_tbl), i + 24)
   volunteer_tbl[i:i_max, ] %>%

@@ -11,7 +11,7 @@ doc.getInfo((err, info) => {
   if (err) return reject(err);
   console.log(`Loaded doc: ${info.title} by ${info.author.email}`);
 
-  const sheet = info.worksheets[0];
+  const sheet = info.worksheets[1];
 
   sheet.getRows({
     offset: 1,
@@ -26,11 +26,11 @@ doc.getInfo((err, info) => {
 
     const data = rows.map((d) => {
       return {
-        lastname: d.lastname,
+        lastname: d.name,
         date: d.date,
-        timestarted: d.timestarted,
-        timeend: d.timeend,
-        count: d.howmanyfishdidyoucountgoinguptheladder
+        timestarted: d.starttime,
+        timeend: d.endtime,
+        count: d.count
       }
     });
 
