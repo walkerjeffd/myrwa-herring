@@ -34,7 +34,7 @@ function fishStatus() {
       GROUP BY vc.date
     ),
     d AS (
-      SELECT generate_series('2017-04-10'::date, (current_timestamp at time zone 'America/New_York')::date, '1 day')::date as date
+      SELECT generate_series('2017-04-01'::date, '2017-07-01'::date, '1 day')::date as date
     )
     SELECT
       d.date::text as date,
@@ -78,7 +78,7 @@ function videoStatus() {
       GROUP BY vc.date
     ),
     d AS (
-      SELECT generate_series('2017-04-10'::date, (current_timestamp at time zone 'America/New_York')::date, '1 day')::date as date
+      SELECT generate_series('2017-04-01'::date, '2017-07-01'::date, '1 day')::date as date
     )
     SELECT
       d.date::text as date,
