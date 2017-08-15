@@ -110,6 +110,12 @@ app.post('/count/', (req, res, next) => {
     .catch(next);
 });
 
+app.get('/sprint/', (req, res, next) => {
+  db.getSprintCount(config.api.sprint)
+    .then(result => res.status(200).json({ status: 'ok', data: result }))
+    .catch(next);
+});
+
 // error handler
 function errorHandler(err, req, res, next) { // eslint-disable-line no-unused-vars
   console.error(err.toString());

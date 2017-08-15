@@ -200,6 +200,16 @@ function getRandomVideo(params) {
     .then(results => results.rows);
 }
 
+function getSprintCount(params) {
+  const count = knex('counts')
+    .count()
+    .whereRaw('(created_at at time zone \'America/New_York\')::date >= ?::date', params.from)
+    .whereRaw('(created_at at time zone \'America/New_York\')::date <= ?::date', params.to)
+    .then(result => result[0]);
+
+  return count;
+}
+
 function saveCount(data) {
   return knex('counts')
     .returning('*')
@@ -217,5 +227,6 @@ module.exports = {
   getRandomVideo,
   getVideoById,
   getVideos,
+  getSprintCount,
   saveCount,
 };

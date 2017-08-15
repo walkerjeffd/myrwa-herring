@@ -8,6 +8,10 @@ module.exports = {
       visTemp: '../apps/vis-temp/dist',
       reports: '../r/pdf'
     },
+    sprint: {
+      from: 'YYYY-MM-DD',
+      to: 'YYYY-MM-DD'
+    },
     logFile: '/path/to/api-access.log'
   },
   db: {

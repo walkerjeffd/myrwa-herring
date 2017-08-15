@@ -1,0 +1,50 @@
+
+/*@import url("node_modules/odometer/themes/odometer-theme-minimal.css");*/
+
+.sprint-container {
+  width: 400px;
+  height: 400px;
+  text-align: center;
+  position: relative;
+  font-family: "proxima-nova","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+#sprint-progressbar-circle {
+  width: 200px;
+  height: 200px;
+  margin-left: 100px;
+}
+
+#sprint-progressbar-line {
+  width: 300px;
+  height: 70px;
+  margin-left: 50px;
+}
+
+.progressbar-text {
+  color: #000;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  padding: 0;
+  margin: 0;
+  transform: translate(-50%, -70%);
+}
+
+.progressbar-text-line {
+  color: #000;
+  font-size: 1.4em;
+  /*position: absolute;*/
+  /*left: 50%;*/
+  /*top: 50%;*/
+  /*padding: 0;*/
+  /*margin: 0;*/
+  /*transform: translate(-50%, -70%);*/
+}
+
+.progressbar-text .percentage {
+  font-size: 2em;
+}
+
+.sprint-remaining {
+}
