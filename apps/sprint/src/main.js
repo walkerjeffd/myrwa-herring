@@ -6,7 +6,7 @@ var config = require('../../config');
 require('./css/app.css');
 
 window.onload = function () {
-  $('#sprint').append(
+  $('#siteWrapper > div.banner-thumbnail-wrapper.has-description > div.desc-wrapper').append(
     `<div class="sprint-container">
       <p>Help us meet our goal of watching 1,000 videos by the end of September!</p>
       <div id="sprint-progressbar-circle"></div>

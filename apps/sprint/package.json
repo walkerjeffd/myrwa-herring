@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "jquery": "^3.2.1",
-    "odometer": "^0.4.8",
     "progressbar.js": "^1.0.1"
   },
   "devDependencies": {
