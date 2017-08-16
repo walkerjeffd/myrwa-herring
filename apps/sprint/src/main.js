@@ -6,11 +6,11 @@ var config = require('../../config');
 require('./css/app.css');
 
 window.onload = function () {
-  $('#siteWrapper > div.banner-thumbnail-wrapper.has-description > div.desc-wrapper').append(
+  $('#siteWrapper > div.banner-thumbnail-wrapper.has-description > div.desc-wrapper > p:nth-child(3)').after(
     `<div class="sprint-container">
-      <p>Help us meet our goal of watching 1,000 videos by the end of September!</p>
-      <div id="sprint-progressbar-circle"></div>
-      <p class="sprint-remaining"></p>
+      <p class="sprint-text">Help us meet our goal of watching 1,000 videos by the end of September!</p>
+      <div id="sprint-progressbar-circle" class="sprint-text"></div>
+      <p class="sprint-remaining sprint-text"></p>
     </div>`
   );
   $.get(config.api.url + '/sprint/', function (response) {
