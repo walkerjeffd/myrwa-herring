@@ -9,6 +9,7 @@
 .sprint-text {
   font-family: "proxima-nova","Helvetica Neue",Helvetica,Arial,sans-serif !important;
   font-style: normal !important;
+  font-size: 1.4em;
 }
 
 #sprint-progressbar-circle {
