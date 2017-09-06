@@ -20,7 +20,7 @@
 }
 
 .progressbar-text {
-  color: #000;
+  color: #FFF;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -36,7 +36,6 @@
 .sprint-remaining {
 }
 
-/*.transparent-header.view-list .banner-thumbnail-wrapper, .transparent-header.collection-type-page .banner-thumbnail-wrapper {
+.transparent-header.view-list .banner-thumbnail-wrapper, .transparent-header.collection-type-page .banner-thumbnail-wrapper {
   padding: 80px 0 0px !important;
 }
-*/
