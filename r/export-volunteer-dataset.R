@@ -68,7 +68,7 @@ volunteer <- fromJSON("json/volunteer-counts.json") %>%
     human_duration = as.numeric(difftime(end, start, units = "mins"))
   ) %>%
   arrange(start) %>%
-  distinct %>%
+  distinct() %>%
   mutate(
     volunteer_id = row_number()
   )
@@ -104,8 +104,9 @@ volunteer_videos <- volunteer %>%
     video_end = format(video_end, "%I:%M:%S %p")
   )
 
-volunteer_counts <- volunteer_videos %>%
-  group_by(volunteer_id, date, lastname, volunteer_start, volunteer_end, volunteer_count) %>%
+volunteer_video_counts <- volunteer_videos %>%
+  group_by(volunteer_id) %>%
+  # group_by(volunteer_id, date, lastname, volunteer_start, volunteer_end, volunteer_count) %>%
   summarise(
     n_video = n(),
     video_duration = round(sum(video_duration) / 60, 1),
@@ -116,18 +117,33 @@ volunteer_counts <- volunteer_videos %>%
   ungroup %>%
   select(
     volunteer_id,
-    date,
-    lastname,
-    volunteer_start,
-    volunteer_end,
+    # date,
+    # lastname,
+    # volunteer_start,
+    # volunteer_end,
     n_video,
     video_duration,
     n_video_counted,
     n_video_remaining,
-    volunteer_count,
+    # volunteer_count,
     video_count
   )
 
+volunteer_counts <- volunteer %>%
+  select(volunteer_id, date, lastname, volunteer_start = start, volunteer_end = end, volunteer_count = count) %>%
+  left_join(volunteer_video_counts, by = "volunteer_id") %>%
+  mutate(
+    volunteer_duration = as.numeric(difftime(volunteer_end, volunteer_start, units = "min")),
+    n_video = coalesce(n_video, 0L),
+    video_duration = coalesce(video_duration, 0),
+    n_video_counted = coalesce(n_video_counted, 0L),
+    n_video_remaining = coalesce(n_video_remaining, 0L),
+    video_count = coalesce(video_count, 0L)
+  ) %>%
+  select(
+    volunteer_id, lastname, date, volunteer_start, volunteer_end, volunteer_duration, volunteer_count,
+    n_video, video_duration, n_video_counted, n_video_remaining, video_count
+  )
 
 # export ------------------------------------------------------------------
 

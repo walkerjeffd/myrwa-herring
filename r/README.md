@@ -37,6 +37,14 @@ Install R packages
 install.packages(c("dplyr", "tidyr", "ggplot2", "RPostgreSQL", "lubridate", "RColorBrewer", "gridExtra", "jsonlite"))
 ```
 
+## Fetch Volunteer Data
+
+Read volunteer count data from google sheet, and save results to `json/volunteer-counts.json`.
+
+```bash
+node get-volunteer-counts.js
+```
+
 ## Video Report
 
 The `video-report.R` script fetches the video and count data from the database and generates a pdf of various plots for tracking the system.
