@@ -117,6 +117,16 @@ app.get('/sprint/', (req, res, next) => {
     .catch(next);
 });
 
+app.post('/sensor/', (req, res) => {
+  console.log('received sensor data');
+  if (!req.body) {
+    return res.status(400).json({ status: 'error', error: { message: 'No data found in request' } });
+  } else if (!req.body.secret || req.body.secret !== 'myrwa-herring') {
+    return res.status(401).json({ status: 'error', error: { message: 'Unauthorized request, secret is missing or incorrect' } });
+  }
+  return res.status(200).json({ status: 'ok', data: req.body });
+});
+
 // error handler
 function errorHandler(err, req, res, next) { // eslint-disable-line no-unused-vars
   console.error(err.toString());
