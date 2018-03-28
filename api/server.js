@@ -121,7 +121,7 @@ app.post('/sensor/', (req, res) => {
   console.log('received sensor data');
   if (!req.body) {
     return res.status(400).json({ status: 'error', error: { message: 'No data found in request' } });
-  } else if (!req.body.secret || req.body.secret !== 'myrwa-herring') {
+  } else if (!req.body.secret || req.body.secret !== config.api.sensor.secret) {
     return res.status(401).json({ status: 'error', error: { message: 'Unauthorized request, secret is missing or incorrect' } });
   }
   return res.status(200).json({ status: 'ok', data: req.body });

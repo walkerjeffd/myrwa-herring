@@ -12,6 +12,9 @@ module.exports = {
       from: 'YYYY-MM-DD',
       to: 'YYYY-MM-DD'
     },
+    sensor: {
+      secret: 'secret password'
+    },
     logFile: '/path/to/api-access.log'
   },
   db: {
