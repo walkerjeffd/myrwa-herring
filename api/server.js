@@ -117,14 +117,37 @@ app.get('/sprint/', (req, res, next) => {
     .catch(next);
 });
 
-app.post('/sensor/', (req, res) => {
+app.get('/sensor/', (req, res, next) =>
+  db.getSensorData(req.query)
+    .then(result => res.status(200).json({ status: 'ok', data: result }))
+    .catch(next)
+);
+
+app.post('/sensor/', (req, res, next) => {
   console.log('received sensor data');
   if (!req.body) {
     return res.status(400).json({ status: 'error', error: { message: 'No data found in request' } });
   } else if (!req.body.secret || req.body.secret !== config.api.sensor.secret) {
     return res.status(401).json({ status: 'error', error: { message: 'Unauthorized request, secret is missing or incorrect' } });
   }
-  return res.status(200).json({ status: 'ok', data: req.body });
+  const data = {
+    location_id: 'UML',
+    timestamp: req.body.timestamp,
+    temperature_degc: req.body.data.Temperature_degC,
+    specificconductance_us_cm: req.body.data.SpecificConductance_uS_cm,
+    depth_m: req.body.data.Depth_m,
+    battery_v: req.body.data.Battery_V,
+    turbidity_ntu: req.body.data.Turbidity_NTU,
+    nh3_ammonia_mg_l: req.body.data.NH3_Ammonia_mg_L,
+    chlorophyll_ug_l: req.body.data.Chlorophyll_ug_L,
+    chlorophyll_rfu: req.body.data.Chlorophyll_RFU,
+    odo_pcsat: req.body.data.ODO_pcSat,
+    odo_mg_l: req.body.data.ODO_mg_L,
+    bga_pc_ug_l: req.body.data.BGA_PC_ug_L
+  };
+  return db.saveSensor(data)
+    .then(result => res.status(200).json({ status: 'ok', data: result }))
+    .catch(next);
 });
 
 // error handler

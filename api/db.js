@@ -185,7 +185,7 @@ function getRandomVideo(params) {
     .leftJoin(counts, 'videos.id', 'c.video_id')
     .select()
     .where(knex.raw('COALESCE(n_count, 0)'), '<=', 2)
-    .where(function () {
+    .where(() => {
       this.where(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
       if (!params.first || params.first === 'false') {
         this.orWhere(knex.raw('COALESCE(n_count, 0)'), '=', 0);
@@ -222,6 +222,33 @@ function saveCount(data) {
     });
 }
 
+function saveSensor(data) {
+  return knex('sensor')
+    .returning('*')
+    .insert(data);
+}
+
+function getSensorData(query) {
+  let sql = knex('sensor')
+    .select()
+    .orderBy('timestamp', 'desc');
+
+  if (query) {
+    sql = sql.where(function whereClause() {
+      if (query.start) {
+        this.where('timestamp', '>=', query.start);
+      }
+      if (query.location_id) {
+        this.where('location_id', query.location_id);
+      }
+    });
+    if (query.last) {
+      sql = sql.limit(query.last);
+    }
+  }
+  return sql;
+}
+
 module.exports = {
   getStatus,
   getRandomVideo,
@@ -229,4 +256,6 @@ module.exports = {
   getVideos,
   getSprintCount,
   saveCount,
+  saveSensor,
+  getSensorData
 };
