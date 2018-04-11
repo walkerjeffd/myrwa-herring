@@ -162,6 +162,8 @@ function getRandomVideo(params) {
   // select subset of videos
   let videos = knex('videos')
     .where('flagged', false)
+    // run year
+    .andWhere(knex.raw('date_part(\'year\', start_timestamp at time zone \'America/New_York\')'), '=', config.api.runYear)
     // only daylight hours
     .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '>=', 6)
     .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '<=', 19);
@@ -185,7 +187,7 @@ function getRandomVideo(params) {
     .leftJoin(counts, 'videos.id', 'c.video_id')
     .select()
     .where(knex.raw('COALESCE(n_count, 0)'), '<=', 2)
-    .where(() => {
+    .where(function () {
       this.where(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
       if (!params.first || params.first === 'false') {
         this.orWhere(knex.raw('COALESCE(n_count, 0)'), '=', 0);

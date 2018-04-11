@@ -15,7 +15,8 @@ module.exports = {
     sensor: {
       secret: 'secret password'
     },
-    logFile: '/path/to/api-access.log'
+    logFile: '/path/to/api-access.log',
+    runYear: 2017 // year to pick videos from
   },
   db: {
     host: '',
