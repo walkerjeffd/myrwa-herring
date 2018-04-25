@@ -186,7 +186,7 @@ volunteer_tbl <- volunteer_videos %>%
 
 # pdf ---------------------------------------------------------------------
 
-pdf("pdf/video-report.pdf", width = 11, height = 8.5)
+pdf(paste0("pdf/video-report-", cfg$report$year, ".pdf"), width = 11, height = 8.5)
 
 
 # TILES -------------------------------------------------------------------
