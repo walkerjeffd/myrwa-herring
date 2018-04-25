@@ -1,11 +1,8 @@
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(lubridate)
-library(RColorBrewer)
-library(gridExtra)
-library(jsonlite)
-library(purrr)
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(lubridate))
+suppressPackageStartupMessages(library(RColorBrewer))
+suppressPackageStartupMessages(library(gridExtra))
+suppressPackageStartupMessages(library(jsonlite))
 
 theme_set(theme_bw())
 
@@ -33,6 +30,9 @@ tbl_videos <- pg %>%
     start_timestamp = with_tz(start_timestamp, tzone = "America/New_York"),
     end_timestamp = with_tz(end_timestamp, tzone = "America/New_York"),
     date = as.Date(start_timestamp, tz = "America/New_York")
+  ) %>%
+  filter(
+    year(start_timestamp) == cfg$report$year
   )
 
 tbl_counts <- pg %>%
@@ -44,7 +44,10 @@ tbl_counts <- pg %>%
 # merge -------------------------------------------------------------------
 
 counts <- tbl_counts %>%
-  left_join(select(tbl_videos, id, start_timestamp), by = c("video_id" = "id"))
+  left_join(select(tbl_videos, id, start_timestamp), by = c("video_id" = "id")) %>%
+  filter(
+    year(start_timestamp) == cfg$report$year
+  )
 
 counts_by_video <- tbl_counts %>%
   group_by(video_id) %>%
@@ -250,83 +253,88 @@ p4 <- videos_hour_tally %>%
     panel.grid.minor = element_blank()
   )
 
-grid.arrange(p1, p2, p3, p4, ncol = 2, top = "Mystic River Herring | Hourly Video Summary", bottom = updated_at)
+grid.arrange(
+  p1, p2, p3, p4,
+  ncol = 2,
+  top = paste0("Mystic River Herring (", cfg$report$year, ") | Hourly Video Summary"),
+  bottom = updated_at
+)
 
 
 
 # HEX DENSITY -------------------------------------------------------------
 
-p1a <- videos %>%
-  filter(n_count > 0) %>%
-  ggplot(aes(duration, mean_count)) +
-  geom_point(shape = 21, alpha = 0.5) +
-  xlim(0, NA) +
-  labs(
-    x = "Video Duration (min)",
-    y = "# Fish per Video",
-    title = "# Fish per Video vs. Video Duration",
-    subtitle = "[ Scatter Plot ]"
-  ) +
-  theme(
-    aspect.ratio = 1
-  )
-
-p1b <- videos %>%
-  filter(n_count > 0) %>%
-  ggplot(aes(duration, mean_count)) +
-  geom_hex(bins = 30) +
-  xlim(0, NA) +
-  scale_fill_gradientn(
-    name = "# Videos",
-    colors = rev(RColorBrewer::brewer.pal(n = 8, name = "Spectral")),
-    limits = c(0, NA)
-  ) +
-  labs(
-    x = "Video Duration (min)",
-    y = "# Fish per Video",
-    title = "# Fish per Video vs. Video Duration",
-    subtitle = "[ 2D Density Hex ]"
-  ) +
-  theme(
-    aspect.ratio = 1
-  )
-
-p2a <- videos %>%
-  filter(n_count > 0) %>%
-  ggplot(aes(duration, mean_count / (duration / 60))) +
-  geom_point(shape = 21, alpha = 0.5) +
-  xlim(0, NA) +
-  labs(
-    x = "Video Duration (seconds)",
-    y = "# Fish per Minute",
-    title = "Duration v. # Fish per Minute",
-    subtitle = "[ Scatter Plot ]"
-  ) +
-  theme(
-    aspect.ratio = 1
-  )
-
-p2b <- videos %>%
-  filter(n_count > 0) %>%
-  ggplot(aes(duration, mean_count / (duration / 60))) +
-  geom_hex(bins = 30) +
-  xlim(0, NA) +
-  scale_fill_gradientn(
-    name = "# Videos",
-    colors = rev(RColorBrewer::brewer.pal(n = 8, name = "Spectral")),
-    limits = c(0, NA)
-  ) +
-  labs(
-    x = "Video Duration (seconds)",
-    y = "# Fish per Minute",
-    title = "Duration v. # Fish per Minute",
-    subtitle = "[ 2D Density Hex ]"
-  ) +
-  theme(
-    aspect.ratio = 1
-  )
-
-grid.arrange(p1a, p1b, p2a, p2b, ncol = 2, bottom = updated_at)
+# p1a <- videos %>%
+#   filter(n_count > 0) %>%
+#   ggplot(aes(duration, mean_count)) +
+#   geom_point(shape = 21, alpha = 0.5) +
+#   xlim(0, NA) +
+#   labs(
+#     x = "Video Duration (min)",
+#     y = "# Fish per Video",
+#     title = "# Fish per Video vs. Video Duration",
+#     subtitle = "[ Scatter Plot ]"
+#   ) +
+#   theme(
+#     aspect.ratio = 1
+#   )
+#
+# p1b <- videos %>%
+#   filter(n_count > 0) %>%
+#   ggplot(aes(duration, mean_count)) +
+#   geom_hex(bins = 30) +
+#   xlim(0, NA) +
+#   scale_fill_gradientn(
+#     name = "# Videos",
+#     colors = rev(RColorBrewer::brewer.pal(n = 8, name = "Spectral")),
+#     limits = c(0, NA)
+#   ) +
+#   labs(
+#     x = "Video Duration (min)",
+#     y = "# Fish per Video",
+#     title = "# Fish per Video vs. Video Duration",
+#     subtitle = "[ 2D Density Hex ]"
+#   ) +
+#   theme(
+#     aspect.ratio = 1
+#   )
+#
+# p2a <- videos %>%
+#   filter(n_count > 0) %>%
+#   ggplot(aes(duration, mean_count / (duration / 60))) +
+#   geom_point(shape = 21, alpha = 0.5) +
+#   xlim(0, NA) +
+#   labs(
+#     x = "Video Duration (seconds)",
+#     y = "# Fish per Minute",
+#     title = "Duration v. # Fish per Minute",
+#     subtitle = "[ Scatter Plot ]"
+#   ) +
+#   theme(
+#     aspect.ratio = 1
+#   )
+#
+# p2b <- videos %>%
+#   filter(n_count > 0) %>%
+#   ggplot(aes(duration, mean_count / (duration / 60))) +
+#   geom_hex(bins = 30) +
+#   xlim(0, NA) +
+#   scale_fill_gradientn(
+#     name = "# Videos",
+#     colors = rev(RColorBrewer::brewer.pal(n = 8, name = "Spectral")),
+#     limits = c(0, NA)
+#   ) +
+#   labs(
+#     x = "Video Duration (seconds)",
+#     y = "# Fish per Minute",
+#     title = "Duration v. # Fish per Minute",
+#     subtitle = "[ 2D Density Hex ]"
+#   ) +
+#   theme(
+#     aspect.ratio = 1
+#   )
+#
+# grid.arrange(p1a, p1b, p2a, p2b, ncol = 2, bottom = updated_at)
 
 
 # BAR CHARTS - DAILY VIDEOS -----------------------------------------------
@@ -510,14 +518,12 @@ p <- counts %>%
   ggplot(aes(created_at, start_timestamp)) +
   geom_point(size = 1) +
   scale_x_datetime(
-    breaks = scales::date_breaks("6 days"),
-    labels = scales::date_format("%b %d"),
-    limits = ymd_hm("2017-04-10 00:00", paste0(today(tzone = "America/New_York") + days(1), " 00:00"), tz = "America/New_York")
+    breaks = scales::pretty_breaks(n = 10),
+    labels = scales::date_format("%b %d")
   ) +
   scale_y_datetime(
-    breaks = scales::date_breaks("6 days"),
-    labels = scales::date_format("%b %d"),
-    limits = ymd_hm("2017-04-10 00:00", paste0(today(tzone = "America/New_York") + days(1), " 00:00"), tz = "America/New_York")
+    breaks = scales::pretty_breaks(n = 10),
+    labels = scales::date_format("%b %d")
   ) +
   labs(
     x = "Timestamp of Count",
@@ -538,7 +544,7 @@ p <- volunteer_plot_data %>%
   geom_point(size = 1) +
   geom_smooth(method = "lm", se = FALSE) +
   annotate(
-    "text", x = 0, y = 1000,
+    "text", x = 0, y = max(volunteer_plot_data$video_count) - 100,
     label = paste0(
       "Video Count = ",
       format(coef(lm_counts)[1], digits = 3),

@@ -11,5 +11,8 @@
     "secretAccessKey": "",
     "bucket": "",
     "path": ""
+  },
+  "report": {
+    "year": 2017
   }
 }

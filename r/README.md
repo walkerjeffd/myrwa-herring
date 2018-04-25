@@ -19,6 +19,15 @@ Edit `config.json`
     "database": "",
     "user": "",
     "password": ""
+  },
+  "s3": {
+    "accessKeyId": "",
+    "secretAccessKey": "",
+    "bucket": "myrwa",
+    "path": ""
+  },
+  "report": {
+    "year": 2017
   }
 }
 ```
@@ -34,7 +43,7 @@ sudo apt-get install libpq-dev
 Install R packages
 
 ```r
-install.packages(c("dplyr", "tidyr", "ggplot2", "RPostgreSQL", "lubridate", "RColorBrewer", "gridExtra", "jsonlite"))
+install.packages(c("tidyverse", "RPostgreSQL", "lubridate", "RColorBrewer", "gridExtra", "jsonlite", "hexbin"))
 ```
 
 ## Fetch Volunteer Data
