@@ -1,3 +1,8 @@
+CREATE TABLE users (
+  uid TEXT PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE
+);
+
 CREATE TABLE locations (
   id TEXT PRIMARY KEY,
   location_description TEXT
@@ -14,7 +19,8 @@ CREATE TABLE videos (
   start_timestamp TIMESTAMP WITH TIME ZONE,
   end_timestamp TIMESTAMP WITH TIME ZONE,
   location_id TEXT REFERENCES locations(id) ON DELETE CASCADE,
-  flagged BOOLEAN DEFAULT FALSE
+  flagged BOOLEAN DEFAULT FALSE,
+  mp4_converted BOOLEAN
 );
 
 CREATE TABLE counts (
@@ -24,7 +30,8 @@ CREATE TABLE counts (
   session TEXT,
   count INT,
   comment TEXT,
-  flagged BOOLEAN DEFAULT FALSE
+  flagged BOOLEAN DEFAULT FALSE,
+  users_uid TEXT REFERENCES users(uid) ON DELETE SET NULL
 );
 
 CREATE TABLE sensor (
