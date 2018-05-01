@@ -37,19 +37,19 @@ app.use(allowCrossDomain);
 
 // set up priority queue
 let volunteerQueue = [];
-function refreshVolunteerQueue() {
-  console.log('updating volunteerQueue');
-  volunteer.getVideos(config.volunteer.docId)
-    .then((data) => {
-      const videos = data.map((row) => { // eslint-disable-line
-        return row.videos
-          .filter(d => d.n_count === 0)
-          .map(d => d.id);
-      });
-      volunteerQueue = [].concat.apply([], videos); // eslint-disable-line
-      console.log(`updated volunteerQueue (n = ${volunteerQueue.length})`);
-    });
-}
+// function refreshVolunteerQueue() {
+//   console.log('updating volunteerQueue');
+//   volunteer.getVideos(config.volunteer.docId)
+//     .then((data) => {
+//       const videos = data.map((row) => { // eslint-disable-line
+//         return row.videos
+//           .filter(d => d.n_count === 0)
+//           .map(d => d.id);
+//       });
+//       volunteerQueue = [].concat.apply([], videos); // eslint-disable-line
+//       console.log(`updated volunteerQueue (n = ${volunteerQueue.length})`);
+//     });
+// }
 // refreshVolunteerQueue();
 // setInterval(refreshVolunteerQueue, config.volunteer.interval * 1000);
 
@@ -111,6 +111,46 @@ app.post('/count/', (req, res, next) => {
     .catch(next);
 });
 
+app.get('/users/:uid', (req, res, next) => {
+  db.getUser({ uid: req.params.uid })
+    .then(result => res.status(200).json({ status: 'ok', data: result }))
+    .catch(next);
+});
+
+app.delete('/users/:uid', (req, res, next) => {
+  db.deleteUser({ uid: req.params.uid })
+    .then(() => res.status(202).json({ status: 'ok' }))
+    .catch(next);
+});
+
+app.put('/users/:uid', (req, res, next) => {
+  db.updateUser({ uid: req.params.uid, username: req.body.username })
+    .then(result => res.status(200).json({ status: 'ok', data: result }))
+    .catch(next);
+});
+
+app.get('/users/', (req, res, next) => {
+  if (!req.query || !req.query.username) {
+    return res.status(404).json({ status: 'error', error: { message: 'Missing username query parameter' } });
+  }
+  return db.getUser({ username: req.query.username })
+    .then(result => res.status(200).json({ status: 'ok', data: result }))
+    .catch(next);
+});
+
+app.post('/users/', (req, res, next) => {
+  console.log('received new user', req.body.uid, req.body.username, req.headers['x-real-ip'] || req.connection.remoteAddress);
+  db.createUser(req.body)
+    .then(result => res.status(201).json({ status: 'ok', data: result }))
+    .catch(next);
+});
+
+app.get('/leaderboard', (req, res, next) => {
+  db.getLeaderboard()
+    .then(result => res.status(200).json({ status: 'ok', data: result }))
+    .catch(next);
+});
+
 app.get('/sprint/', (req, res, next) => {
   db.getSprintCount(config.api.sprint)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
@@ -146,6 +186,12 @@ app.post('/sensor/', (req, res, next) => {
     bga_pc_ug_l: req.body.data.BGA_PC_ug_L
   };
   return db.saveSensor(data)
+    .then(result => res.status(200).json({ status: 'ok', data: result }))
+    .catch(next);
+});
+
+app.get('/run-estimate/', (req, res, next) => {
+  return db.getDailyRunEstimate(req.query)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
     .catch(next);
 });

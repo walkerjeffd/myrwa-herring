@@ -170,11 +170,12 @@ function getRandomVideo(params) {
 
   if (params.date) {
     videos = videos.andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date::text'), params.date);
-  } else {
-    videos = videos.whereRaw(
-      '(start_timestamp at time zone \'America/New_York\')::date > \'2017-05-14\'::date'
-    );
   }
+  // else {
+    // videos = videos.whereRaw(
+    //   '(start_timestamp at time zone \'America/New_York\')::date > \'2017-05-14\'::date'
+    // );
+  // }
 
   if (params.location) {
     videos = videos.andWhere('location_id', params.location);
@@ -185,14 +186,14 @@ function getRandomVideo(params) {
   // join videos and counts
   const cte = videos
     .leftJoin(counts, 'videos.id', 'c.video_id')
-    .select()
-    .where(knex.raw('COALESCE(n_count, 0)'), '<=', 2)
-    .where(function () {
-      this.where(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
-      if (!params.first || params.first === 'false') {
-        this.orWhere(knex.raw('COALESCE(n_count, 0)'), '=', 0);
-      }
-    });
+    .select();
+    // .where(knex.raw('COALESCE(n_count, 0)'), '<=', 2)
+    // .where(function () {
+    //   this.where(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
+    //   if (!params.first || params.first === 'false') {
+    //     this.orWhere(knex.raw('COALESCE(n_count, 0)'), '=', 0);
+    //   }
+    // });
 
   return knex
     .raw(
@@ -221,6 +222,7 @@ function saveCount(data) {
       comment: data.comment,
       session: data.session,
       flagged: data.count >= config.api.maxCount,
+      users_uid: data.uid,
     });
 }
 
@@ -251,6 +253,63 @@ function getSensorData(query) {
   return sql;
 }
 
+function getUser(params) {
+  return knex('users')
+    .select()
+    .where(params);
+}
+
+function updateUser(user) {
+  return knex('users')
+    .where({ uid: user.uid })
+    .update({
+      username: user.username
+    })
+    .returning('*');
+}
+
+function deleteUser(user) {
+  return knex('users')
+    .where({ uid: user.uid })
+    .delete();
+}
+
+function createUser(data) {
+  return knex('users')
+    .returning('*')
+    .insert(data);
+}
+
+function getLeaderboard() {
+  return knex('counts')
+    .leftJoin('users', 'counts.users_uid', 'users.uid')
+    .leftJoin('videos', 'counts.video_id', 'videos.id')
+    .where({
+      'counts.flagged': false,
+      'videos.flagged': false
+    })
+    .andWhere(knex.raw('date_part(\'year\', videos.start_timestamp at time zone \'America/New_York\')'), '=', config.api.runYear)
+    .whereNotNull('counts.users_uid')
+    .groupBy('users.uid')
+    .orderBy(knex.raw('count(*)'), 'desc')
+    .select(
+      'users.uid as uid',
+      'users.username as username',
+      knex.raw('count(*) as count'),
+      knex.raw('sum(counts.count) as total'),
+      knex.raw('sum(videos.duration) as duration')
+    );
+}
+
+function getDailyRunEstimate(params) {
+  const query = knex('run_daily')
+    .select()
+    .where('date', '>=', params.start)
+    .where('date', '<=', params.end);
+  console.log(query.toString());
+  return query;
+}
+
 module.exports = {
   getStatus,
   getRandomVideo,
@@ -259,5 +318,11 @@ module.exports = {
   getSprintCount,
   saveCount,
   saveSensor,
-  getSensorData
+  getSensorData,
+  createUser,
+  getUser,
+  updateUser,
+  deleteUser,
+  getLeaderboard,
+  getDailyRunEstimate
 };
