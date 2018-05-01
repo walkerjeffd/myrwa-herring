@@ -302,12 +302,10 @@ function getLeaderboard() {
 }
 
 function getDailyRunEstimate(params) {
-  const query = knex('run_daily')
+  return knex('run_daily')
     .select()
     .where('date', '>=', params.start)
     .where('date', '<=', params.end);
-  console.log(query.toString());
-  return query;
 }
 
 module.exports = {
