@@ -7,11 +7,10 @@
         <li v-show="!username"><router-link to="/login">Log In</router-link></li>
         <li v-show="!username"><router-link to="/sign-up">Sign Up</router-link></li>
         <li v-show="username"><router-link to="/account">Account</router-link></li>
-        <li><router-link to="/video">Video</router-link></li>
+        <li v-show="username"><a href="#" @click="logout">Logout</a></li>
+        <li><router-link to="/video">Watch Video</router-link></li>
         <li><router-link to="/leaderboard">Leaderboard</router-link></li>
       </ul>
-      <p v-show="username">username: {{ username }}</p>
-      <hr>
       <router-view/>
     </div>
   </div>
@@ -26,6 +25,10 @@ export default {
     ...mapGetters(['username', 'user', 'ready'])
   },
   methods: {
+    logout() {
+      this.$auth.logout()
+        .then(() => this.$router.replace({ name: 'home' }));
+    }
   }
 };
 </script>

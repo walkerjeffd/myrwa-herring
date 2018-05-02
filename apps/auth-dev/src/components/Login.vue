@@ -29,7 +29,7 @@ export default {
     login() {
       this.$auth.login(this.email, this.password)
         .then(() => {
-          const next = this.$route.query.redirect || { name: 'account' };
+          const next = this.$route.query.redirect || { name: 'home' };
           console.log('redirecting to', next);
           this.$router.push(next);
         })
