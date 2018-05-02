@@ -19,9 +19,11 @@ highcharts.setOptions({
   }
 });
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  components: { App },
-  template: '<App/>'
-});
+window.onload = () => {
+  /* eslint-disable no-new */
+  new Vue({
+    el: '#app',
+    components: { App },
+    template: '<App/>'
+  });
+};
