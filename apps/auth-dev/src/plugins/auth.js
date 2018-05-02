@@ -1,19 +1,11 @@
 import Firebase from 'firebase';
 import axios from 'axios';
 import store from '../store';
-
-const config = {
-  apiKey: 'AIzaSyDmkeOobOcEoCVBmfKN1L0I6TwtqJKxubo',
-  authDomain: 'myrwa-herring.firebaseapp.com',
-  databaseURL: 'https://myrwa-herring.firebaseio.com',
-  projectId: 'myrwa-herring',
-  storageBucket: '',
-  messagingSenderId: '495815166483'
-};
+import config from '../../../config/';
 
 export default {
   install: (Vue) => {
-    const firebase = Firebase.initializeApp(config);
+    const firebase = Firebase.initializeApp(config.firebase);
     const auth = firebase.auth();
     Vue.prototype.$auth = { // eslint-disable-line no-param-reassign
       login: (email, password) => auth.signInWithEmailAndPassword(email, password),

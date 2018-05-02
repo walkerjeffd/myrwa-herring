@@ -15,12 +15,14 @@
       </div>
     </div>
     <p>Share your count with friends and family!</p>
-    <!-- <social-sharing url="https://mysticherring.org/"
-                    :title="title"
-                    description="Help document the Mystic River herring migration in Medford and Winchester, MA and learn more about this amazing wildlife migration."
-                    hashtags="mysticriver,citizenscience"
-                    twitter-user="MysticMyRWA"
-                    inline-template>
+    <!-- <social-sharing
+      url="https://mysticherring.org/"
+      :title="title"
+      description="Help document the Mystic River herring migration in Medford and Winchester, MA
+ and learn more about this amazing wildlife migration."
+      hashtags="mysticriver,citizenscience"
+      twitter-user="MysticMyRWA"
+      inline-template>
       <div class="network-icons">
           <network network="facebook">
             <icon name="facebook-square" scale="4"></icon>

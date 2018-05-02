@@ -104,12 +104,15 @@ export default {
           this.$router.push({ name: 'confirm' });
         })
         .catch((response) => {
-          alert('Error occurred saving count to the server, try submitting again.\n\nIf the problem continues, please let us know using the Contact Us form, or email us at herring.education@mysticriver.org.'); // eslint-disable-line
+          alert('Error occurred saving count to the server, try submitting again.\n\nIf the ' +
+            'problem continues, please let us know using the Contact Us form, or email us at ' +
+            'herring.education@mysticriver.org.'); // eslint-disable-line no-alert
           console.log(response);
         });
       // })
       // .catch(() => {
-      // alert('A count is required and must be a whole number. Do not use commas or periods in your count.');
+      // alert('A count is required and must be a whole number. Do not use commas or periods ' +
+      //   'in your count.');
       // })
     }
   }

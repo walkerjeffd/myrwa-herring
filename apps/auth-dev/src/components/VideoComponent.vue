@@ -67,17 +67,19 @@ export default {
     // const tips = '<div class="counting-tips">' +
     //   '<h2>Counting Tips</h2>' +
     //   '<ol>' +
-    //     '<li>Only count fish that swim completely upstream (across the left edge of the video), including any you might see at the start of the video</li>' +
+    //     '<li>Only count fish that swim completely upstream (across the left edge of the ' +
+    //     'video), including any you might see at the start of the video</li>' +
     //     '<li>Ignore any fish that swim back downstream (to the right)</li>' +
     //     '<li>If you don\'t see any fish, submit a count of zero</li>' +
     //     '<li>Use pause, slow down, or full screen if there are too many fish to count</li>' +
     //   '</ol>' +
-    //   'See <a class="vjs-overlay-link" href="/video/instructions">Instructions</a> page for more details.' +
+    //   'See <a class="vjs-overlay-link" href="/video/instructions">Instructions</a> page ' +
+    //   'for more details.' +
     //   '</div>';
 
     const vm = this;
 
-    const player = videojs('video', {
+    videojs('video', {
       controls: true,
       autoplay: false,
       width: 700,
@@ -103,7 +105,9 @@ export default {
       vm.player.on('ended', () => console.log('video:ended'));
 
       vm.$store.dispatch('getVideo')
-        .then(() => vm.loading = false);
+        .then(() => {
+          vm.loading = false;
+        });
     });
 
     // if (vm.session.count === 0) {
