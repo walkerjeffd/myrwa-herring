@@ -19,11 +19,13 @@ require('./css/app.css');
 Vue.use(Auth);
 Vue.component('icon', Icon);
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  store,
-  components: { App },
-  template: '<App/>'
-});
+window.onload = () => {
+  /* eslint-disable no-new */
+  new Vue({
+    el: '#app',
+    router,
+    store,
+    components: { App },
+    template: '<App/>'
+  });
+};
