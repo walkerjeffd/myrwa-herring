@@ -139,6 +139,10 @@ function getVideos(params) {
     qry = qry.where('location_id', params.location);
   }
 
+  if (params.year) {
+    qry = qry.where(knex.raw('date_part(\'year\', start_timestamp at time zone \'America/New_York\')'), '=', params.year);
+  }
+
   return qry.orderBy('location_id').orderBy('start_timestamp');
 }
 

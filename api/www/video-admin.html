@@ -37,7 +37,7 @@ var player = videojs('video', {
 });
 
 $.ajax({
-  url: 'https://myrwa-api.org/api/herring/videos/?location=UML',
+  url: 'https://myrwa-api.org/api/herring/videos/?location=UML&year=2018',
   success: function (response) {
     response.data.forEach(function (d) {
       d.start_timestamp = new Date(d.start_timestamp);
