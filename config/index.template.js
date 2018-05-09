@@ -16,7 +16,12 @@ module.exports = {
       secret: 'secret password'
     },
     logFile: '/path/to/api-access.log',
-    runYear: 2017 // year to pick videos from
+    videos: {              // video selection criteria
+      year: 2018,          // year
+      start: '2018-04-27', // first date
+      location: 'UML',     // location
+      hours: [7, 19]       // range of hours (end hour not inclusive)
+    }
   },
   db: {
     host: '',

@@ -152,52 +152,74 @@ function getVideoById(id) {
     .where('id', id);
 }
 
+// function getRandomVideo(params) {
+//   if (params.id) {
+//     return getVideoById(params.id);
+//   }
+
+//   const counts = knex('counts')
+//     .select('video_id', knex.raw('count(*)::integer as n_count'), knex.raw('avg(count)::real as mean_count'))
+//     .where('flagged', false)
+//     .groupBy('video_id')
+//     .as('c');
+
+//   // select subset of videos
+//   let videos = knex('videos')
+//     .where('flagged', false)
+//     // run year
+//     .andWhere(knex.raw('date_part(\'year\', start_timestamp at time zone \'America/New_York\')'), '=', config.api.runYear)
+//     // only daylight hours
+//     .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '>=', 6)
+//     .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '<=', 19);
+
+//   if (params.date) {
+//     videos = videos.andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date::text'), params.date);
+//   }
+//   // else {
+//     // videos = videos.whereRaw(
+//     //   '(start_timestamp at time zone \'America/New_York\')::date > \'2017-05-14\'::date'
+//     // );
+//   // }
+
+//   if (params.location) {
+//     videos = videos.andWhere('location_id', params.location);
+//   } else {
+//     videos = videos.andWhere('location_id', 'UML');
+//   }
+
+//   // join videos and counts
+//   const cte = videos
+//     .leftJoin(counts, 'videos.id', 'c.video_id')
+//     .select();
+//     // .where(knex.raw('COALESCE(n_count, 0)'), '<=', 2)
+//     // .where(function () {
+//     //   this.where(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
+//     //   if (!params.first || params.first === 'false') {
+//     //     this.orWhere(knex.raw('COALESCE(n_count, 0)'), '=', 0);
+//     //   }
+//     // });
+
+//   return knex
+//     .raw(
+//       'with v as (?) ?',
+//       [cte, knex.raw('select * from v offset floor( random() * (select count(*) from v) ) limit 1')]
+//     )
+//     .then(results => results.rows);
+// }
+
 function getRandomVideo(params) {
   if (params.id) {
     return getVideoById(params.id);
   }
 
-  const counts = knex('counts')
-    .select('video_id', knex.raw('count(*)::integer as n_count'), knex.raw('avg(count)::real as mean_count'))
+  const cte = knex('videos')
     .where('flagged', false)
-    .groupBy('video_id')
-    .as('c');
-
-  // select subset of videos
-  let videos = knex('videos')
-    .where('flagged', false)
-    // run year
-    .andWhere(knex.raw('date_part(\'year\', start_timestamp at time zone \'America/New_York\')'), '=', config.api.runYear)
+    .andWhere(knex.raw('date_part(\'year\', start_timestamp at time zone \'America/New_York\')'), '=', config.api.videos.year)
+    .andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date'), '>=', config.api.videos.start)
     // only daylight hours
-    .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '>=', 6)
-    .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '<=', 19);
-
-  if (params.date) {
-    videos = videos.andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date::text'), params.date);
-  }
-  // else {
-    // videos = videos.whereRaw(
-    //   '(start_timestamp at time zone \'America/New_York\')::date > \'2017-05-14\'::date'
-    // );
-  // }
-
-  if (params.location) {
-    videos = videos.andWhere('location_id', params.location);
-  } else {
-    videos = videos.andWhere('location_id', 'UML');
-  }
-
-  // join videos and counts
-  const cte = videos
-    .leftJoin(counts, 'videos.id', 'c.video_id')
-    .select();
-    // .where(knex.raw('COALESCE(n_count, 0)'), '<=', 2)
-    // .where(function () {
-    //   this.where(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
-    //   if (!params.first || params.first === 'false') {
-    //     this.orWhere(knex.raw('COALESCE(n_count, 0)'), '=', 0);
-    //   }
-    // });
+    .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '>=', config.api.videos.hours[0])
+    .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '<', config.api.videos.hours[1])
+    .andWhere('location_id', config.api.videos.location);
 
   return knex
     .raw(
