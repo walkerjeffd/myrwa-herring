@@ -25,6 +25,7 @@ function fishStatus() {
       FROM videos v
       LEFT JOIN c ON v.id = c.video_id
       WHERE NOT v.flagged
+      AND (v.start_timestamp AT TIME ZONE 'America/New_York')::date >= '2018-04-27'
     ),
     vcd AS (
       SELECT
@@ -34,7 +35,7 @@ function fishStatus() {
       GROUP BY vc.date
     ),
     d AS (
-      SELECT generate_series('2017-04-01'::date, '2017-07-01'::date, '1 day')::date as date
+      SELECT generate_series('2018-04-25'::date, (now() at time zone 'US/Eastern')::date, '1 day')::date as date
     )
     SELECT
       d.date::text as date,
@@ -68,6 +69,7 @@ function videoStatus() {
       FROM videos v
       LEFT JOIN c on v.id = c.video_id
       WHERE NOT flagged
+      AND (v.start_timestamp AT TIME ZONE 'America/New_York')::date >= '2018-04-27'
     ),
     vcd AS (
       SELECT
@@ -78,12 +80,12 @@ function videoStatus() {
       GROUP BY vc.date
     ),
     d AS (
-      SELECT generate_series('2017-04-01'::date, '2017-07-01'::date, '1 day')::date as date
+      SELECT generate_series('2018-04-25'::date, (now() at time zone 'US/Eastern')::date, '1 day')::date as date
     )
     SELECT
       d.date::text as date,
-      vcd.n_total::integer as n_total,
-      vcd.n_counted::integer as n_counted
+      COALESCE(vcd.n_total::integer, 0) as n_total,
+      COALESCE(vcd.n_counted::integer, 0) as n_counted
     FROM d
     LEFT JOIN vcd
     ON d.date = vcd.date
