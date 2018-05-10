@@ -117,8 +117,6 @@
       </div>
 
       <h2 class="account-heading">Delete Account</h2>
-      <p><strong>Warning</strong>:&nbsp;This cannot be undone!</p>
-
       <div class="sqs-block button-block sqs-block-button delete-button">
         <div class="sqs-block-content">
           <div class="sqs-block-button-container--left">
@@ -131,11 +129,11 @@
           </div>
         </div>
       </div>
+      <p class="is-danger"><strong>Warning</strong>:&nbsp;This cannot be undone!</p>
       <p v-if="deleteButton.loginRequired">
         Please <router-link to="/login?redirect=/account">log in</router-link> again then return
         to this page to delete your account.
       </p>
-      <p v-if="deleteButton.message"><span v-html="deleteButton.message"></span></p>
       <p v-if="deleteButton.error">{{ deleteButton.error }}</p>
     </div>
   </div>
@@ -167,7 +165,6 @@ export default {
         loginRequired: false
       },
       deleteButton: {
-        message: null,
         error: null,
         loginRequired: false
       }
@@ -235,10 +232,7 @@ export default {
     deleteAccount() {
       this.$auth.delete()
         .then(() => {
-          this.deleteButton.message = 'Your account has been deleted. You will be redirected to the home page.';
-          setTimeout(() => {
-            this.$router.push('/');
-          }, 3000);
+          this.$router.push('/deleted');
         })
         .catch((err) => {
           if (err.code === 'auth/requires-recent-login') {

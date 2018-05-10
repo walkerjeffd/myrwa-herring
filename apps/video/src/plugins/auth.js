@@ -10,9 +10,10 @@ export default {
       getUser: () => auth.currentUser,
       login: (email, password) => auth.signInWithEmailAndPassword(email, password),
       logout: () => auth.signOut(),
-      signUp: (email, password, username) => axios.get(`/users/?username=${username}`)
+      signUp: (email, password, username) => axios.get(`/username-available/?username=${username}`)
         .then((response) => {
-          if (response.data.status === 'ok' && response.data.data.length > 0) {
+          console.log('response', response);
+          if (response.data.status === 'ok' && !response.data.data.available) {
             return Promise.reject({
               code: 'auth/username-already-in-use',
               message: 'Username already in use by another account.'
@@ -23,7 +24,9 @@ export default {
         .then(() => auth.createUserWithEmailAndPassword(email, password))
         .then(firebaseUser => axios.post('/users/', { uid: firebaseUser.uid, username }))
         .then(response => response.data.data[0])
-        .then(user => store.dispatch('auth/setUser', user)),
+        .then(user => axios.get(`/users/${user.uid}`)
+          .then(response => store.dispatch('auth/setUser', response.data.data))
+        ),
       updateEmail: email => auth.currentUser.updateEmail(email),
       updatePassword: password => auth.currentUser.updatePassword(password),
       updateUsername: username => axios.put(`/users/${auth.currentUser.uid}`, { username })
@@ -33,6 +36,7 @@ export default {
         return auth.currentUser.delete()
           .then(() => axios.delete(`/users/${uid}`));
       },
+      passwordReset: email => auth.sendPasswordResetEmail(email),
       refreshUser: () => {
         const user = auth.currentUser;
         if (user) {

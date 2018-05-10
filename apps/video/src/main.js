@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import VeeValidate from 'vee-validate';
+import Vuelidate from 'vuelidate';
 import SocialSharing from 'vue-social-sharing';
 import Icon from 'vue-awesome';
 
@@ -14,7 +14,7 @@ import config from '../../config';
 require('./css/app.css');
 
 Vue.use(VueRouter);
-Vue.use(VeeValidate);
+Vue.use(Vuelidate);
 Vue.use(SocialSharing);
 Vue.use(HttpPlugin, { baseURL: config.api.url });
 Vue.use(AuthPlugin, { config: config.firebase, store });

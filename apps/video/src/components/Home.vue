@@ -29,11 +29,11 @@
             <div class="sqs-block button-block sqs-block-button">
               <div class="sqs-block-content">
                 <div class="sqs-block-button-container--center">
-                  <a
-                    href="/video/instructions"
+                  <router-link
+                    to="/instructions"
                     class="sqs-block-button-element--medium sqs-block-button-element">
                     View Instructions
-                  </a>
+                  </router-link>
                 </div>
               </div>
             </div>

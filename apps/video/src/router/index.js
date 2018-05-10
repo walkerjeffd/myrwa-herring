@@ -5,14 +5,11 @@ import Home from '@/components/Home';
 import Instructions from '@/components/Instructions';
 import Data from '@/components/Data';
 import Leaderboard from '@/components/Leaderboard';
-
 import VideoHome from '@/components/VideoHome';
-import Watch from '@/components/Watch';
-import Form from '@/components/Form';
 import Confirm from '@/components/Confirm';
-
 import Login from '@/components/Login';
 import Logout from '@/components/Logout';
+import ConfirmDelete from '@/components/ConfirmDelete';
 import Signup from '@/components/Signup';
 import Account from '@/components/Account';
 import PasswordReset from '@/components/PasswordReset';
@@ -39,17 +36,7 @@ const routes = [
   },
   {
     path: '/video',
-    component: VideoHome,
-    children: [
-      {
-        path: '',
-        component: Watch
-      },
-      {
-        path: '/form',
-        component: Form
-      }
-    ]
+    component: VideoHome
   },
   {
     path: '/confirm',
@@ -62,6 +49,10 @@ const routes = [
   {
     path: '/logout',
     component: Logout
+  },
+  {
+    path: '/deleted',
+    component: ConfirmDelete
   },
   {
     path: '/signup',
@@ -80,6 +71,10 @@ const routes = [
 const router = new VueRouter({
   mode: 'hash',
   routes
+});
+
+router.afterEach(() => {
+  window.scrollTo(0, 0);
 });
 
 export default router;

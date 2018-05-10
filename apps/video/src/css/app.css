@@ -16,3 +16,8 @@
 .counting-tips > ol > li {
   margin: 5px 0;
 }
+
+.is-danger {
+  color: red;
+}
+

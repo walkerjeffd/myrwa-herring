@@ -55,9 +55,6 @@ const messages = [
 ];
 
 export default {
-  data() {
-    return {};
-  },
   computed: {
     ...mapGetters({
       user: 'auth/user',
@@ -75,11 +72,6 @@ export default {
       }
       return message;
     }
-  },
-  created() {
-    window.scrollTo(0, 100);
-  },
-  methods: {
   }
 };
 </script>

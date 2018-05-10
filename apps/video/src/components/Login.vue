@@ -10,7 +10,7 @@
         <div class="sqs-block-content">
           <div class="form-wrapper">
             <div class="form-inner-wrapper">
-              <form v-on:submit.prevent="login">
+              <form v-on:submit.prevent="login" @submit="$v.$touch()">
                 <div class="field-list clear">
                   <div
                     class="form-item field email required">
@@ -25,6 +25,12 @@
                       spellcheck="false"
                       id="email-field"
                       v-model="email">
+                    <span v-if="submitted && !$v.email.required" class="is-danger">
+                      Field is required.
+                    </span>
+                    <span v-if="submitted && !$v.email.email" class="is-danger">
+                      Email address is not valid.
+                    </span>
                   </div>
                   <div class="form-item field password required">
                     <label class="title" for="password-field">
@@ -33,19 +39,28 @@
                     <input
                       class="field-element"
                       type="password"
+                      name="password"
                       id="password-field"
                       v-model="password">
+                    <span v-if="submitted && !$v.password.required" class="is-danger">
+                      Password is required.
+                    </span>
+                    <span v-if="submitted && !$v.password.minLength" class="is-danger">
+                      Password must be at least 6 characters.
+                    </span>
                   </div>
                 </div>
                 <div class="form-button-wrapper form-button-wrapper--align-left">
                   <input
                     class="button sqs-system-button sqs-editable-button"
+                    :class="{ disabled: loading }"
                     type="submit"
                     value="Submit">
                 </div>
-                <!-- <div class="hidden form-submission-text">Thank you!</div>
-                <div class="hidden form-submission-html" data-submission-html=""></div> -->
               </form>
+              <div v-if="error" class="is-danger" style="margin-top:20px">
+                {{ error }}
+              </div>
             </div>
           </div>
         </div>
@@ -66,22 +81,48 @@
 </template>
 
 <script>
+import { required, email, minLength } from 'vuelidate/lib/validators';
+
 export default {
   name: 'login',
   data() {
     return {
-      email: '',
-      password: '',
-      error: null
+      email: null,
+      password: null,
+      submitted: false,
+      error: null,
+      loading: false
     };
+  },
+  validations: {
+    email: {
+      required,
+      email
+    },
+    password: {
+      required,
+      minLength: minLength(6)
+    }
   },
   methods: {
     login() {
-      this.$auth.login(this.email, this.password)
-        .then(() => this.$router.push(this.$route.query.redirect || '/'))
-        .catch((err) => {
-          this.error = err.message || 'Unknown error occurred.';
-        });
+      if (this.loading) return;
+      this.submitted = true;
+      if (!this.$v.$invalid) {
+        console.log('login', this.email, this.password);
+        this.loading = true;
+        this.$auth.login(this.email, this.password)
+          .then(() => this.$router.push(this.$route.query.redirect || '/'))
+          .catch((err) => {
+            console.log(err);
+            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+              this.error = 'Email or password is incorrect.';
+            } else {
+              this.error = err.message || 'Unknown error occurred.';
+            }
+            this.loading = false;
+          });
+      }
     }
   }
 };
@@ -90,5 +131,9 @@ export default {
 <style scoped>
 .description {
   white-space: normal !important;
+}
+.button.sqs-system-button.sqs-editable-button.disabled {
+  background-color: #aaa !important;
+  cursor: default;
 }
 </style>
