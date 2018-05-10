@@ -26,8 +26,8 @@
                     <div class="sqs-block-button-container--left">
                       <router-link
                         to="/video"
-                        class="sqs-block-button-element--small sqs-block-button-element bg-teal">
-                        <strong style="color:white">Watch A Video!</strong>
+                        class="sqs-block-button-element--small sqs-block-button-element">
+                        <strong>Watch A Video!</strong>
                       </router-link>
                     </div>
                   </div>

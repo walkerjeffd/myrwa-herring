@@ -77,11 +77,7 @@ export default {
 };
 </script>
 
-<style>
-p {
-  font-size:1.2em
-}
-
+<style scoped>
 .network-icons {
   color: #888;
 }
