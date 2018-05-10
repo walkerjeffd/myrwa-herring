@@ -77,7 +77,14 @@
           <div class="col-sqs-col-12 span-12">
             <div class="sqs-block html-block sqs-block-html">
               <div class="sqs-block-content">
-                <iframe width="683" height="350" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJA5pitGN244kRSmX-a47EJ8c&key=AIzaSyD_wQxw0PF_1TxfMFUMQ9mWim0-PqNbJFM&zoom=12" allowfullscreen></iframe>
+                <iframe
+                  width="683"
+                  height="350"
+                  frameborder="0"
+                  style="border:0"
+                  src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJA5pitGN244kRSmX-a47EJ8c&key=AIzaSyD_wQxw0PF_1TxfMFUMQ9mWim0-PqNbJFM&zoom=12"
+                  allowfullscreen>
+                </iframe>
               </div>
             </div>
           </div>

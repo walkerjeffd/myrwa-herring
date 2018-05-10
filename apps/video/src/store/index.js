@@ -36,10 +36,10 @@ export default new Vuex.Store({
       state.run = run;
     },
     incrementSessionCount(state) {
-      state.session.count = state.session.count + 1;
+      state.session.count = state.session.count + 1; // eslint-disable-line operator-assignment
     },
     incrementSessionTotal(state, count) {
-      state.session.total = state.session.total + count;
+      state.session.total = state.session.total + count; // eslint-disable-line operator-assignment
     },
     setSessionLastCount(state, count) {
       state.session.lastCount = count;

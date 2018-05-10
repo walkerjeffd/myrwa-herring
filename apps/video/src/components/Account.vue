@@ -21,22 +21,30 @@
                   Username <span class="required">*</span>
                 </label>
                 <div class="description">
-                  Your Username may be shown publicly on the Leaderboard.
+                  Your Username may be shown publicly on the Leaderboard. Must be at least 3
+                  characters.
                 </div>
                 <input
                   class="field-element text"
                   type="text"
                   id="username-field"
-                  v-model="username.value">
+                  name="username"
+                  v-model="username">
+                <span v-if="usernameForm.submitted && !$v.username.required" class="is-danger">
+                  Username is required.
+                </span>
+                <span v-if="usernameForm.submitted && !$v.username.minLength" class="is-danger">
+                  Must be at least 3 characters.
+                </span>
               </div>
             </div>
             <div class="form-button-wrapper form-button-wrapper--align-left">
               <input
                 class="button sqs-system-button sqs-editable-button" type="submit" value="Submit">
             </div>
+            <p v-if="usernameForm.message">{{ usernameForm.message }}</p>
+            <p v-if="usernameForm.error" class="is-danger">{{ usernameForm.error }}</p>
           </form>
-          <p v-if="username.message">{{ username.message }}</p>
-          <p v-if="username.error">{{ username.error }}</p>
         </div>
       </div>
 
@@ -56,20 +64,26 @@
                   type="text"
                   spellcheck="false"
                   id="email-field"
-                  v-model="email.value">
+                  v-model="email">
+                <span v-if="emailForm.submitted && !$v.email.required" class="is-danger">
+                  Email is required.
+                </span>
+                <span v-if="emailForm.submitted && !$v.email.email" class="is-danger">
+                  Email address is not valid.
+                </span>
               </div>
             </div>
             <div class="form-button-wrapper form-button-wrapper--align-left">
               <input
                 class="button sqs-system-button sqs-editable-button" type="submit" value="Submit">
             </div>
+            <p v-if="emailForm.message">{{ emailForm.message }}</p>
+            <p v-if="emailForm.error" class="is-danger">{{ emailForm.error }}</p>
+            <p v-if="emailForm.loginRequired" class="is-danger">
+              Please <router-link to="/login?redirect=/account">log in</router-link> again to change
+              your email.
+            </p>
           </form>
-          <p v-if="email.message">{{ email.message }}</p>
-          <p v-if="email.error">{{ email.error }}</p>
-          <p v-if="email.loginRequired">
-            Please <router-link to="/login?redirect=/account">log in</router-link> again to change
-            your email.
-          </p>
         </div>
       </div>
 
@@ -89,7 +103,14 @@
                   class="field-element"
                   type="password"
                   id="password-field"
-                  v-model="password.value">
+                  name="password"
+                  v-model="password">
+                <span v-if="passwordForm.submitted && !$v.password.required" class="is-danger">
+                  Password is required.
+                </span>
+                <span v-if="passwordForm.submitted && !$v.password.minLength" class="is-danger">
+                  Password must be at least 6 characters.
+                </span>
               </div>
               <div class="form-item field password required">
                 <label class="title" for="password2-field">
@@ -99,7 +120,13 @@
                   class="field-element"
                   type="password"
                   id="password2-field"
-                  v-model="password.value2">
+                  name="password2"
+                  v-model="password2">
+                <span
+                  v-if="passwordForm.submitted && !$v.password2.sameAsPassword"
+                  class="is-danger">
+                  Passwords must be identical.
+                </span>
               </div>
             </div>
             <div class="form-button-wrapper form-button-wrapper--align-left">
@@ -107,9 +134,9 @@
                 class="button sqs-system-button sqs-editable-button" type="submit" value="Submit">
             </div>
           </form>
-          <p v-if="password.message"><span v-html="password.message"></span></p>
-          <p v-if="password.error">{{ password.error }}</p>
-          <p v-if="password.loginRequired">
+          <p v-if="passwordForm.message"><span v-html="passwordForm.message"></span></p>
+          <p v-if="passwordForm.error">{{ passwordForm.error }}</p>
+          <p v-if="passwordForm.loginRequired">
             Please <router-link to="/login?redirect=/account">log in</router-link> again to change
             your password.
           </p>
@@ -130,45 +157,67 @@
         </div>
       </div>
       <p class="is-danger"><strong>Warning</strong>:&nbsp;This cannot be undone!</p>
-      <p v-if="deleteButton.loginRequired">
+      <p v-if="deleteButtonForm.loginRequired">
         Please <router-link to="/login?redirect=/account">log in</router-link> again then return
         to this page to delete your account.
       </p>
-      <p v-if="deleteButton.error">{{ deleteButton.error }}</p>
+      <p v-if="deleteButtonForm.error">{{ deleteButtonForm.error }}</p>
     </div>
   </div>
 </template>
 
 <script>
+import { required, email, minLength, sameAs } from 'vuelidate/lib/validators';
 import { mapGetters } from 'vuex';
 
 export default {
   name: 'account',
   data() {
     return {
-      username: {
-        value: null,
-        message: null,
-        error: null
-      },
-      email: {
-        value: null,
+      username: null,
+      email: null,
+      password: null,
+      password2: null,
+      usernameForm: {
         message: null,
         error: null,
+        submitted: false
+      },
+      emailForm: {
+        message: null,
+        error: null,
+        submitted: false,
         loginRequired: false
       },
-      password: {
-        value: null,
-        value2: null,
+      passwordForm: {
         message: null,
         error: null,
+        submitted: false,
         loginRequired: false
       },
-      deleteButton: {
+      deleteButtonForm: {
         error: null,
+        submitted: false,
         loginRequired: false
       }
     };
+  },
+  validations: {
+    username: {
+      required,
+      minLength: minLength(3)
+    },
+    email: {
+      required,
+      email
+    },
+    password: {
+      required,
+      minLength: minLength(6)
+    },
+    password2: {
+      sameAsPassword: sameAs('password')
+    }
   },
   computed: {
     ...mapGetters({
@@ -177,57 +226,79 @@ export default {
   },
   methods: {
     updateUsername() {
-      this.username.message = null;
-      this.username.error = null;
+      console.log('updateUsername', this.$v.username.$invalid);
+      this.usernameForm.submitted = true;
+      this.usernameForm.message = null;
+      this.usernameForm.error = null;
 
-      this.$auth.updateUsername(this.username.value)
-        .then(() => {
-          this.username.value = null;
-          this.username.message = 'Username has been updated';
-        })
-        .catch((err) => {
-          this.username.error = err.message || 'Unknown error occurred.';
-          console.log(err);
-        });
+      if (!this.$v.username.$invalid) {
+        this.$auth.updateUsername(this.username)
+          .then(() => {
+            this.username = null;
+            this.usernameForm.message = 'Username has been updated';
+            this.usernameForm.submitted = false;
+            setTimeout(() => {
+              this.usernameForm.message = null;
+            }, 3000);
+          })
+          .catch((err) => {
+            this.usernameForm.error = err.message || 'Unknown error occurred.';
+            console.log(err);
+          });
+      }
     },
     updateEmail() {
-      this.email.loginRequired = false;
-      this.email.message = null;
-      this.email.error = null;
+      this.emailForm.submitted = true;
+      this.emailForm.loginRequired = false;
+      this.emailForm.message = null;
+      this.emailForm.error = null;
 
-      this.$auth.updateEmail(this.email.value)
-        .then(() => {
-          this.email.value = null;
-          this.email.message = 'Email has been updated';
-        })
-        .catch((err) => {
-          if (err.code === 'auth/requires-recent-login') {
-            this.email.loginRequired = true;
-          } else {
-            this.email.error = err.message || 'Unknown error occurred.';
-            console.log(err);
-          }
-        });
+      if (!this.$v.email.$invalid) {
+        this.$auth.updateEmail(this.email)
+          .then(() => {
+            this.email = null;
+            this.emailForm.message = 'Email has been updated';
+            this.emailForm.submitted = false;
+            setTimeout(() => {
+              this.emailForm.message = null;
+            }, 3000);
+          })
+          .catch((err) => {
+            if (err.code === 'auth/requires-recent-login') {
+              this.emailForm.loginRequired = true;
+            } else {
+              this.emailForm.error = err.message || 'Unknown error occurred.';
+              console.log(err);
+            }
+          });
+      }
     },
     updatePassword() {
-      this.password.loginRequired = false;
-      this.password.message = null;
-      this.password.error = null;
+      this.passwordForm.submitted = true;
+      this.passwordForm.loginRequired = false;
+      this.passwordForm.message = null;
+      this.passwordForm.error = null;
 
-      this.$auth.updatePassword(this.password.value)
-        .then(() => {
-          this.password.value = null;
-          this.password.value2 = null;
-          this.password.message = 'Password has been updated';
-        })
-        .catch((err) => {
-          if (err.code === 'auth/requires-recent-login') {
-            this.password.loginRequired = true;
-          } else {
-            this.password.error = err.message || 'Unknown error occurred.';
-            console.log(err);
-          }
-        });
+      if (!this.$v.password.$invalid && !this.$v.password2.$invalid) {
+        this.$auth.updatePassword(this.password)
+          .then(() => {
+            this.password = null;
+            this.password2 = null;
+            this.passwordForm.message = 'Password has been updated';
+            this.passwordForm.submitted = false;
+            setTimeout(() => {
+              this.passwordForm.message = null;
+            }, 3000);
+          })
+          .catch((err) => {
+            if (err.code === 'auth/requires-recent-login') {
+              this.passwordForm.loginRequired = true;
+            } else {
+              this.passwordForm.error = err.message || 'Unknown error occurred.';
+              console.log(err);
+            }
+          });
+      }
     },
     deleteAccount() {
       this.$auth.delete()
@@ -236,9 +307,9 @@ export default {
         })
         .catch((err) => {
           if (err.code === 'auth/requires-recent-login') {
-            this.deleteButton.loginRequired = true;
+            this.deleteButtonForm.loginRequired = true;
           } else {
-            this.deleteButton.error = err.message || 'Unknown error occurred.';
+            this.deleteButtonForm.error = err.message || 'Unknown error occurred.';
             console.log(err);
           }
         });

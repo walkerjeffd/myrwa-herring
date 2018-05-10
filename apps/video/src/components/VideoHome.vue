@@ -6,7 +6,10 @@
     <div class="sqs-block button-block sqs-block-button" v-if="!showForm">
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
-          <a href="" class="sqs-block-button-element--medium sqs-block-button-element" v-on:click.prevent="showForm = true">
+          <a
+            href=""
+            class="sqs-block-button-element--medium sqs-block-button-element"
+            v-on:click.prevent="showForm = true">
             Enter Count
           </a>
         </div>

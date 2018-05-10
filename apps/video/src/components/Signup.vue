@@ -17,7 +17,8 @@
                       Username <span class="required">*</span>
                     </label>
                     <div class="description">
-                      Your Username will be shown publicly on the Leaderboard page. Must be at least 3 characters.
+                      Your Username will be shown publicly on the Leaderboard page. Must be at least
+                      3 characters.
                     </div>
                     <input
                       class="field-element text"
@@ -36,8 +37,8 @@
                       Email Address <span class="required">*</span>
                     </label>
                     <div class="description">
-                      Use your email address to log in. Your Email Address will <strong>not</strong> be shown
-                      publicly.
+                      Use your email address to log in. Your Email Address will <strong>not</strong>
+                      be shown publicly.
                     </div>
                     <input
                       class="field-element"

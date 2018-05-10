@@ -29,7 +29,18 @@ export default {
         ),
       updateEmail: email => auth.currentUser.updateEmail(email),
       updatePassword: password => auth.currentUser.updatePassword(password),
-      updateUsername: username => axios.put(`/users/${auth.currentUser.uid}`, { username })
+      updateUsername: username => axios.get(`/username-available/?username=${username}`)
+        .then((response) => {
+          console.log('response', response);
+          if (response.data.status === 'ok' && !response.data.data.available) {
+            return Promise.reject({
+              code: 'auth/username-already-in-use',
+              message: 'Username already in use by another account.'
+            });
+          }
+          return response;
+        })
+        .then(() => axios.put(`/users/${auth.currentUser.uid}`, { username }))
         .then(() => axios.get(`/users/${auth.currentUser.uid}`))
         .then(response => store.dispatch('auth/setUser', response.data.data)),
       delete: () => {
