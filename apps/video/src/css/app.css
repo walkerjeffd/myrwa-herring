@@ -8,13 +8,11 @@
 .counting-tips > h2 {
   color: black;
 }
+
 .counting-tips > a {
   text-decoration: underline;
 }
+
 .counting-tips > ol > li {
   margin: 5px 0;
 }
-
-/*a {
-  text-decoration: underline !important;
-}*/

@@ -20,6 +20,19 @@
                   class="page-collection">
                   <a>Instructions</a>
                 </router-link>
+                <hr class="nav">
+                <div class="sqs-block button-block sqs-block-button" style="padding-left:0">
+                  <div class="sqs-block-content">
+                    <div class="sqs-block-button-container--left">
+                      <router-link
+                        to="/video"
+                        class="sqs-block-button-element--small sqs-block-button-element bg-teal">
+                        <strong style="color:white">Watch A Video!</strong>
+                      </router-link>
+                    </div>
+                  </div>
+                </div>
+                <hr class="nav">
                 <router-link
                   tag="li"
                   to="/data"
@@ -34,19 +47,7 @@
                   class="page-collection">
                   <a>Leaderboard</a>
                 </router-link>
-                <hr>
-                <div class="sqs-block button-block sqs-block-button" style="padding-left:0">
-                  <div class="sqs-block-content">
-                    <div class="sqs-block-button-container--left">
-                      <router-link
-                        to="/video"
-                        class="sqs-block-button-element--small sqs-block-button-element bg-teal">
-                        <strong style="color:white">Watch A Video!</strong>
-                      </router-link>
-                    </div>
-                  </div>
-                </div>
-                <hr>
+                <hr class="nav">
                 <router-link
                   v-if="!user"
                   tag="li"
@@ -147,20 +148,12 @@ export default {
   font-family: "proxima-nova","Helvetica Neue",Helvetica,Arial,sans-serif;
   margin-bottom: 5px;
 }
-.btn-watch-video a {
-  color: white;
-}
-
-.bg-teal {
-  background-color: #36b3a8;
-  border-color: white;
-}
-.bg-teal:hover {
-  background-color: rgba(54,179,168,.8);
-}
-
-hr {
+hr.nav {
   width: 160px;
   margin-left: 0px;
+}
+li.page-collection a {
+  padding-bottom: 5px;
+  padding-top: 5px;
 }
 </style>
