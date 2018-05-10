@@ -343,17 +343,17 @@ function getLeaderboard() {
       'counts.flagged': false,
       'videos.flagged': false
     })
-    .andWhere(knex.raw('date_part(\'year\', videos.start_timestamp at time zone \'America/New_York\')'), '=', config.api.runYear)
+    .andWhere(knex.raw('date_part(\'year\', videos.start_timestamp at time zone \'America/New_York\')'), '=', config.api.videos.year)
     .whereNotNull('counts.users_uid')
     .groupBy('users.uid')
     .orderBy(knex.raw('count(*)'), 'desc')
     .select(
       'users.uid as uid',
       'users.username as username',
-      knex.raw('count(*) as count'),
-      knex.raw('sum(counts.count) as total'),
-      knex.raw('sum(videos.duration) as duration')
-    );
+      knex.raw('coalesce(count(counts.count), 0)::int as n_count'),
+      knex.raw('coalesce(sum(counts.count), 0)::int as sum_count')
+    )
+    .limit(20);
 }
 
 function getDailyRunEstimate(params) {
