@@ -21,10 +21,10 @@ Vue.use(AuthPlugin, { config: config.firebase, store });
 
 Vue.component('icon', Icon);
 
-// window.onload = () => {
-new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount('#app');
-// };
+window.onload = () => {
+  new Vue({
+    router,
+    store,
+    render: h => h(App)
+  }).$mount('#app');
+};
