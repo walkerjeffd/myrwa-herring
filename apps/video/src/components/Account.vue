@@ -80,7 +80,7 @@
             <div class="field-list clear">
               <div class="form-item field password required">
                 <label class="title" for="password-field">
-                  Password <span class="required">*</span>
+                  New Password <span class="required">*</span>
                 </label>
                 <div class="description">
                   Password must be at least 6 characters.
@@ -93,7 +93,7 @@
               </div>
               <div class="form-item field password required">
                 <label class="title" for="password2-field">
-                  Confirm Password <span class="required">*</span>
+                  Confirm New Password <span class="required">*</span>
                 </label>
                 <input
                   class="field-element"

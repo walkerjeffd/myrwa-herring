@@ -14,8 +14,6 @@ WITH v AS (
   FROM videos
   WHERE NOT flagged
   AND location_id='UML'
-  AND start_timestamp::date >= '2017-04-13'
-  AND start_timestamp::date <= '2017-06-27'
   AND date_part('hour', start_timestamp AT TIME ZONE 'US/Eastern') >= 7
   AND date_part('hour', start_timestamp AT TIME ZONE 'US/Eastern') < 19
 ),
@@ -66,7 +64,7 @@ pd1 AS (
     count(*)::real AS n,
     sum((n_count > 0)::int)::real AS n_count,
     sum(duration)::real AS t,
-    sum(mean_count)::real AS sum_y,
+    COALESCE(sum(mean_count), 0)::real AS sum_y,
     sum(duration * (n_count > 0)::int) AS sum_t,
     CASE
       WHEN sum((n_count > 0)::int) > 0 THEN sum(duration * (n_count > 0)::int) / sum((n_count > 0)::int)
