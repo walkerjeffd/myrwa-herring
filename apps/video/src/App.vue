@@ -6,6 +6,17 @@
           <div class="sqs-block-content">
             <nav class="folder-nav" role="navigation">
               <ul>
+                <div class="sqs-block button-block sqs-block-button" style="padding-left:0">
+                  <div class="sqs-block-content">
+                    <div class="sqs-block-button-container--left">
+                      <router-link
+                        to="/video"
+                        class="sqs-block-button-element--small sqs-block-button-element">
+                        <strong>Watch A Video!</strong>
+                      </router-link>
+                    </div>
+                  </div>
+                </div>
                 <router-link
                   tag="li"
                   to="/"
@@ -20,19 +31,6 @@
                   class="page-collection">
                   <a>Instructions</a>
                 </router-link>
-                <hr class="nav">
-                <div class="sqs-block button-block sqs-block-button" style="padding-left:0">
-                  <div class="sqs-block-content">
-                    <div class="sqs-block-button-container--left">
-                      <router-link
-                        to="/video"
-                        class="sqs-block-button-element--small sqs-block-button-element">
-                        <strong>Watch A Video!</strong>
-                      </router-link>
-                    </div>
-                  </div>
-                </div>
-                <hr class="nav">
                 <router-link
                   tag="li"
                   to="/data"
