@@ -141,6 +141,15 @@ app.get('/users/', (req, res, next) => {
     .catch(next);
 });
 
+app.get('/username-available/', (req, res, next) => {
+  if (!req.query.username) {
+    return res.status(400).json({ status: 'error', error: { message: 'Missing username query parameter' } });
+  }
+  return db.checkUsernameAvailability(req.query.username)
+    .then(result => res.status(200).json({ status: 'ok', data: { available: result } }))
+    .catch(next);
+});
+
 app.post('/users/', (req, res, next) => {
   console.log('received new user', req.body.uid, req.body.username, req.headers['x-real-ip'] || req.connection.remoteAddress);
   db.createUser(req.body)

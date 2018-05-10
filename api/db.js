@@ -281,6 +281,17 @@ function getSensorData(query) {
   return sql;
 }
 
+function checkUsernameAvailability(username) {
+  return knex('users')
+    .where('username', username)
+    .then((rows) => {
+      if (rows.length === 0) {
+        return true;
+      }
+      return false;
+    });
+}
+
 function getUser(params) {
   console.log('db:getUser', params);
   return knex('users')
@@ -374,6 +385,7 @@ module.exports = {
   getSensorData,
   createUser,
   getUser,
+  checkUsernameAvailability,
   updateUser,
   deleteUser,
   getLeaderboard,
