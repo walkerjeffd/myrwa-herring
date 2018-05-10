@@ -298,13 +298,15 @@ function getUser(params) {
       .then((rows) => {
         if (rows.length === 0) {
           return {
-            ...user,
+            uid: user.uid,
+            username: user.username,
             n_count: 0,
             sum_count: 0
           };
         }
         return {
-          ...user,
+          uid: user.uid,
+          username: user.username,
           n_count: rows[0].n_count,
           sum_count: rows[0].sum_count
         };
