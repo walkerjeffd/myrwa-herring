@@ -250,7 +250,7 @@ function saveCount(data) {
       comment: data.comment,
       session: data.session,
       flagged: data.count >= config.api.maxCount,
-      users_uid: data.uid,
+      users_uid: data.users_uid,
     });
 }
 
@@ -282,9 +282,34 @@ function getSensorData(query) {
 }
 
 function getUser(params) {
+  console.log('db:getUser', params);
   return knex('users')
-    .select()
-    .where(params);
+    .where(params)
+    .then((rows) => {
+      if (rows.length === 0) {
+        return Promise.reject('User not found');
+      }
+      return rows[0];
+    })
+    .then(user => knex('counts')
+      .where('users_uid', user.uid)
+      .groupBy('users_uid')
+      .select(knex.raw('count(counts.count)::integer as n_count'), knex.raw('sum(counts.count)::integer as sum_count'))
+      .then((rows) => {
+        if (rows.length === 0) {
+          return {
+            ...user,
+            n_count: 0,
+            sum_count: 0
+          };
+        }
+        return {
+          ...user,
+          n_count: rows[0].n_count,
+          sum_count: rows[0].sum_count
+        };
+      })
+    );
 }
 
 function updateUser(user) {
