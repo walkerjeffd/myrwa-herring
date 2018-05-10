@@ -61,6 +61,7 @@ app.use('/static/vis-count', express.static(config.api.static.visCount));
 app.use('/static/sprint', express.static(config.api.static.sprint));
 app.use('/static/auth-dev', express.static(config.api.static.authDev));
 app.use('/static/run-estimate', express.static(config.api.static.runEstimate));
+app.use('/static/video', express.static(config.api.static.video));
 app.use('/reports', express.static(config.api.static.reports));
 app.use('/datasets', express.static(config.api.static.datasets));
 
