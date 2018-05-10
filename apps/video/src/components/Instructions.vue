@@ -3,7 +3,7 @@
     <h1>Counting fish is simple!&nbsp;</h1>
     <p>But there are a few things we'd like you to keep in mind...</p>
     <p><strong>1. Only count fish that swim all the way upstream</strong></p>
-    <div class="sqs-block image-block sqs-block-image sqs-col-6 span-6 float float-right sqs-text-ready" data-block-type="5">
+    <div class="sqs-block image-block sqs-block-image sqs-col-4 span-4 float float-right sqs-text-ready" data-block-type="5">
       <div class="sqs-block-content">
         <div class="image-block-outer-wrapper layout-caption-below design-layout-inline sqs-narrow-width">
           <div class="intrinsic" style="max-width:705.0px;">
@@ -17,7 +17,7 @@
     </div>
     <p>Fish migrating upstream will be swimming from right to left in the video. Only count the ones that swim entirely out of view (across the left edge of the video), including any you might see at the start of the video.&nbsp;Do not count fish that only swim part of the way across before the video ends.<br>&nbsp;</p>
     <p><strong>2. Ignore any fish that swim back downstream</strong></p>
-    <div class="sqs-block image-block sqs-block-image sqs-col-6 span-6 float float-right sqs-text-ready" data-block-type="5">
+    <div class="sqs-block image-block sqs-block-image sqs-col-4 span-4 float float-right sqs-text-ready" data-block-type="5">
       <div class="sqs-block-content">
         <div class="image-block-outer-wrapper layout-caption-below design-layout-inline sqs-narrow-width">
           <div class="intrinsic" style="max-width:706.0px;">
@@ -31,7 +31,7 @@
     </div>
     <p>After spawning, the fish will start swimming back downstream towards the ocean (from left to right in the video). Simply ignore these fish, and <em>do not</em> subtract them from you count.</p><p><br>&nbsp;</p><p>&nbsp;</p>
     <p><strong>3. If you don't see any fish, submit a count of zero</strong></p>
-    <div class="sqs-block image-block sqs-block-image sqs-col-6 span-6 float float-right sqs-text-ready" data-block-type="5">
+    <div class="sqs-block image-block sqs-block-image sqs-col-4 span-4 float float-right sqs-text-ready" data-block-type="5">
       <div class="sqs-block-content">
         <div class="image-block-outer-wrapper layout-caption-below design-layout-inline sqs-narrow-width">
           <div class="intrinsic" style="max-width:704.0px;">
@@ -46,7 +46,7 @@
     <p>Sometimes the camera will record a video even when there are no fish. Sticks, leaves, and other aquatic species can trigger the camera to start recording. If this happens, you should still submit a count of zero. That's useful data!</p>
     <p><br>&nbsp;</p>
     <p><strong>4. If there are too many fish, then pause, slow down, or go full screen</strong></p>
-    <div class="sqs-block image-block sqs-block-image sqs-col-6 span-6 float float-right sqs-text-ready" data-aspect-ratio="75.46362339514978" data-block-type="5">
+    <div class="sqs-block image-block sqs-block-image sqs-col-4 span-4 float float-right sqs-text-ready" data-aspect-ratio="75.46362339514978" data-block-type="5">
       <div class="sqs-block-content">
         <div class="image-block-outer-wrapper layout-caption-below design-layout-inline sqs-narrow-width">
           <div class="intrinsic" style="max-width:707.0px;">

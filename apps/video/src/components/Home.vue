@@ -25,7 +25,7 @@
           </div>
         </div>
         <div class="row sqs-row">
-          <div class="col sqs-col-4 span-4">
+          <div class="col sqs-col-6 span-6">
             <div class="sqs-block button-block sqs-block-button">
               <div class="sqs-block-content">
                 <div class="sqs-block-button-container--center">
@@ -38,7 +38,7 @@
               </div>
             </div>
           </div>
-          <div class="col sqs-col-4 span-4">
+          <div class="col sqs-col-6 span-6">
             <div class="sqs-block button-block sqs-block-button">
               <div class="sqs-block-content">
                 <div
