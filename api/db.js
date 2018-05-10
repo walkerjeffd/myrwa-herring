@@ -343,7 +343,6 @@ function getLeaderboard() {
       'counts.flagged': false,
       'videos.flagged': false
     })
-    .andWhere(knex.raw('date_part(\'year\', videos.start_timestamp at time zone \'America/New_York\')'), '=', config.api.videos.year)
     .whereNotNull('counts.users_uid')
     .groupBy('users.uid')
     .orderBy(knex.raw('count(*)'), 'desc')
