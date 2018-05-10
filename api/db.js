@@ -345,7 +345,8 @@ function getLeaderboard() {
     })
     .whereNotNull('counts.users_uid')
     .groupBy('users.uid')
-    .orderBy(knex.raw('count(*)'), 'desc')
+    .orderBy(knex.raw('count(counts.count)'), 'desc')
+    .orderBy(knex.raw('sum(counts.count)'), 'desc')
     .select(
       'users.uid as uid',
       'users.username as username',
