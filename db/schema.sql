@@ -33,6 +33,7 @@ CREATE TABLE counts (
   flagged BOOLEAN DEFAULT FALSE,
   users_uid TEXT REFERENCES users(uid) ON DELETE SET NULL
 );
+CREATE INDEX counts_users_uid_idx ON counts(users_uid);
 
 CREATE TABLE sensor (
   id SERIAL PRIMARY KEY,
