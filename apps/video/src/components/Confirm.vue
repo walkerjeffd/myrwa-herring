@@ -8,14 +8,16 @@
     <div class="sqs-block button-block sqs-block-button" data-block-type="53">
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
-          <a class="sqs-block-button-element--medium sqs-block-button-element" @click="restart()">
-            Let's watch another!
-          </a>
+          <router-link
+            to="/video"
+            class="sqs-block-button-element--medium sqs-block-button-element">
+            <a>Let's watch another!</a>
+          </router-link>
         </div>
       </div>
     </div>
     <p>Share your count with friends and family!</p>
-    <social-sharing
+    <!-- <social-sharing
       url="https://mysticherring.org/"
       :title="title"
       description="Help document the Mystic River herring migration in Medford and Winchester, MA
@@ -34,11 +36,13 @@
           <icon name="google-plus-square" scale="4"></icon>
         </network>
       </div>
-    </social-sharing>
+    </social-sharing> -->
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 const messages = [
   'Great job!',
   'Thank you!',
@@ -51,28 +55,31 @@ const messages = [
 ];
 
 export default {
-  props: ['session'],
   data() {
-    let message;
-    if (this.session.total === 0) {
-      message = 'No fish in that one? Thanks for letting us know!';
-    } else {
-      message = messages[Math.floor(Math.random() * messages.length)];
-    }
-    return { message };
+    return {};
   },
   computed: {
+    ...mapGetters({
+      user: 'auth/user',
+      session: 'session'
+    }),
     title() {
       return `I just counted ${this.session.total} river herring migrating up the Mystic River!`;
+    },
+    message() {
+      let message;
+      if (this.session.lastCount === 0) {
+        message = 'No fish in that one? Thanks for letting us know!';
+      } else {
+        message = messages[Math.floor(Math.random() * messages.length)];
+      }
+      return message;
     }
   },
   created() {
     window.scrollTo(0, 100);
   },
   methods: {
-    restart() {
-      this.$router.push('/');
-    }
   }
 };
 </script>

@@ -14,7 +14,8 @@ export default new Vuex.Store({
     session: {
       id: null,
       count: 0,
-      total: 0
+      total: 0,
+      lastCount: null
     },
     video: null,
     run: null
@@ -33,11 +34,25 @@ export default new Vuex.Store({
     },
     setRun(state, run) {
       state.run = run;
+    },
+    incrementSessionCount(state) {
+      state.session.count = state.session.count + 1;
+    },
+    incrementSessionTotal(state, count) {
+      state.session.total = state.session.total + count;
+    },
+    setSessionLastCount(state, count) {
+      state.session.lastCount = count;
     }
   },
   actions: {
     setSessionId({ commit }, id) {
       commit('setSessionId', id);
+    },
+    updateSession({ commit }, count) {
+      commit('incrementSessionCount');
+      commit('incrementSessionTotal', count);
+      commit('setSessionLastCount', count);
     },
     fetchVideo({ commit }) {
       console.log('store:fetchVideo');

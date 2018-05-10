@@ -97,7 +97,7 @@ export default {
   methods: {
     signup() {
       this.$auth.signUp(this.email, this.password, this.username)
-        .then(() => this.$router.replace('video'))
+        .then(() => this.$router.push(this.$route.query.redirect || '/'))
         .catch((err) => {
           if (err.message) {
             this.error = err.message;

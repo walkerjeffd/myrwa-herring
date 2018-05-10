@@ -78,9 +78,7 @@ export default {
   methods: {
     login() {
       this.$auth.login(this.email, this.password)
-        .then(() => {
-          this.$router.push(this.$route.query.redirect || '/');
-        })
+        .then(() => this.$router.push(this.$route.query.redirect || '/'))
         .catch((err) => {
           this.error = err.message || 'Unknown error occurred.';
         });

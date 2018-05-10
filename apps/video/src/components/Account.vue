@@ -6,8 +6,8 @@
       <h2 class="account-heading">My Data</h2>
       <ul v-if="user">
         <li><strong>Username</strong>: {{ user.username }}</li>
-        <li><strong># Videos Watched</strong>: 34</li>
-        <li><strong># Fish Counted</strong>: 123</li>
+        <li><strong># Videos Watched</strong>: {{ user.n_count }}</li>
+        <li><strong># Fish Counted</strong>: {{ user.sum_count }}</li>
       </ul>
 
       <h2 class="account-heading">Change Username</h2>

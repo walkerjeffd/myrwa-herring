@@ -1,10 +1,10 @@
 <template>
   <div class="row sqs-row" style="border:1px solid black">
     <div class="col sqs-col-12 span-12" v-if="user">
-      User: {{ user.username }} | <button @click="logout">Logout</button>
+      User: {{ user.username }} | # Videos: {{ user.n_count }} | # Fish: {{ user.sum_count }} <button @click="logout" style="float:right">Logout</button>
     </div>
     <div class="col sqs-col-12 span-12" v-else>
-      <a href="#">Login</a> or <a href="#">Sign Up</a> to track your progress!
+      <router-link to="/login?redirect=/video" class="router-link">Login</router-link> or <router-link to="/signup?redirect=/video" class="router-link">Sign Up</router-link> to track your progress!
     </div>
   </div>
 </template>
@@ -24,4 +24,7 @@ export default {
 </script>
 
 <style scoped>
+a.router-link {
+  text-decoration: underline;
+}
 </style>

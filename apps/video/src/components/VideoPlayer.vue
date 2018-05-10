@@ -9,10 +9,6 @@
         </a>
       </p>
     </video>
-
-    <pre>
-video: {{ video }}
-    </pre>
   </div>
 </template>
 
@@ -36,7 +32,7 @@ export default {
     this.player = videojs('video', {
       controls: true,
       autoplay: false,
-      width: 700,
+      width: 683,
       height: 480,
       playbackRates: [0.1, 0.25, 0.5, 1],
       inactivityTimeout: 0

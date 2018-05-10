@@ -32,6 +32,13 @@ export default {
         const uid = auth.currentUser.uid;
         return auth.currentUser.delete()
           .then(() => axios.delete(`/users/${uid}`));
+      },
+      refreshUser: () => {
+        const user = auth.currentUser;
+        if (user) {
+          axios.get(`/users/${user.uid}`)
+            .then(response => store.dispatch('auth/setUser', response.data.data));
+        }
       }
     };
     auth.onAuthStateChanged((user) => {
@@ -39,7 +46,7 @@ export default {
         store.dispatch('auth/clearUser');
       } else {
         axios.get(`/users/${user.uid}`)
-          .then(response => store.dispatch('auth/setUser', response.data.data[0]))
+          .then(response => store.dispatch('auth/setUser', response.data.data))
           .then(() => store.dispatch('auth/initialized'));
       }
     });
