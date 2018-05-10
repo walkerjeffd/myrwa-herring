@@ -1,0 +1,20 @@
+
+@import url("../../node_modules/video.js/dist/video-js.css");
+
+.vjs-big-play-centered .vjs-big-play-button {
+  top: 65%;
+}
+
+.counting-tips > h2 {
+  color: black;
+}
+.counting-tips > a {
+  text-decoration: underline;
+}
+.counting-tips > ol > li {
+  margin: 5px 0;
+}
+
+/*a {
+  text-decoration: underline !important;
+}*/
