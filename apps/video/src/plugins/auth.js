@@ -30,7 +30,8 @@ export default {
       updateEmail: email => auth.currentUser.updateEmail(email),
       updatePassword: password => auth.currentUser.updatePassword(password),
       updateUsername: username => axios.put(`/users/${auth.currentUser.uid}`, { username })
-        .then(response => store.dispatch('auth/setUser', response.data.data[0])),
+        .then(() => axios.get(`/users/${auth.currentUser.uid}`))
+        .then(response => store.dispatch('auth/setUser', response.data.data)),
       delete: () => {
         const uid = auth.currentUser.uid;
         return auth.currentUser.delete()
