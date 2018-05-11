@@ -31,8 +31,8 @@
             <tr v-for="(user, index) in users" :key="user.uid">
               <td class="text-align-center">{{ index + 1 }}</td>
               <td class="text-align-left">{{ user.username }}</td>
-              <td class="text-align-center">{{ user.n_count }}</td>
-              <td class="text-align-center">{{ user.sum_count }}</td>
+              <td class="text-align-center">{{ user.n_count | number }}</td>
+              <td class="text-align-center">{{ user.sum_count | number }}</td>
             </tr>
           </tbody>
         </table>
@@ -44,6 +44,8 @@
 <script>
 import { mapGetters } from 'vuex';
 
+import { number } from '@/filters';
+
 export default {
   name: 'leaderboard',
   data() {
@@ -53,6 +55,9 @@ export default {
   },
   computed: {
     ...mapGetters({ user: 'auth/user' })
+  },
+  filters: {
+    number
   },
   mounted() {
     this.$http.get('/leaderboard/')
