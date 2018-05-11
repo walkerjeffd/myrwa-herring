@@ -2,8 +2,13 @@
 @import url("../../node_modules/video.js/dist/video-js.css");
 
 .vjs-big-play-centered .vjs-big-play-button {
-  top: 65%;
+  top: 50%;
 }
+
+.vjs-volume-panel {
+  display: none !important;
+}
+
 
 .counting-tips > h2 {
   color: black;
