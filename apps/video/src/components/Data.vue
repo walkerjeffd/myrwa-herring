@@ -56,7 +56,7 @@
                   <div class="text-align-center odometer-value-small">
                     +/- <span id="odometer-run-range" class="odometer">0</span>
                   </div>
-                  <p class="text-align-center odometer-label">Total Estimated Fish</p>
+                  <p class="text-align-center odometer-label">Total Estimated Fish Run</p>
                 </div>
               </div>
             </div>
@@ -220,6 +220,11 @@ export default {
         odRunTotal.update(total.y);
         odRunRange.update(total.range);
 
+        let maxDate = today;
+        if (today > new Date(2018, 6, 1)) {
+          maxDate = new Date(2018, 6, 1);
+        }
+
         this.$highcharts.chart('chart-run', {
           title: {
             align: 'left',
@@ -235,7 +240,7 @@ export default {
               text: 'Date'
             },
             min: (new Date('2018-04-25 00:00')).valueOf(),
-            max: today.valueOf()
+            max: maxDate.valueOf()
           },
           yAxis: {
             title: {
