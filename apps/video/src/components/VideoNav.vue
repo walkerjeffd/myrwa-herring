@@ -9,7 +9,7 @@
                 <router-link
                   to="/video"
                   class="sqs-block-button-element--small sqs-block-button-element">
-                  <strong>Watch A Video!</strong>
+                  <strong>Start Counting!</strong>
                 </router-link>
               </div>
             </div>
@@ -47,6 +47,7 @@
             <router-link
               tag="li"
               to="/login"
+              key="login"
               exact-active-class="active-link"
               class="page-collection">
               <a>Login</a>
@@ -54,12 +55,13 @@
             <router-link
               tag="li"
               to="/signup"
+              key="signup"
               exact-active-class="active-link"
               class="page-collection">
               <a>Sign Up</a>
             </router-link>
           </div>
-          <div v-else>
+          <div v-if="user">
             <li class="user-welcome">
               <strong>Hello, {{ user.username }}!</strong>
             </li>
@@ -71,6 +73,7 @@
             <router-link
               tag="li"
               to="/account"
+              key="account"
               exact-active-class="active-link"
               class="page-collection">
               <a>My Account</a>
@@ -131,7 +134,7 @@ export default {
   float:right ;
 }
 hr.nav {
-  width: 160px;
+  width: 170px;
   display: block;
   height: 1px;
   border: 0;
