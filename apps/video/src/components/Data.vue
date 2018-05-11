@@ -42,7 +42,7 @@
         <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
           <div class="sqs-block-content">
             <h1 class="count-title">Total Estimated Fish Run</h1>
-            <p class="small-text">Each bar shows the total estimated number of fish migrating each day. These estimates are calculated from the individual video counts using a statistical model. The error bars show the uncertainty in these estimates based on a 95% confidence interval.</p>
+            <p class="small-text">Each bar shows our best estimate of the total number of fish migrating each day. These estimates are calculated by feeding the individual video counts into a statistical model. The error bars represent our uncertainty, which is shown as a 95% confidence interval.</p>
           </div>
         </div>
         <div class="row sqs-row">
@@ -74,7 +74,7 @@
         <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
           <div class="sqs-block-content">
             <h1 class="count-title">Number of Fish Counted</h1>
-            <p class="small-text">Each bar shows how many fish were migrating each day based on the current video counts. These totals will increase as more videos are watched. Once all of the videos have been watched, we will know exactly how many fish were migrating each day.</p>
+            <p class="small-text">Each bar shows the total number of fish that have been counted for each day (so far). These totals will increase as more videos are watched. Note that these totals tend to be much less than those in the chart above, which uses these counts to estimate the total number of fish passing over the entire day, not just during the videos that have been counted so far.</p>
           </div>
         </div>
         <div class="row sqs-row">
