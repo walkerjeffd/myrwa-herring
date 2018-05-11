@@ -10,35 +10,38 @@
               time by counting the number of fish passing through the fish ladder at Upper Mystic
               Lake dam located between Medford and Winchester, MA.
             </p>
-            <p>
-              The videos are between 10 and 60 seconds long. Some videos show blue outlines when
-              motion is detected, but some do not. Here are our
-              <a href="https://www.mysticherring.org/video/status/">results</a> so far - but we
-              need your help to continue this important conservation mission.
-            </p>
-            <p>
-              If you have not been to this site before, please take a moment to view the
-              instructions and learn what to count and what not to count, which is important for us
-              to collect accurate data. If you've already seen the instructions, then let's
-              <a href="/video/watch">start counting</a>!
-            </p>
           </div>
         </div>
         <div class="row sqs-row">
-          <div class="col sqs-col-4 span-4">
+          <div class="col sqs-col-3 span-3">
             <div class="sqs-block button-block sqs-block-button">
               <div class="sqs-block-content">
                 <div class="sqs-block-button-container--center">
                   <router-link
                     to="/instructions"
-                    class="sqs-block-button-element--medium sqs-block-button-element">
-                    View Instructions
+                    style="width:100px"
+                    class="sqs-block-button-element--small sqs-block-button-element">
+                    View<br> Instructions
                   </router-link>
                 </div>
               </div>
             </div>
           </div>
-          <div class="col sqs-col-4 span-4">
+          <div class="col sqs-col-3 span-3">
+            <div class="sqs-block button-block sqs-block-button">
+              <div class="sqs-block-content">
+                <div class="sqs-block-button-container--center">
+                  <router-link
+                    to="/signup"
+                    style="width:100px"
+                    class="sqs-block-button-element--small sqs-block-button-element">
+                    Sign Up for an Account
+                  </router-link>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col sqs-col-3 span-3">
             <div class="sqs-block button-block sqs-block-button">
               <div class="sqs-block-content">
                 <div
@@ -47,12 +50,26 @@
                   data-button-size="medium">
                   <router-link
                     to="/video"
-                    class="sqs-block-button-element--medium sqs-block-button-element">
-                    I'm Ready To Count!
+                    style="width:100px"
+                    class="sqs-block-button-element--small sqs-block-button-element">
+                    Start<br> Counting!
                   </router-link>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="sqs-block html-block sqs-block-html">
+          <div class="sqs-block-content">
+            <p>
+              The videos are between 10 and 60 seconds long. Some videos show blue outlines when motion is detected, but some do not. Here are our <router-link to="/data">results</router-link> so far - but we need your help to continue this important conservation mission.
+            </p>
+            <p>
+              You can <router-link to="/signup">sign up</router-link> for a free account to track your progress and compete with other users for the top spot on the <router-link to="/leaderboard">Leaderboard</router-link>! However, an account is not required, so if you'd just like to count some fish, <router-link to="/video">go right ahead</router-link>!
+            </p>
+            <p>
+              If you have not been to this site before, please take a moment to view the <router-link to="/instructions">instructions</router-link> and learn what to count and what not to count, which is important for us to collect accurate data. If you've already seen the instructions, then let's <router-link to="/video">start counting</router-link>!
+            </p>
           </div>
         </div>
         <div class="sqs-block html-block sqs-block-html" data-block-type="2">
@@ -69,7 +86,7 @@
               count how many fish are migrating up the Mystic River. With this data, we can more
               accurately track how the migration changes from year to year, and thus better
               understand this valuable species. <a href="/about-the-project">Learn more about the
-              project</a>&nbsp;and <a href="/data">explore data</a>.
+              project</a>&nbsp;and <a href="/data">explore data from previous years</a>.
             </p>
           </div>
         </div>

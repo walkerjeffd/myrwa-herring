@@ -10,20 +10,34 @@ import 'vue-awesome/icons/brands/google-plus-square';
 
 import HttpPlugin from './plugins/http';
 import AuthPlugin from './plugins/auth';
+import HighchartsPlugin from './plugins/highcharts';
+
 import App from './App';
 import router from './router';
 import store from './store/';
-import config from '../../config';
 
 require('./css/app.css');
 
 Vue.use(VueRouter);
 Vue.use(Vuelidate);
 Vue.use(SocialSharing);
-Vue.use(HttpPlugin, { baseURL: config.api.url });
-Vue.use(AuthPlugin, { config: config.firebase, store });
+Vue.use(HighchartsPlugin);
+Vue.use(HttpPlugin, { baseURL: process.env.API_URL });
+Vue.use(AuthPlugin, {
+  config: {
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    databaseURL: process.env.FIREBASE_DATABASE_URL,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSENGER_SENDER_ID
+  },
+  store
+});
 
 Vue.component('icon', Icon);
+
+console.log(process.env.NODE_ENV);
 
 window.onload = () => {
   new Vue({

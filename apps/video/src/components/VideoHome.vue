@@ -11,6 +11,7 @@
             v-on:click.prevent="showForm = true">
             Enter Count
           </a>
+          <p style="color:#666" v-if="!user">Don't forget! You can <router-link to="/signup">sign up</router-link> for an account to track your progress <br> and compete for a top spot on the <router-link to="/leaderboard">Leaderboard</router-link>!</p>
         </div>
       </div>
     </div>

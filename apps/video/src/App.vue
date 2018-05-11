@@ -17,7 +17,6 @@
 
 <script>
 // import queryString from 'query-string';
-
 import VideoNav from '@/components/VideoNav';
 
 // https://gist.github.com/jed/982883

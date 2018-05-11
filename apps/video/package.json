@@ -8,12 +8,17 @@
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
     "lint": "eslint --ext .js,.vue src",
-    "build": "node build/build.js"
+    "build": "node build/build.js",
+    "deploy": "scp -r dist/static/* myrwa@myrwa-api.org:/home/myrwa/static/herring/video"
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "d3-time": "^1.0.8",
+    "d3-time-format": "^2.1.1",
     "firebase": "^4.13.1",
+    "highcharts": "^6.1.0",
     "jStat": "^1.7.1",
+    "odometer": "^0.4.8",
     "query-string": "^6.1.0",
     "vee-validate": "^2.0.8",
     "video.js": "^6.8.0",

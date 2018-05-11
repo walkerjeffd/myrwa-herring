@@ -1,5 +1,6 @@
 
 @import url("../../node_modules/video.js/dist/video-js.css");
+@import url("../../node_modules/odometer/themes/odometer-theme-minimal.css");
 
 .vjs-big-play-centered .vjs-big-play-button {
   top: 50%;
