@@ -293,7 +293,6 @@ function checkUsernameAvailability(username) {
 }
 
 function getUser(params) {
-  console.log('db:getUser', params);
   return knex('users')
     .where(params)
     .then((rows) => {
