@@ -4,7 +4,9 @@ import Vuelidate from 'vuelidate';
 import SocialSharing from 'vue-social-sharing';
 import Icon from 'vue-awesome/components/Icon';
 
-import 'vue-awesome/icons';
+import 'vue-awesome/icons/brands/facebook-square';
+import 'vue-awesome/icons/brands/twitter-square';
+import 'vue-awesome/icons/brands/google-plus-square';
 
 import HttpPlugin from './plugins/http';
 import AuthPlugin from './plugins/auth';
