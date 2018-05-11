@@ -1,9 +1,8 @@
 <template>
   <div>
-    <user-bar></user-bar>
     <video-bar></video-bar>
     <video-player></video-player>
-    <div class="sqs-block button-block sqs-block-button" v-if="!showForm">
+    <div class="sqs-block button-block sqs-block-button" v-if="!showForm & !showConfirm">
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
           <a
@@ -48,11 +47,46 @@
                 class="button sqs-system-button sqs-editable-button"
                 type="submit"
                 value="Cancel"
-                v-on:click.prevent="cancelForm">
+                v-on:click.prevent="resetForm">
             </div>
           </div>
         </form>
       </div>
+    </div>
+    <div v-if="showConfirm" class="confirm-container">
+      <h2>{{ confirmMessage }}</h2>
+      <div class="sqs-block button-block sqs-block-button">
+        <div class="sqs-block-content">
+          <div class="sqs-block-button-container--center">
+            <a
+              href=""
+              class="sqs-block-button-element--medium sqs-block-button-element"
+              v-on:click.prevent="showNext">
+              Let's watch another!
+            </a>
+          </div>
+        </div>
+      </div>
+      <p>Share your count with friends and family!</p>
+      <social-sharing
+        url="https://mysticherring.org/"
+        :title="title"
+        description="Help document the Mystic River herring migration in Medford and Winchester, MA and learn more about this amazing wildlife migration."
+        hashtags="mysticriver,citizenscience"
+        twitter-user="MysticMyRWA"
+        inline-template>
+        <div class="network-icons">
+          <network network="facebook">
+            <icon name="brands/facebook-square" scale="4"></icon>
+          </network>
+          <network network="twitter">
+            <icon name="brands/twitter-square" scale="4"></icon>
+          </network>
+          <network network="googleplus">
+            <icon name="brands/google-plus-square" scale="4"></icon>
+          </network>
+        </div>
+      </social-sharing>
     </div>
   </div>
 </template>
@@ -61,9 +95,19 @@
 import { mapGetters } from 'vuex';
 import { required, numeric } from 'vuelidate/lib/validators';
 
-import UserBar from './UserBar';
 import VideoBar from './VideoBar';
 import VideoPlayer from './VideoPlayer';
+
+const messages = [
+  'Great job!',
+  'Thank you!',
+  'Nice work!',
+  'Bravo!',
+  'Well done!',
+  'Excellent!',
+  'Fantastic!',
+  'Way to go!'
+];
 
 export default {
   name: 'videoHome',
@@ -73,6 +117,7 @@ export default {
       showConfirm: false,
       loading: false,
       submitted: false,
+      confirmMessage: null,
       form: {
         count: null,
         comment: null
@@ -92,10 +137,12 @@ export default {
       video: 'video',
       user: 'auth/user',
       session: 'session'
-    })
+    }),
+    title() {
+      return `I just counted ${this.session.total} river herring migrating up the Mystic River!`;
+    }
   },
   components: {
-    UserBar,
     VideoBar,
     VideoPlayer
   },
@@ -111,7 +158,6 @@ export default {
       if (this.loading) return;
       this.submitted = true;
       if (!this.$v.$invalid) {
-        console.log('submitCount', this.video.id, this.form.count, this.form.comment);
         const payload = {
           video_id: this.video.id,
           count: +this.form.count,
@@ -124,13 +170,15 @@ export default {
           payload.users_uid = this.user.uid;
         }
 
-        console.log('submitCount', payload);
-
         this.$http.post('/count/', payload)
           .then(() => this.$store.dispatch('updateSession', payload.count))
           .then(() => this.$auth.refreshUser())
-          .then(() => this.$store.dispatch('fetchVideo'))
-          .then(() => this.$router.push('/confirm'))
+          .then(() => this.$store.dispatch('fetchRun'))
+          .then(() => {
+            this.resetForm();
+            this.updateConfirmMessage();
+            this.showConfirm = true;
+          })
           .catch((response) => {
             alert('Error occurred saving count to the server, try submitting again.\n\nIf the problem continues, please let us know using the Contact Us form, or email us at herring.education@mysticriver.org.');
             console.log(response);
@@ -138,11 +186,23 @@ export default {
           });
       }
     },
-    cancelForm() {
+    updateConfirmMessage() {
+      if (this.session.lastCount === 0) {
+        this.confirmMessage = 'No fish in that one? Thanks for letting us know!';
+      } else {
+        this.confirmMessage = messages[Math.floor(Math.random() * messages.length)];
+      }
+    },
+    resetForm() {
       this.form.count = null;
       this.form.comment = null;
       this.submitted = false;
       this.showForm = false;
+    },
+    showNext() {
+      this.showForm = false;
+      this.showConfirm = false;
+      this.$store.dispatch('fetchVideo');
     }
   }
 };
@@ -158,12 +218,31 @@ export default {
   max-width: 701px;
 }
 
+.confirm-container {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+
 .form-wrapper {
   margin-top: 20px;
 }
 
-
 .is-danger {
   color: red;
+}
+
+
+.network-icons {
+  color: #888;
+  cursor: pointer;
+}
+.fa-icon {
+  margin-left: 10px !important;
+  margin-right: 10px !important;
+}
+.fa-icon:hover {
+  color: #222;
+  cursor: pointer;
 }
 </style>

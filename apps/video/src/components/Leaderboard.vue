@@ -29,10 +29,10 @@
           </thead>
           <tbody class="lb-row">
             <tr v-for="(user, index) in users" :key="user.uid">
-              <td class="text-align-center" style="width:20%">{{ index + 1 }}</td>
-              <td class="text-align-left" style="width:40%">{{ user.username }}</td>
-              <td class="text-align-center" style="width:20%">{{ user.n_count }}</td>
-              <td class="text-align-center" style="width:20%">{{ user.sum_count }}</td>
+              <td class="text-align-center">{{ index + 1 }}</td>
+              <td class="text-align-left">{{ user.username }}</td>
+              <td class="text-align-center">{{ user.n_count }}</td>
+              <td class="text-align-center">{{ user.sum_count }}</td>
             </tr>
           </tbody>
         </table>
