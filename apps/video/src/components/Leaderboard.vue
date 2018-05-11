@@ -18,34 +18,24 @@
     </div>
     <div class="sqs-block html-block sqs-block-html">
       <div class="sqs-block-content">
-        <div class="row sqs-row" style="margin-top:10px">
-          <div class="col sqs-col-1 span-1 table-col">
-            <h3 class="header text-align-center">Rank</h3>
-          </div>
-          <div class="col sqs-col-3 span-3 table-col">
-            <h3 class="header text-align-left">Username</h3>
-          </div>
-          <div class="col sqs-col-2 span-2 table-col">
-            <h3 class="header text-align-center"># Videos</h3>
-          </div>
-          <div class="col sqs-col-2 span-2 table-col">
-            <h3 class="header text-align-center"># Fish</h3>
-          </div>
-        </div>
-        <div class="row sqs-row" v-for="(user, index) in users" :key="user.uid">
-          <div class="col sqs-col-1 span-1 table-col text-align-center">
-            <span class="table-cell">{{ index + 1 }}</span>
-          </div>
-          <div class="col sqs-col-3 span-3 table-col text-align-left">
-            <span class="table-cell">{{ user.username }}</span>
-          </div>
-          <div class="col sqs-col-2 span-2 table-col text-align-center">
-            <span class="table-cell">{{ user.n_count }}</span>
-          </div>
-          <div class="col sqs-col-2 span-2 table-col text-align-center">
-            <span class="table-cell">{{ user.sum_count }}</span>
-          </div>
-        </div>
+        <table class="lb-table">
+          <thead class="lb-header">
+            <tr>
+              <th class="text-align-center" style="width:20%"><h3>Rank</h3></th>
+              <th class="text-align-left" style="width:40%;text-align:left;"><h3>Username</h3></th>
+              <th class="text-align-center" style="width:20%"><h3># Videos</h3></th>
+              <th class="text-align-center" style="width:20%"><h3># Fish</h3></th>
+            </tr>
+          </thead>
+          <tbody class="lb-row">
+            <tr v-for="(user, index) in users" :key="user.uid">
+              <td class="text-align-center" style="width:20%">{{ index + 1 }}</td>
+              <td class="text-align-left" style="width:40%">{{ user.username }}</td>
+              <td class="text-align-center" style="width:20%">{{ user.n_count }}</td>
+              <td class="text-align-center" style="width:20%">{{ user.sum_count }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -81,11 +71,21 @@ export default {
 .header {
   border-bottom: 1px solid #888;
 }
-.table-col {
-  margin-left: 5px;
-  margin-right: 5px;
+.lb-table {
+  width: 100%;
+  table-layout: fixed;
 }
-.table-cell {
+.lb-header {
+  font-family: "proxima-nova","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-weight: 400;
+  font-size: 21px;
+  letter-spacing: 0px;
+  text-transform: none;
+  font-style: normal;
+  line-height: 1.2em;
+  border-bottom: 1px solid #888;
+}
+.lb-row {
   font-family: "proxima-nova","Helvetica Neue",Helvetica,Arial,sans-serif;
   font-weight: 400;
   font-size: 21px;

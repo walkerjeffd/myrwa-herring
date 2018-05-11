@@ -65,7 +65,7 @@
     <div class="sqs-block button-block sqs-block-button" data-block-type="53">
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center" data-alignment="center" data-button-size="medium">
-          <a href="/video/watch" class="sqs-block-button-element--medium sqs-block-button-element" data-initialized="true">OK, I'm Ready!</a>
+          <router-link to="/video" class="sqs-block-button-element--medium sqs-block-button-element">OK, I'm Ready!</router-link>
         </div>
       </div>
     </div>
