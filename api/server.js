@@ -175,6 +175,12 @@ app.get('/sensor/', (req, res, next) =>
     .catch(next)
 );
 
+app.get('/sensor-hourly/', (req, res, next) =>
+  db.getSensorHourlyData(req.query)
+    .then(result => res.status(200).json({ status: 'ok', data: result }))
+    .catch(next)
+);
+
 app.post('/sensor/', (req, res, next) => {
   console.log('received sensor data');
   if (!req.body) {

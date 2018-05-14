@@ -52,3 +52,4 @@ CREATE TABLE sensor (
   odo_mg_l REAL,
   bga_pc_ug_l REAL
 );
+CREATE INDEX sensor_timestamp_idx ON sensor(timestamp);

@@ -281,6 +281,12 @@ function getSensorData(query) {
   return sql;
 }
 
+function getSensorHourlyData() {
+  return knex('sensor_hourly')
+    .select()
+    .orderBy('timestamp', 'desc');
+}
+
 function checkUsernameAvailability(username) {
   return knex('users')
     .where('username', username)
@@ -382,6 +388,7 @@ module.exports = {
   saveCount,
   saveSensor,
   getSensorData,
+  getSensorHourlyData,
   createUser,
   getUser,
   checkUsernameAvailability,

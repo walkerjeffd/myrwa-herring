@@ -1,8 +1,5 @@
-DROP VIEW IF EXISTS run_daily;
-DROP VIEW IF EXISTS run_periods;
-
 -- run estimates by date and period
-CREATE VIEW run_periods AS
+CREATE OR REPLACE VIEW run_periods AS
 WITH v AS (
   SELECT
     id,
@@ -111,7 +108,7 @@ ORDER BY date, period;
 
 
 -- run estimates by date
-CREATE VIEW run_daily AS
+CREATE OR REPLACE VIEW run_daily AS
 WITH d1 AS (
   SELECT
     date,
@@ -142,5 +139,19 @@ SELECT
   ROUND(CASE WHEN df_den > 0 THEN df_num ^ 2 / df_den ELSE 0 END) AS df
 FROM d1
 ORDER BY date;
+
+-- hourly sensor readings
+CREATE OR REPLACE VIEW sensor_hourly AS
+SELECT
+  date_trunc('hour', timestamp AT TIME ZONE 'US/Eastern') AS timestamp,
+  avg(temperature_degc) AS temperature_degc,
+  avg(turbidity_ntu) AS turbidity_ntu,
+  avg(specificconductance_us_cm) AS specificconductance_us_cm,
+  avg(chlorophyll_rfu) AS chlorophyll_rfu,
+  avg(odo_mg_l) AS odo_mg_l
+FROM sensor
+WHERE location_id='UML'
+GROUP BY date_trunc('hour', timestamp AT TIME ZONE 'US/Eastern')
+ORDER BY date_trunc('hour', timestamp AT TIME ZONE 'US/Eastern');
 
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO myrwa_www;
