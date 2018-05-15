@@ -154,4 +154,39 @@ WHERE location_id='UML'
 GROUP BY date_trunc('hour', timestamp AT TIME ZONE 'US/Eastern')
 ORDER BY date_trunc('hour', timestamp AT TIME ZONE 'US/Eastern');
 
+-- users stats and rank
+CREATE OR REPLACE VIEW users_stats AS
+WITH cv AS (
+  SELECT
+    counts.users_uid AS users_uid,
+    COALESCE(COUNT(counts.count), 0)::int AS n_count,
+    COALESCE(SUM(counts.count), 0)::int AS sum_count
+  FROM counts
+  LEFT JOIN videos ON counts.video_id = videos.id
+  WHERE
+    NOT counts.flagged AND
+    NOT videos.flagged AND
+    counts.users_uid IS NOT NULL
+  GROUP BY counts.users_uid
+),
+ucv AS (
+  SELECT
+    users.uid AS uid,
+    users.username AS username,
+    users.created_at AS created_at,
+    COALESCE(cv.n_count, 0)::int AS n_count,
+    COALESCE(cv.sum_count, 0)::int AS sum_count
+  FROM users
+  LEFT JOIN cv ON users.uid = cv.users_uid
+)
+SELECT
+  uid,
+  username,
+  created_at,
+  n_count,
+  sum_count,
+  (DENSE_RANK() OVER (ORDER BY n_count DESC))::int AS rank
+FROM ucv
+ORDER BY rank, username;
+
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO myrwa_www;

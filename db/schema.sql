@@ -1,6 +1,7 @@
 CREATE TABLE users (
   uid TEXT PRIMARY KEY,
-  username TEXT NOT NULL UNIQUE
+  username TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
 CREATE TABLE locations (

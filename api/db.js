@@ -283,8 +283,7 @@ function getSensorData(query) {
 
 function getSensorHourlyData() {
   return knex('sensor_hourly')
-    .select()
-    .orderBy('timestamp', 'desc');
+    .select();
 }
 
 function checkUsernameAvailability(username) {
@@ -299,35 +298,14 @@ function checkUsernameAvailability(username) {
 }
 
 function getUser(params) {
-  return knex('users')
+  return knex('users_stats')
     .where(params)
-    .then((rows) => {
-      if (rows.length === 0) {
-        return Promise.reject('User not found');
-      }
-      return rows[0];
-    })
-    .then(user => knex('counts')
-      .where('users_uid', user.uid)
-      .groupBy('users_uid')
-      .select(knex.raw('count(counts.count)::integer as n_count'), knex.raw('sum(counts.count)::integer as sum_count'))
-      .then((rows) => {
-        if (rows.length === 0) {
-          return {
-            uid: user.uid,
-            username: user.username,
-            n_count: 0,
-            sum_count: 0
-          };
-        }
-        return {
-          uid: user.uid,
-          username: user.username,
-          n_count: rows[0].n_count,
-          sum_count: rows[0].sum_count
-        };
-      })
-    );
+    .limit(1);
+}
+
+function getUsers(params) {
+  return knex('users_stats')
+    .where(params);
 }
 
 function updateUser(user) {
@@ -351,26 +329,6 @@ function createUser(data) {
     .insert(data);
 }
 
-function getLeaderboard() {
-  return knex('counts')
-    .leftJoin('users', 'counts.users_uid', 'users.uid')
-    .leftJoin('videos', 'counts.video_id', 'videos.id')
-    .where({
-      'counts.flagged': false,
-      'videos.flagged': false
-    })
-    .whereNotNull('counts.users_uid')
-    .groupBy('users.uid')
-    .orderBy(knex.raw('count(counts.count)'), 'desc')
-    .orderBy(knex.raw('sum(counts.count)'), 'desc')
-    .select(
-      'users.uid as uid',
-      'users.username as username',
-      knex.raw('coalesce(count(counts.count), 0)::int as n_count'),
-      knex.raw('coalesce(sum(counts.count), 0)::int as sum_count')
-    )
-    .limit(20);
-}
 
 function getDailyRunEstimate(params) {
   return knex('run_daily')
@@ -394,6 +352,6 @@ module.exports = {
   checkUsernameAvailability,
   updateUser,
   deleteUser,
-  getLeaderboard,
+  getUsers,
   getDailyRunEstimate
 };

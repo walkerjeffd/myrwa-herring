@@ -114,6 +114,16 @@ app.post('/count/', (req, res, next) => {
     .catch(next);
 });
 
+app.get('/users/', (req, res, next) => {
+  const params = {};
+  if (req.query && req.query.username) {
+    params.username = req.query.username;
+  }
+  return db.getUsers(params)
+    .then(result => res.status(200).json({ status: 'ok', data: result }))
+    .catch(next);
+});
+
 app.get('/users/:uid', (req, res, next) => {
   db.getUser({ uid: req.params.uid })
     .then(result => res.status(200).json({ status: 'ok', data: result }))
@@ -128,15 +138,6 @@ app.delete('/users/:uid', (req, res, next) => {
 
 app.put('/users/:uid', (req, res, next) => {
   db.updateUser({ uid: req.params.uid, username: req.body.username })
-    .then(result => res.status(200).json({ status: 'ok', data: result }))
-    .catch(next);
-});
-
-app.get('/users/', (req, res, next) => {
-  if (!req.query || !req.query.username) {
-    return res.status(404).json({ status: 'error', error: { message: 'Missing username query parameter' } });
-  }
-  return db.getUser({ username: req.query.username })
     .then(result => res.status(200).json({ status: 'ok', data: result }))
     .catch(next);
 });
@@ -157,11 +158,11 @@ app.post('/users/', (req, res, next) => {
     .catch(next);
 });
 
-app.get('/leaderboard', (req, res, next) => {
-  db.getLeaderboard()
-    .then(result => res.status(200).json({ status: 'ok', data: result }))
-    .catch(next);
-});
+// app.get('/leaderboard/', (req, res, next) => {
+//   db.getUsers()
+//     .then(result => res.status(200).json({ status: 'ok', data: result }))
+//     .catch(next);
+// });
 
 app.get('/sprint/', (req, res, next) => {
   db.getSprintCount(config.api.sprint)
