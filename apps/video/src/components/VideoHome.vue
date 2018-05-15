@@ -55,7 +55,9 @@
       </div>
     </div>
     <div v-if="showConfirm" class="confirm-container">
-      <h2>{{ confirmMessage }}</h2>
+      <h2 v-if="!flagged">{{ confirmMessage }}</h2>
+      <h2 v-else>Hmmm...</h2>
+      <p v-if="flagged">That count seems a little questionable. It has been flagged for our review.</p>
       <div class="sqs-block button-block sqs-block-button">
         <div class="sqs-block-content">
           <div class="sqs-block-button-container--center">
@@ -123,7 +125,8 @@ export default {
       form: {
         count: null,
         comment: null
-      }
+      },
+      flagged: false
     };
   },
   validations: {
@@ -177,7 +180,12 @@ export default {
         }
 
         this.$http.post('/count/', payload)
-          .then(() => this.$store.dispatch('updateSession', payload.count))
+          .then((response) => {
+            if (response.data && response.data.data && response.data.data.length > 0) {
+              this.flagged = response.data.data[0].flagged;
+            }
+            this.$store.dispatch('updateSession', payload.count);
+          })
           .then(() => this.$auth.refreshUser())
           .then(() => this.$store.dispatch('fetchRun'))
           .then(() => {

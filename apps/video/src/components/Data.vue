@@ -42,7 +42,7 @@
         <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
           <div class="sqs-block-content">
             <h1 class="count-title">Total Estimated Fish Run</h1>
-            <p class="small-text">Each bar shows our best estimate of the total number of fish migrating each day. These estimates are calculated by feeding the individual video counts into a statistical model. The error bars represent our uncertainty, which is shown as a 95% confidence interval.</p>
+            <p class="small-text">Each bar shows our current estimate of the total number of fish migrating each day. These totals are updated in real-time using a statistical model that estimates how many fish migrate <em>over the entire day</em> based the individual counts of videos recorded on that day. The error bars represent our uncertainty in the daily total (95% confidence interval).</p>
           </div>
         </div>
         <div class="row sqs-row">
@@ -73,19 +73,48 @@
         <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
           <div class="sqs-block-content">
             <h1 class="count-title">Temperature and Water Quality</h1>
-            <div class="small-text" style="display:inline-block;">Select Variable</div>
-            <select v-model="selectedVariable">
-              <option v-for="variable in variables" :value="variable.id" :key="variable.id">
-                {{ variable.label }}
-              </option>
-            </select>
+            <p class="small-text">This chart shows temperature and water quality data measured at the dam in real time. Select a variable from the drop down menu. You can also click and drag to zoom in on a specific time period.</p>
           </div>
         </div>
         <div class="row sqs-row">
           <div class="col sqs-col-2 span-2">
             <div class="sqs-block html-block sqs-block-html" data-block-type="2">
               <div class="sqs-block-content">
-                <p class="text-align-center"></p>
+                <div class="select-label">Select Variable</div>
+              </div>
+            </div>
+          </div>
+          <div class="col sqs-col-7 span-7">
+            <div class="sqs-block image-block sqs-block-image" data-block-type="5">
+              <div class="sqs-block-content">
+                <select v-model="selectedVariable">
+                  <option v-for="variable in variables" :value="variable.id" :key="variable.id">
+                    {{ variable.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row sqs-row">
+          <div class="col sqs-col-2 span-2">
+            <div class="sqs-block html-block sqs-block-html" data-block-type="2">
+              <div class="sqs-block-content" style="padding-top:10px">
+                <p v-if="selectedVariable === 'temperature_degc'" class="text-align-left small-text" style="color:black">
+                  Water temperature is the primary factor that determines when the herring begin their annual migration ustream. In most years, herring wait until temperatures rise above 13 deg C (55 deg F) to begin migrating.
+                </p>
+                <p v-if="selectedVariable === 'specificconductance_us_cm'" class="text-align-left small-text" style="color:black">
+                  Specific conductivity is similar to salinity and represents how salty the water is. This tends to change rapidly when it rains and the river is flushed out by fresh water.
+                </p>
+                <p v-if="selectedVariable === 'turbidity_ntu'" class="text-align-left small-text" style="color:black">
+                  Turbidity reflects how cloudy the water is. This tends to be higher during large rain storms due to runoff that carries particles from the land and into the river.
+                </p>
+                <p v-if="selectedVariable === 'odo_mg_l'" class="text-align-left small-text" style="color:black">
+                  Dissolved oxygen is important for the health and survival of fish. When this falls below 5 mg/L, fish can become stressed and ultimately die due to lack of oxygen.
+                </p>
+                <p v-if="selectedVariable === 'chlorophyll_rfu'" class="text-align-left small-text" style="color:black">
+                  Chlorophyll reflects the amount of plant matter (primarily algae) in the water. This tends to increase over the summer as the algae grow.
+                </p>
               </div>
             </div>
           </div>
@@ -130,7 +159,7 @@
         <!-- VIDEO STATUS -->
         <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
           <div class="sqs-block-content">
-            <h1 class="count-title">Number of Videos Counted</h1>
+            <h1 class="count-title">Number of Videos</h1>
             <p class="small-text">Each bar shows how many videos were recorded each day, plus how many of those have been counted and how many remain to be counted. The number of recorded videos depends on how active the fish were on that day, but also whether the camera was properly configured to only record when it detected fish and not other things floating by.</p>
           </div>
         </div>
@@ -185,8 +214,8 @@ export default {
         },
         {
           id: 'specificconductance_us_cm',
-          label: 'Specific Conductance',
-          labelUnits: 'Specific Conductance (uS/cm)'
+          label: 'Specific Conductivity',
+          labelUnits: 'Specific Conductivity (uS/cm)'
         },
         {
           id: 'turbidity_ntu',
@@ -205,76 +234,217 @@ export default {
         }
       ],
       data: {
-        sensor: []
+        activity: {
+          total: 0,
+          values: []
+        },
+        run: {
+          total: {
+            y: 0,
+            range: 0
+          },
+          values: []
+        },
+        sensor: [],
+        fish: {
+          total: 0,
+          values: []
+        },
+        video: {
+          total: {
+            counted: 0,
+            remaining: 0
+          },
+          values: []
+        }
       },
       charts: {
-        sensor: null
+        activity: null,
+        run: null,
+        sensor: null,
+        fish: null,
+        video: null
+      },
+      odometers: {
+        activity: null,
+        run: {
+          total: null,
+          range: null
+        },
+        fish: null,
+        video: {
+          counted: null,
+          remaining: null
+        }
       }
     };
   },
+  computed: {
+    dateRange() {
+      const minDate = new Date('2018-04-15 00:00-0400');
+      let maxDate = new Date('2018-07-01 00:00-0400');
+
+      const today = new Date();
+
+      console.log(today, maxDate);
+      if (maxDate > today) {
+        maxDate = today;
+      }
+      console.log(today, maxDate);
+
+      return [minDate, maxDate];
+    }
+  },
   watch: {
     selectedVariable() {
-      this.updateSensorChart();
+      this.updateSensor();
     }
   },
   mounted() {
-    const colors = this.$highcharts.getOptions().colors;
-    const utcFormat = d3TimeFormat.utcFormat('%b %d %I:%M %p EDT');
-    const edtFormat = x => utcFormat(d3Time.timeHour.offset(x, -4));
-
-    const odActivityTotal = new Odometer({
-      el: document.getElementById('odometer-activity-total'),
-      value: 0
-    });
-    const odFishTotal = new Odometer({
-      el: document.getElementById('odometer-fish-total'),
-      value: 0
-    });
-    const odRunTotal = new Odometer({
-      el: document.getElementById('odometer-run-total'),
-      value: 0
-    });
-    const odRunRange = new Odometer({
-      el: document.getElementById('odometer-run-range'),
-      value: 0
-    });
-    const odVideoCounted = new Odometer({
-      el: document.getElementById('odometer-video-counted'),
-      value: 0
-    });
-    const odVideoRemaining = new Odometer({
-      el: document.getElementById('odometer-video-remaining'),
-      value: 0
-    });
-
     let today = d3Time.timeDay.floor(new Date());
     if (today.getUTCHours() < 4) {
       today = new Date(today.getTime() - (86400 * 1000));
     }
     const tomorrow = new Date(today.getTime() + (86400 * 1000));
 
-    this.fetchSensorData()
-      .then(this.updateSensorChart);
+    this.odometers.activity = new Odometer({
+      el: document.getElementById('odometer-activity-total'),
+      value: 0
+    });
+    this.odometers.run.total = new Odometer({
+      el: document.getElementById('odometer-run-total'),
+      value: 0
+    });
+    this.odometers.run.range = new Odometer({
+      el: document.getElementById('odometer-run-range'),
+      value: 0
+    });
+    this.odometers.fish = new Odometer({
+      el: document.getElementById('odometer-fish-total'),
+      value: 0
+    });
+    this.odometers.video.counted = new Odometer({
+      el: document.getElementById('odometer-video-counted'),
+      value: 0
+    });
+    this.odometers.video.remaining = new Odometer({
+      el: document.getElementById('odometer-video-remaining'),
+      value: 0
+    });
 
+    this.charts.activity = this.$highcharts.chart('chart-activity', {
+      chart: {
+        type: 'bubble',
+        height: 150,
+        marginLeft: 75,
+        zoomType: 'x'
+      },
+      title: {
+        text: ''
+      },
+      xAxis: {
+        type: 'datetime',
+        dateTimeLabelFormats: {
+          month: '%b %d',
+          day: '%b %d'
+        },
+        title: {
+          text: 'Time'
+        },
+        min: today.valueOf(),
+        max: tomorrow.valueOf()
+      },
+      yAxis: {
+        visible: false
+      },
+      plotOptions: {
+        bubble: {
+          marker: {
+            fillOpacity: 0.1
+          },
+          minSize: 2,
+          maxSize: 50
+        }
+      },
+      legend: {
+        enabled: false
+      },
+      tooltip: {
+        useHTML: true,
+        headerFormat: '<table>',
+        pointFormat: '<tr><th style="text-align:right"># Fish Counted:</th><td style="padding-left:10px">{point.z}</td></tr>' +
+          '<tr><th style="text-align:right">Counted At:</th><td style="padding-left:10px">{point.count_timestamp}</td></tr>' +
+          '<tr><th style="text-align:right">Video Recorded At:</th><td style="padding-left:10px">{point.video_timestamp}</td></tr>' +
+          '<tr><th style="text-align:right">Video Duration:</th><td style="padding-left:10px">{point.duration} sec</td></tr>',
+        footerFormat: '</table>',
+        followPointer: false,
+        hideDelay: 250
+      },
+      series: []
+    });
+    this.charts.run = this.$highcharts.chart('chart-run', {
+      chart: {
+        type: 'column',
+        height: 275,
+        marginLeft: 75
+      },
+      title: {
+        text: ''
+      },
+      xAxis: {
+        type: 'datetime',
+        dateTimeLabelFormats: {
+          month: '%b %d',
+          week: '%b %d',
+          day: '%b %d'
+        },
+        title: {
+          text: 'Date'
+        },
+        min: this.dateRange[0].valueOf(),
+        max: this.dateRange[1].valueOf()
+      },
+      yAxis: {
+        title: {
+          text: 'Estimated # Fish per Day'
+        }
+      },
+      plotOptions: {
+        column: {
+          groupPadding: 0,
+          pointPadding: 0
+        }
+      },
+      legend: {
+        enabled: false
+      },
+      series: [],
+      tooltip: {
+        shared: true
+      }
+    });
     this.charts.sensor = this.$highcharts.chart('chart-sensor', {
       chart: {
         type: 'line',
         height: 275,
-        marginLeft: 60,
+        marginLeft: 75,
         zoomType: 'x'
       },
       title: {
-        align: 'left'
+        text: ''
       },
       xAxis: {
         type: 'datetime',
-        // dateTimeLabelFormats: {
-        //   day: '%b %d',
-        //   week: '%b %d',
-        // },
+        dateTimeLabelFormats: {
+          month: '%b %d',
+          week: '%b %d',
+          day: '%b %d'
+        },
         title: {
           text: 'Date'
-        }
+        },
+        min: this.dateRange[0].valueOf(),
+        max: this.dateRange[1].valueOf()
       },
       yAxis: {
         title: {
@@ -291,291 +461,169 @@ export default {
       },
       series: []
     });
-
-    this.$http.get('/run-estimate/?start=2018-04-25&end=2018-07-01')
-      .then((response) => {
-        const data = response.data.data;
-
-        const chartData = data.map((d) => {
-          let tStar = jStat.studentt.inv(0.975, d.df);
-          if (isNaN(tStar)) {
-            tStar = 0;
-          }
-          return {
-            x: (d3Time.timeHour.offset(new Date(d.date), 4)).valueOf(),
-            y: Math.round(d.y),
-            low: Math.max(Math.round(d.y) - (tStar * Math.sqrt(d.var_y)), 0),
-            high: Math.round(d.y) + (tStar * Math.sqrt(d.var_y))
-          };
-        });
-
-        const totalData = data.reduce((p, v) => {
-          p.y += v.y;           // eslint-disable-line
-          p.var_y += v.var_y;   // eslint-disable-line
-          p.df_num += v.df_num; // eslint-disable-line
-          p.df_den += v.df_den; // eslint-disable-line
-          return p;
-        }, { y: 0, var_y: 0, df_num: 0, df_den: 0 });
-
-        totalData.df = Math.round((totalData.df_num * totalData.df_num) / totalData.df_den);
-        totalData.tStar = jStat.studentt.inv(0.975, totalData.df);
-        totalData.y = totalData.y;
-        totalData.ciRange = totalData.tStar * Math.sqrt(totalData.var_y);
-        const total = {
-          y: Math.round(totalData.y),
-          range: Math.round(totalData.ciRange)
-        };
-        odRunTotal.update(total.y);
-        odRunRange.update(total.range);
-
-        let maxDate = today;
-        if (today > new Date(2018, 6, 1)) {
-          maxDate = new Date(2018, 6, 1);
+    this.charts.fish = this.$highcharts.chart('chart-fish', {
+      chart: {
+        type: 'column',
+        height: 275,
+        marginLeft: 75
+      },
+      title: {
+        text: ''
+      },
+      plotOptions: {
+        column: {
+          groupPadding: 0,
+          pointPadding: 0,
+          stacking: 'normal'
         }
+      },
+      legend: {
+        enabled: false
+      },
+      xAxis: {
+        type: 'datetime',
+        dateTimeLabelFormats: {
+          month: '%b %d',
+          week: '%b %d',
+          day: '%b %d'
+        },
+        title: {
+          text: 'Date'
+        },
+        min: this.dateRange[0].valueOf(),
+        max: this.dateRange[1].valueOf()
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: '# Fish Counted per Day'
+        }
+      },
+      series: []
+    });
+    this.charts.video = this.$highcharts.chart('chart-video', {
+      chart: {
+        type: 'column',
+        height: 275,
+        marginLeft: 75
+      },
+      title: {
+        text: ''
+      },
+      plotOptions: {
+        column: {
+          groupPadding: 0,
+          pointPadding: 0,
+          stacking: 'normal'
+        }
+      },
+      legend: {
+      },
+      tooltip: {
+        shared: true
+      },
+      xAxis: {
+        type: 'datetime',
+        dateTimeLabelFormats: {
+          month: '%b %d',
+          week: '%b %d',
+          day: '%b %d'
+        },
+        title: {
+          text: 'Date'
+        },
+        min: this.dateRange[0].valueOf(),
+        max: this.dateRange[1].valueOf()
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: '# Videos Recorded per Day'
+        }
+      },
+      series: []
+    });
 
-        this.$highcharts.chart('chart-run', {
-          chart: {
-            type: 'column',
-            height: 275
-          },
-          title: {
-            align: 'left',
-            text: 'Estimated Daily Fish Passage'
-          },
-          xAxis: {
-            type: 'datetime',
-            dateTimeLabelFormats: {
-              day: '%b %d',
-              week: '%b %d',
-            },
-            title: {
-              text: 'Date'
-            },
-            min: (new Date('2018-04-25 00:00')).valueOf(),
-            max: maxDate.valueOf()
-          },
-          yAxis: {
-            title: {
-              text: 'Estimated # Fish per Day'
-            }
-          },
-          plotOptions: {
-            column: {
-              groupPadding: 0.05,
-              pointPadding: 0
-            }
-          },
-          legend: {
-            enabled: false
-          },
-          series: [
-            {
-              name: 'Estimated # Fish',
-              data: chartData.map(d => ({ x: d.x, y: d.y })),
-              type: 'column',
-              tooltip: {
-                valueDecimals: 0
-              }
-            },
-            {
-              name: 'Uncertainty Range',
-              data: chartData.map(d => ({ x: d.x, low: d.low, high: d.high })),
-              type: 'errorbar',
-              tooltip: {
-                valueDecimals: 0
-              }
-            }
-          ],
-          tooltip: {
-            shared: true
-          }
-        });
-      });
-
-    this.$http.get('/status/')
-      .then((response) => {
-        const data = response.data.data;
-
-        const fishData = data.fish.map(d => [
-          d3Time.timeHour.offset(new Date(d.date), 4).valueOf(),
-          Math.round(d.count)
-        ]);
-        const videoData = data.video.map(d => ({
-          date: d3Time.timeHour.offset(new Date(d.date), 4),
-          n_remaining: d.n_total - d.n_counted,
-          n_counted: d.n_counted
-        }));
-        const activityData = data.activity.map(d => ({
-          x: (new Date(d.count_timestamp)).valueOf(),
-          y: 0,
-          z: d.count,
-          duration: Math.round(d.duration),
-          video_timestamp: edtFormat(new Date(d.video_start)),
-          count_timestamp: edtFormat(new Date(d.count_timestamp))
-        }));
-
-        const totals = {
-          fish: fishData.reduce((p, v) => (p + v[1]), 0),
-          video: {
-            counted: videoData.reduce((p, v) => (p + v.n_counted), 0),
-            remaining: videoData.reduce((p, v) => (p + v.n_remaining), 0)
-          }
-        };
-
-        this.$highcharts.chart('chart-fish', {
-          chart: {
-            type: 'column',
-            height: 275
-          },
-          title: {
-            text: ''
-          },
-          plotOptions: {
-            column: {
-              groupPadding: 0.05,
-              stacking: 'normal'
-            }
-          },
-          legend: {
-            enabled: false
-          },
-          xAxis: {
-            type: 'datetime',
-            dateTimeLabelFormats: {
-              month: '%b %d',
-              day: '%b %d'
-            },
-            title: {
-              text: 'Date'
-            }
-          },
-          yAxis: {
-            min: 0,
-            title: {
-              text: '# Fish Counted (so far)'
-            }
-          },
-          series: [
-            {
-              name: '# Fish',
-              data: fishData,
-              color: colors[2]
-            }
-          ]
-        });
-
-        this.$highcharts.chart('chart-activity', {
-          chart: {
-            type: 'bubble',
-            height: 150,
-            marginLeft: 60,
-            zoomType: 'x'
-          },
-          title: {
-            text: ''
-          },
-          xAxis: {
-            type: 'datetime',
-            dateTimeLabelFormats: {
-              month: '%b %d',
-              day: '%b %d'
-            },
-            title: {
-              text: 'Time'
-            },
-            min: today.valueOf(),
-            max: tomorrow.valueOf()
-          },
-          yAxis: {
-            visible: false
-          },
-          plotOptions: {
-            bubble: {
-              marker: {
-                fillOpacity: 0.1
-              },
-              minSize: 2,
-              maxSize: 50
-            }
-          },
-          legend: {
-            enabled: false
-          },
-          tooltip: {
-            useHTML: true,
-            headerFormat: '<table>',
-            pointFormat: '<tr><th style="text-align:right"># Fish Counted:</th><td style="padding-left:10px">{point.z}</td></tr>' +
-              '<tr><th style="text-align:right">Counted At:</th><td style="padding-left:10px">{point.count_timestamp}</td></tr>' +
-              '<tr><th style="text-align:right">Video Recorded At:</th><td style="padding-left:10px">{point.video_timestamp}</td></tr>' +
-              '<tr><th style="text-align:right">Video Duration:</th><td style="padding-left:10px">{point.duration} sec</td></tr>',
-            footerFormat: '</table>',
-            followPointer: false,
-            hideDelay: 250
-          },
-          series: [
-            {
-              name: 'Video Count',
-              data: activityData
-            }
-          ]
-        });
-
-        this.$highcharts.chart('chart-video', {
-          chart: {
-            type: 'column',
-            height: 275
-          },
-          title: {
-            text: ''
-          },
-          plotOptions: {
-            column: {
-              groupPadding: 0.05,
-              stacking: 'normal'
-            }
-          },
-          legend: {
-          },
-          tooltip: {
-            shared: true
-          },
-          xAxis: {
-            type: 'datetime',
-            dateTimeLabelFormats: {
-              month: '%b %d',
-              day: '%b %d'
-            },
-            title: {
-              text: 'Date'
-            }
-          },
-          yAxis: {
-            min: 0,
-            title: {
-              text: '# Videos'
-            }
-          },
-          series: [
-            {
-              name: '# Counted',
-              data: videoData.map(d => ({ x: d.date.valueOf(), y: d.n_counted })),
-              color: colors[3]
-            },
-            {
-              name: '# Remaining',
-              data: videoData.map(d => ({ x: d.date.valueOf(), y: d.n_remaining })),
-              color: colors[4]
-            }
-          ]
-        });
-
-        odActivityTotal.update(data.activity.length);
-        odFishTotal.update(Math.round(totals.fish));
-        odVideoCounted.update(totals.video.counted);
-        odVideoRemaining.update(totals.video.remaining);
-      });
+    this.fetchStatusData()
+      .then(this.updateStatus);
+    this.fetchRunData()
+      .then(this.updateRun);
+    this.fetchSensorData()
+      .then(this.updateSensor);
   },
   methods: {
+    fetchStatusData() {
+      const utcFormat = d3TimeFormat.utcFormat('%b %d %I:%M %p EDT');
+      const edtFormat = x => utcFormat(d3Time.timeHour.offset(x, -4));
+
+      return this.$http.get('/status/')
+        .then((response) => {
+          const data = response.data.data;
+
+          const dataActivity = data.activity.map(d => ({
+            x: (new Date(d.count_timestamp)).valueOf(),
+            y: 0,
+            z: d.count,
+            duration: Math.round(d.duration),
+            video_timestamp: edtFormat(new Date(d.video_start)),
+            count_timestamp: edtFormat(new Date(d.count_timestamp))
+          }));
+          const dataFish = data.fish.map(d => [
+            d3Time.timeHour.offset(new Date(d.date), 4).valueOf(),
+            Math.round(d.count)
+          ]);
+          const dataVideo = data.video.map(d => ({
+            date: d3Time.timeHour.offset(new Date(d.date), 4),
+            n_remaining: d.n_total - d.n_counted,
+            n_counted: d.n_counted
+          }));
+
+          this.data.activity.total = dataActivity.length;
+          this.data.activity.values = dataActivity;
+          this.data.fish.total = dataFish.reduce((p, v) => (p + v[1]), 0);
+          this.data.fish.values = dataFish;
+          this.data.video.total.counted = dataVideo.reduce((p, v) => (p + v.n_counted), 0);
+          this.data.video.total.remaining = dataVideo.reduce((p, v) => (p + v.n_remaining), 0);
+          this.data.video.values = dataVideo;
+        });
+    },
+    fetchRunData() {
+      return this.$http.get('/run-estimate/?start=2018-04-25&end=2018-07-01')
+        .then((response) => {
+          const data = response.data.data;
+
+          this.data.run.values = data.map((d) => {
+            let tStar = jStat.studentt.inv(0.975, d.df);
+            if (isNaN(tStar)) {
+              tStar = 0;
+            }
+            return {
+              x: (d3Time.timeHour.offset(new Date(d.date), 4)).valueOf(),
+              y: Math.round(d.y),
+              low: Math.max(Math.round(d.y) - (tStar * Math.sqrt(d.var_y)), 0),
+              high: Math.round(d.y) + (tStar * Math.sqrt(d.var_y))
+            };
+          });
+
+          const totalData = data.reduce((p, v) => {
+            p.y += v.y;           // eslint-disable-line
+            p.var_y += v.var_y;   // eslint-disable-line
+            p.df_num += v.df_num; // eslint-disable-line
+            p.df_den += v.df_den; // eslint-disable-line
+            return p;
+          }, { y: 0, var_y: 0, df_num: 0, df_den: 0 });
+
+          totalData.df = Math.round((totalData.df_num * totalData.df_num) / totalData.df_den);
+          totalData.tStar = jStat.studentt.inv(0.975, totalData.df);
+          totalData.y = totalData.y;
+          totalData.ciRange = totalData.tStar * Math.sqrt(totalData.var_y);
+
+          this.data.run.total = {
+            y: Math.round(totalData.y),
+            range: Math.round(totalData.ciRange)
+          };
+        });
+    },
     fetchSensorData() {
       return this.$http.get('/sensor-hourly/')
         .then((response) => {
@@ -590,7 +638,58 @@ export default {
           this.data.sensor = data;
         });
     },
-    updateSensorChart() {
+    updateStatus() {
+      const colors = this.$highcharts.getOptions().colors;
+
+      // activity
+      this.odometers.activity.update(this.data.activity.total);
+      this.charts.activity.addSeries({
+        name: 'Video Count',
+        data: this.data.activity.values
+      });
+
+      // fish counts
+      this.odometers.fish.update(Math.round(this.data.fish.total));
+      this.charts.fish.addSeries({
+        name: '# Fish',
+        data: this.data.fish.values
+        // color: colors[2]
+      });
+
+      // video counts
+      this.odometers.video.counted.update(this.data.video.total.counted);
+      this.odometers.video.remaining.update(this.data.video.total.remaining);
+      this.charts.video.addSeries({
+        name: '# Counted',
+        data: this.data.video.values.map(d => ({ x: d.date.valueOf(), y: d.n_counted })),
+        color: colors[3]
+      }, false);
+      this.charts.video.addSeries({
+        name: '# Not Counted',
+        data: this.data.video.values.map(d => ({ x: d.date.valueOf(), y: d.n_remaining }))
+      });
+    },
+    updateRun() {
+      this.odometers.run.total.update(this.data.run.total.y);
+      this.odometers.run.range.update(this.data.run.total.range);
+      this.charts.run.addSeries({
+        name: 'Estimated # Fish',
+        data: this.data.run.values.map(d => ({ x: d.x, y: d.y })),
+        type: 'column',
+        tooltip: {
+          valueDecimals: 0
+        }
+      }, false);
+      this.charts.run.addSeries({
+        name: 'Uncertainty Range',
+        data: this.data.run.values.map(d => ({ x: d.x, low: d.low, high: d.high })),
+        type: 'errorbar',
+        tooltip: {
+          valueDecimals: 0
+        }
+      }, true);
+    },
+    updateSensor() {
       const chart = this.charts.sensor;
       const data = this.data.sensor;
       const variableId = this.selectedVariable;
@@ -601,7 +700,8 @@ export default {
       }
 
       if (variableId && data && data.length > 0) {
-        chart.title.update({ text: variableLabel });
+        // chart.title.update({ text: variableLabel });
+        chart.yAxis[0].setTitle({ text: variableLabel });
         chart.addSeries({
           name: variableLabel,
           data: data.map(d => [d.timestamp.valueOf(), d[variableId]]),
@@ -625,6 +725,9 @@ h1.count-title {
   line-height: 1.3;
   font-family: sans-serif;
   color: #888;
+}
+.select-label {
+  text-align: right;
 }
 p.odometer-label {
   margin-top: 5px;

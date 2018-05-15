@@ -357,11 +357,12 @@ h2.account-heading {
 }
 .row td {
   padding-left: 5px;
-  padding-right: 5px;
-  text-align: right;
+  padding-right: 10px;
 }
 .row td:first-child {
   font-family: "proxima-nova","Helvetica Neue",Helvetica,Arial,sans-serif;
+  width: 190px;
+  text-align: right;
 }
 .row {
   font-size: 20px;
