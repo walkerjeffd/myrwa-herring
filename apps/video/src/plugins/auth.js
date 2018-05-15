@@ -25,7 +25,7 @@ export default {
         .then(firebaseUser => axios.post('/users/', { uid: firebaseUser.uid, username }))
         .then(response => response.data.data[0])
         .then(user => axios.get(`/users/${user.uid}`)
-          .then(response => store.dispatch('auth/setUser', response.data.data))
+          .then(response => store.dispatch('auth/setUser', response.data.data[0]))
         ),
       updateEmail: email => auth.currentUser.updateEmail(email),
       updatePassword: password => auth.currentUser.updatePassword(password),
@@ -42,7 +42,7 @@ export default {
         })
         .then(() => axios.put(`/users/${auth.currentUser.uid}`, { username }))
         .then(() => axios.get(`/users/${auth.currentUser.uid}`))
-        .then(response => store.dispatch('auth/setUser', response.data.data)),
+        .then(response => store.dispatch('auth/setUser', response.data.data[0])),
       delete: () => {
         const uid = auth.currentUser.uid;
         return auth.currentUser.delete()
@@ -53,7 +53,7 @@ export default {
         const user = auth.currentUser;
         if (user) {
           axios.get(`/users/${user.uid}`)
-            .then(response => store.dispatch('auth/setUser', response.data.data));
+            .then(response => store.dispatch('auth/setUser', response.data.data[0]));
         }
       }
     };
@@ -62,7 +62,7 @@ export default {
         store.dispatch('auth/clearUser');
       } else {
         axios.get(`/users/${user.uid}`)
-          .then(response => store.dispatch('auth/setUser', response.data.data))
+          .then(response => store.dispatch('auth/setUser', response.data.data[0]))
           .then(() => store.dispatch('auth/initialized'));
       }
     });

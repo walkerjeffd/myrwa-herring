@@ -20,6 +20,7 @@
     "jStat": "^1.7.1",
     "odometer": "^0.4.8",
     "query-string": "^6.1.0",
+    "v-tooltip": "^2.0.0-rc.32",
     "vee-validate": "^2.0.8",
     "video.js": "^6.8.0",
     "vue": "^2.5.2",

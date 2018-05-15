@@ -67,6 +67,7 @@
             </li>
             <li class="user-stats-container">
               <div class="user-stats-header">Your Stats</div>
+              <span v-if="user.n_count > 0">Rank: <span class="user-stats-value">{{ user.rank | number }}</span><br></span>
               # Videos: <span class="user-stats-value">{{ user.n_count | number }}</span><br>
               # Fish: <span class="user-stats-value">{{ user.sum_count | number }}</span>
             </li>

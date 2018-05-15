@@ -31,25 +31,10 @@ export default {
   components: {
     VideoNav
   },
-  data() {
-    return {
-      // query: {
-      //   data: {}
-      // }
-    };
-  },
   created() {
     console.log('app:created');
 
     this.$store.dispatch('setSessionId', uuid());
-
-    // if (location.search) {
-    //   const qry = queryString.parse(location.search);
-
-    //   if (qry) {
-    //     this.$set(this.query, 'data', qry);
-    //   }
-    // }
   },
   mounted() {
     console.log('app:mounted');

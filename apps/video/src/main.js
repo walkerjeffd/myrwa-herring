@@ -1,12 +1,14 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Vuelidate from 'vuelidate';
+import VTooltip from 'v-tooltip';
 import SocialSharing from 'vue-social-sharing';
 import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/brands/facebook-square';
 import 'vue-awesome/icons/brands/twitter-square';
 import 'vue-awesome/icons/brands/google-plus-square';
+import 'vue-awesome/icons/question-circle';
 
 import HttpPlugin from './plugins/http';
 import AuthPlugin from './plugins/auth';
@@ -20,6 +22,7 @@ require('./css/app.css');
 
 Vue.use(VueRouter);
 Vue.use(Vuelidate);
+Vue.use(VTooltip);
 Vue.use(SocialSharing);
 Vue.use(HighchartsPlugin);
 Vue.use(HttpPlugin, { baseURL: process.env.API_URL });
@@ -36,8 +39,6 @@ Vue.use(AuthPlugin, {
 });
 
 Vue.component('icon', Icon);
-
-console.log(process.env.NODE_ENV);
 
 window.onload = () => {
   new Vue({

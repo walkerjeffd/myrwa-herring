@@ -4,11 +4,27 @@
       <h1>My Account</h1>
 
       <h2 class="account-heading">My Data</h2>
-      <ul v-if="user">
-        <li><strong>Username</strong>: {{ user.username }}</li>
-        <li><strong># Videos Watched</strong>: {{ user.n_count }}</li>
-        <li><strong># Fish Counted</strong>: {{ user.sum_count }}</li>
-      </ul>
+
+      <table class="table" v-if="user">
+        <tbody class="row">
+          <tr>
+            <td>Username:</td>
+            <td>{{ user.username }}</td>
+          </tr>
+          <tr v-if="user.n_count > 0">
+            <td>Leaderboard Rank:</td>
+            <td>{{ user.rank | number }}</td>
+          </tr>
+          <tr>
+            <td># Videos Watched:</td>
+            <td>{{ user.n_count | number }}</td>
+          </tr>
+          <tr>
+            <td># Fish Counted:</td>
+            <td>{{ user.sum_count | number }}</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h2 class="account-heading">Change Username</h2>
 
@@ -170,6 +186,8 @@
 import { required, email, minLength, sameAs } from 'vuelidate/lib/validators';
 import { mapGetters } from 'vuex';
 
+import { number } from '@/filters';
+
 export default {
   name: 'account',
   data() {
@@ -201,6 +219,9 @@ export default {
         loginRequired: false
       }
     };
+  },
+  filters: {
+    number
   },
   validations: {
     username: {
@@ -329,4 +350,21 @@ h2.account-heading {
 .description {
   white-space: normal !important;
 }
+.table {
+  width: 400px;
+  table-layout: fixed;
+  border-left: 1px solid #AAA;
+}
+.row td {
+  padding-left: 5px;
+  padding-right: 5px;
+  text-align: right;
+}
+.row td:first-child {
+  font-family: "proxima-nova","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.row {
+  font-size: 20px;
+}
+
 </style>

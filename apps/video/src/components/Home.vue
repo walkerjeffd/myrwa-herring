@@ -6,9 +6,7 @@
           <div class="sqs-block-content">
             <h1>Welcome to the Mystic River Herring Video Counter!</h1>
             <p>
-              Help us track changes in <a href="/about/herring">river herring</a> populations over
-              time by counting the number of fish passing through the fish ladder at Upper Mystic
-              Lake dam located between Medford and Winchester, MA.
+              Help us track changes in <a href="/about/herring">river herring</a> populations over time by counting the number of fish passing through the fish ladder at Upper Mystic Lake dam located between Medford and Winchester, MA.
             </p>
           </div>
         </div>
@@ -62,7 +60,13 @@
         <div class="sqs-block html-block sqs-block-html">
           <div class="sqs-block-content">
             <p>
-              Each video is between 10 and 60 seconds long. Some videos show blue outlines when motion is detected, but some do not. Here are our <router-link to="/data">results</router-link> so far - but we need your help to continue this important conservation mission.
+              From April through June of each year, an underwater camera system records short videos (10 - 60 seconds long) of river herring at the Upper Mystic Lake dam between Medford and Winchester, MA.
+            </p>
+            <p>
+              After each video is recorded, it is immediately uploaded to this website so that folks like you can help us count the number of herring passing through the dam.
+            </p>
+            <p>
+              With these video counts, we then estimate in real-time the total number of herring that have migrated so far this year (<router-link to="/data">see our current results here</router-link>). Every video count matters, and helps bring us one step closer to an accurate estimate of the total herring run.
             </p>
             <p>
               You can <router-link to="/signup">sign up</router-link> for a free account to track your progress and compete with other users for the top spot on the <router-link to="/leaderboard">Leaderboard</router-link>. However, an account is not required, so if you'd just like to count some fish, <router-link to="/video">go right ahead</router-link>!
@@ -71,7 +75,7 @@
               If you have not been to this site before, please take a moment to view the <router-link to="/instructions">instructions</router-link> and learn what to count and what not to count, which is important for us to collect accurate data.
             </p>
             <p>
-              If you've already seen the instructions, then let's <router-link to="/video">start counting</router-link>!
+              If you've already seen the instructions and are ready to go, then let's <router-link to="/video">start counting</router-link>!
             </p>
           </div>
         </div>
@@ -79,7 +83,7 @@
           <div class="sqs-block-content">
             <h2>About the Fish Ladder and Video System</h2>
             <p>
-              In 2017, the Mystic River Watershed Association, together with the Massachusetts Division of Marine Fisheries and Massachusetts Department of Conservation and Recreation, installed an underwater video camera at the Upper Mystic Lake dam between Winchester and Medford, MA (see map below). The camera is set up to record video clips whenever it detects one or more fish passing through its field of view. These video clips are uploaded to this website in real time so that anyone from anywhere can help count how many fish are migrating up the Mystic River. With this data, we can more accurately track how the migration changes from year to year, and thus better understand this valuable species. <a href="/about-the-project">Learn more about the project</a>&nbsp;and <a href="/data">explore data from previous years</a>.
+              In 2017, the Mystic River Watershed Association, together with the Massachusetts Division of Marine Fisheries and Massachusetts Department of Conservation and Recreation, installed an underwater video camera at the Upper Mystic Lake dam between Winchester and Medford, MA (see map below). The camera is set up to record video clips whenever it detects one or more fish passing through its field of view. These video clips are uploaded to this website in real time so that anyone from anywhere can help count how many fish are migrating up the Mystic River. With this data, we then estimate the total number of herring that pass through the dam, which helps us more accurately track how the migration changes from year to year, and thus better understand this valuable species. <a href="/about-the-project">Learn more about the project</a>&nbsp;and <a href="/data">explore data from previous years</a>.
             </p>
           </div>
         </div>

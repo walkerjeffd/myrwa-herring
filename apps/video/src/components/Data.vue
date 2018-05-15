@@ -70,6 +70,34 @@
           </div>
         </div>
 
+        <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
+          <div class="sqs-block-content">
+            <h1 class="count-title">Temperature and Water Quality</h1>
+            <div class="small-text" style="display:inline-block;">Select Variable</div>
+            <select v-model="selectedVariable">
+              <option v-for="variable in variables" :value="variable.id" :key="variable.id">
+                {{ variable.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="row sqs-row">
+          <div class="col sqs-col-2 span-2">
+            <div class="sqs-block html-block sqs-block-html" data-block-type="2">
+              <div class="sqs-block-content">
+                <p class="text-align-center"></p>
+              </div>
+            </div>
+          </div>
+          <div class="col sqs-col-7 span-7">
+            <div class="sqs-block image-block sqs-block-image" data-block-type="5">
+              <div class="sqs-block-content">
+                <div id="chart-sensor"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- FISH STATUS -->
         <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
           <div class="sqs-block-content">
@@ -145,9 +173,50 @@ import * as d3TimeFormat from 'd3-time-format';
 import Odometer from 'odometer';
 import jStat from 'jStat';
 
-window.d3Time = d3Time;
-
 export default {
+  data() {
+    return {
+      selectedVariable: 'temperature_degc',
+      variables: [
+        {
+          id: 'temperature_degc',
+          label: 'Water Temperature',
+          labelUnits: 'Water Temperature (degC)'
+        },
+        {
+          id: 'specificconductance_us_cm',
+          label: 'Specific Conductance',
+          labelUnits: 'Specific Conductance (uS/cm)'
+        },
+        {
+          id: 'turbidity_ntu',
+          label: 'Turbidity',
+          labelUnits: 'Turbidity (NTU)'
+        },
+        {
+          id: 'odo_mg_l',
+          label: 'Dissolved Oxygen',
+          labelUnits: 'Dissolved Oxygen (mg/L)'
+        },
+        {
+          id: 'chlorophyll_rfu',
+          label: 'Chlorophyll',
+          labelUnits: 'Chlorophyll (RFU)'
+        }
+      ],
+      data: {
+        sensor: []
+      },
+      charts: {
+        sensor: null
+      }
+    };
+  },
+  watch: {
+    selectedVariable() {
+      this.updateSensorChart();
+    }
+  },
   mounted() {
     const colors = this.$highcharts.getOptions().colors;
     const utcFormat = d3TimeFormat.utcFormat('%b %d %I:%M %p EDT');
@@ -183,6 +252,45 @@ export default {
       today = new Date(today.getTime() - (86400 * 1000));
     }
     const tomorrow = new Date(today.getTime() + (86400 * 1000));
+
+    this.fetchSensorData()
+      .then(this.updateSensorChart);
+
+    this.charts.sensor = this.$highcharts.chart('chart-sensor', {
+      chart: {
+        type: 'line',
+        height: 275,
+        marginLeft: 60,
+        zoomType: 'x'
+      },
+      title: {
+        align: 'left'
+      },
+      xAxis: {
+        type: 'datetime',
+        // dateTimeLabelFormats: {
+        //   day: '%b %d',
+        //   week: '%b %d',
+        // },
+        title: {
+          text: 'Date'
+        }
+      },
+      yAxis: {
+        title: {
+          text: null
+        },
+        min: 0,
+        endOnTick: false,
+        tickPixelInterval: 36
+      },
+      plotOptions: {
+      },
+      legend: {
+        enabled: false
+      },
+      series: []
+    });
 
     this.$http.get('/run-estimate/?start=2018-04-25&end=2018-07-01')
       .then((response) => {
@@ -226,6 +334,10 @@ export default {
         }
 
         this.$highcharts.chart('chart-run', {
+          chart: {
+            type: 'column',
+            height: 275
+          },
           title: {
             align: 'left',
             text: 'Estimated Daily Fish Passage'
@@ -411,7 +523,7 @@ export default {
         this.$highcharts.chart('chart-video', {
           chart: {
             type: 'column',
-            height: 300
+            height: 275
           },
           title: {
             text: ''
@@ -462,6 +574,44 @@ export default {
         odVideoCounted.update(totals.video.counted);
         odVideoRemaining.update(totals.video.remaining);
       });
+  },
+  methods: {
+    fetchSensorData() {
+      return this.$http.get('/sensor-hourly/')
+        .then((response) => {
+          const data = response.data.data.map(d => ({
+            timestamp: (new Date(d.timestamp)),
+            temperature_degc: d.temperature_degc,
+            turbidity_ntu: d.turbidity_ntu,
+            specificconductance_us_cm: d.specificconductance_us_cm,
+            chlorophyll_rfu: d.chlorophyll_rfu,
+            odo_mg_l: d.odo_mg_l
+          }));
+          this.data.sensor = data;
+        });
+    },
+    updateSensorChart() {
+      const chart = this.charts.sensor;
+      const data = this.data.sensor;
+      const variableId = this.selectedVariable;
+      const variableLabel = this.variables.find(d => (d.id === variableId)).labelUnits;
+
+      if (chart.series.length > 0) {
+        chart.series[0].remove();
+      }
+
+      if (variableId && data && data.length > 0) {
+        chart.title.update({ text: variableLabel });
+        chart.addSeries({
+          name: variableLabel,
+          data: data.map(d => [d.timestamp.valueOf(), d[variableId]]),
+          type: 'line',
+          tooltip: {
+            valueDecimals: 1
+          }
+        });
+      }
+    }
   }
 };
 </script>
@@ -470,7 +620,7 @@ export default {
 h1.count-title {
   font-size: 24px;
 }
-p.small-text {
+.small-text {
   font-size: 0.7em;
   line-height: 1.3;
   font-family: sans-serif;

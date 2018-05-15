@@ -96,6 +96,7 @@
 import { mapGetters } from 'vuex';
 import { required, numeric } from 'vuelidate/lib/validators';
 
+import { number } from '@/filters';
 import VideoBar from './VideoBar';
 import VideoPlayer from './VideoPlayer';
 
@@ -133,11 +134,15 @@ export default {
       }
     }
   },
+  filters: {
+    number
+  },
   computed: {
     ...mapGetters({
       video: 'video',
       user: 'auth/user',
-      session: 'session'
+      session: 'session',
+      run: 'run'
     }),
     title() {
       return `I just counted ${this.session.total} river herring migrating up the Mystic River!`;

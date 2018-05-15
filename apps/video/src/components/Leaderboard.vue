@@ -4,7 +4,7 @@
       <div class="col sqs-col-12 span-12">
         <div class="sqs-block html-block sqs-block-html">
           <div class="sqs-block-content">
-            <h1>Leadboard</h1>
+            <h1>Leaderboard</h1>
             <p>
               The Leaderboard shows the top 20 users who have watched the most videos. Want to get
               on the leaderboard? <span v-if="!user"><router-link to="/signup">Sign up for an
@@ -28,8 +28,8 @@
             </tr>
           </thead>
           <tbody class="lb-row">
-            <tr v-for="(user, index) in users" :key="user.uid">
-              <td class="text-align-center">{{ index + 1 }}</td>
+            <tr v-for="user in users.slice(0, 20)" :key="user.uid">
+              <td class="text-align-center">{{ user.rank }}</td>
               <td class="text-align-left">{{ user.username }}</td>
               <td class="text-align-center">{{ user.n_count | number }}</td>
               <td class="text-align-center">{{ user.sum_count | number }}</td>
@@ -60,9 +60,9 @@ export default {
     number
   },
   mounted() {
-    this.$http.get('/leaderboard/')
+    this.$http.get('/users/')
       .then((response) => {
-        this.users = response.data.data;
+        this.users = response.data.data.filter(d => (d.n_count > 0)).filter(d => (d.rank <= 20));
       })
       .catch((err) => {
         console.log(err);

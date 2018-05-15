@@ -73,7 +73,7 @@ export default new Vuex.Store({
         });
     },
     fetchRun({ commit }) {
-      axios.get('/run-estimate/?start=2018-04-27&end=2018-07-01')
+      return axios.get('/run-estimate/?start=2018-04-27&end=2018-07-01')
         .then((response) => {
           const data = response.data.data;
 
