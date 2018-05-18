@@ -143,7 +143,7 @@ ORDER BY date;
 -- hourly sensor readings
 CREATE OR REPLACE VIEW sensor_hourly AS
 SELECT
-  date_trunc('hour', timestamp AT TIME ZONE 'US/Eastern') AS timestamp,
+  date_trunc('hour', timestamp) AS timestamp,
   avg(temperature_degc) AS temperature_degc,
   avg(turbidity_ntu) AS turbidity_ntu,
   avg(specificconductance_us_cm) AS specificconductance_us_cm,
@@ -151,8 +151,8 @@ SELECT
   avg(odo_mg_l) AS odo_mg_l
 FROM sensor
 WHERE location_id='UML'
-GROUP BY date_trunc('hour', timestamp AT TIME ZONE 'US/Eastern')
-ORDER BY date_trunc('hour', timestamp AT TIME ZONE 'US/Eastern');
+GROUP BY date_trunc('hour', timestamp)
+ORDER BY date_trunc('hour', timestamp);
 
 -- users stats and rank
 CREATE OR REPLACE VIEW users_stats AS
@@ -185,8 +185,63 @@ SELECT
   created_at,
   n_count,
   sum_count,
-  (DENSE_RANK() OVER (ORDER BY n_count DESC))::int AS rank
+  (RANK() OVER (ORDER BY n_count DESC))::int AS rank
 FROM ucv
 ORDER BY rank, username;
+
+-- random video (exponential distribution)
+CREATE OR REPLACE VIEW random_video AS
+WITH v1 AS (
+  SELECT
+    id,
+    extract(epoch FROM (current_timestamp - start_timestamp)) / 86400 AS days_ago
+  FROM videos
+  WHERE
+    NOT flagged
+    AND location_id='UML'
+    AND date_part('hour', start_timestamp AT TIME ZONE 'US/Eastern') >= 7
+    AND date_part('hour', start_timestamp AT TIME ZONE 'US/Eastern') < 19
+    AND (start_timestamp AT TIME ZONE 'US/Eastern')::date >= '2018-04-27'
+), v2 AS (
+  SELECT
+    v1.*,
+    1 - exp(-1 * v1.days_ago / 15) AS p
+  FROM v1
+), v3 AS (
+  SELECT
+    v2.id,
+    v2.days_ago,
+    (p - min(p) OVER ()) / (max(p) OVER () - min(p) OVER ()) AS p
+  FROM v2
+), r AS (
+  SELECT
+    random() AS r
+), v4 AS (
+  SELECT
+    v3.*,
+    max(p) OVER () as max_p,
+    min(p) OVER () as min_p,
+    r.r
+  FROM v3, r
+), v5 AS (
+  SELECT
+    v4.id,
+    v4.p,
+    v4.r,
+    v4.max_p,
+    v4.min_p
+  FROM v4
+  WHERE p < r
+  ORDER BY p DESC
+  LIMIT 1
+)
+SELECT
+  v5.p,
+  v5.r,
+  v5.max_p,
+  v5.min_p,
+  videos.*
+FROM v5
+LEFT JOIN videos ON v5.id = videos.id;
 
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO myrwa_www;

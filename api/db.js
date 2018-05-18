@@ -221,12 +221,14 @@ function getRandomVideo(params) {
     // only daylight hours
     .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '>=', config.api.videos.hours[0])
     .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '<', config.api.videos.hours[1])
-    .andWhere('location_id', config.api.videos.location);
+    .andWhere('location_id', config.api.videos.location)
+    .orderBy('start_timestamp', 'desc');
 
   return knex
     .raw(
       'with v as (?) ?',
-      [cte, knex.raw('select * from v offset floor( random() * (select count(*) from v) ) limit 1')]
+      // [cte, knex.raw('select * from v offset floor( random() * (select count(*) from v) ) limit 1')]
+      [cte, knex.raw('select * from v offset random_exp(:lambda, (select count(*)::int from v)) limit 1', { lambda: config.api.videos.lambda })]
     )
     .then(results => results.rows);
 }

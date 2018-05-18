@@ -17,6 +17,7 @@ module.exports = {
     },
     logFile: '/path/to/api-access.log',
     videos: {              // video selection criteria
+      lambda: 0.0005,      // exponential distribution parameter
       year: 2018,          // year
       start: '2018-04-27', // first date
       location: 'UML',     // location
