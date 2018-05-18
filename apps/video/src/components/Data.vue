@@ -199,8 +199,11 @@
 <script>
 import * as d3Time from 'd3-time';
 import * as d3TimeFormat from 'd3-time-format';
+import moment from 'moment';
 import Odometer from 'odometer';
 import jStat from 'jStat';
+
+window.moment = moment;
 
 export default {
   data() {
@@ -281,18 +284,16 @@ export default {
   },
   computed: {
     dateRange() {
-      const minDate = new Date('2018-04-15 00:00-0400');
-      let maxDate = new Date('2018-07-01 00:00-0400');
+      const minDate = moment('2018-04-15 00:00-0400');
+      let maxDate = moment('2018-07-01 00:00-0400');
 
-      const today = new Date();
+      const today = moment();
 
-      console.log(today, maxDate);
       if (maxDate > today) {
         maxDate = today;
       }
-      console.log(today, maxDate);
 
-      return [minDate, maxDate];
+      return [minDate.toDate(), maxDate.toDate()];
     }
   },
   watch: {
