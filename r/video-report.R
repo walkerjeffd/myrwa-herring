@@ -75,6 +75,20 @@ stats_by_video_day <- videos %>%
     mean_count_per_min = mean(if_else(counted, mean_count / (duration / 60), 0))
   )
 
+
+stats_by_video_day_7AM7PM <- videos %>%
+  filter(hour(start_timestamp) >= 7, hour(start_timestamp) < 19) %>%
+  group_by(date) %>%
+  summarise(
+    n_video = n(),
+    n_watched = sum(counted),
+    n_unwatched = n_video - n_watched,
+    n_count = sum(n_count),
+    sum_count = sum(mean_count),
+    mean_count_per_min = mean(if_else(counted, mean_count / (duration / 60), 0))
+  )
+
+
 stats_by_count_day <- tbl_counts %>%
   filter(video_id %in% videos$id) %>%
   mutate(
@@ -299,6 +313,48 @@ p2 <- stats_by_video_day %>%
     x = "Date",
     y = "% Videos Watched",
     title = "Percent of Videos Watched per Day",
+    subtitle = "Date = when video was recorded"
+  )
+
+grid.arrange(p1, p2, nrow = 2, bottom = updated_at)
+
+# BAR CHARTS - DAILY VIDEOS (7AM - 7 PM) -------------------------------------
+
+p1 <- stats_by_video_day_7AM7PM %>%
+  select(date, n_unwatched, n_watched) %>%
+  gather(var, value, -date) %>%
+  mutate(
+    var = ordered(var, levels = c("n_watched", "n_unwatched"))
+  ) %>%
+  ggplot(aes(date, value, fill = var)) +
+  geom_bar(position = "stack", stat = "identity") +
+  scale_fill_manual(
+    "",
+    values = c("n_unwatched" = "gray50", "n_watched" = "deepskyblue"),
+    labels = c("n_unwatched" = "Not Watched", "n_watched" = "Watched")
+  ) +
+  scale_x_date(expand = c(0, 0)) +
+  labs(
+    x = "Date",
+    y = "# Videos",
+    title = "Number of Videos per Day (7AM - 7PM Only)",
+    subtitle = "Date = when video was recorded"
+  )
+
+p2 <- stats_by_video_day_7AM7PM %>%
+  select(date, n_video, n_watched) %>%
+  ggplot(aes(date, n_watched / n_video, fill = "% Watched")) +
+  geom_bar(position = "stack", stat = "identity") +
+  scale_fill_manual(
+    "",
+    values = c("deepskyblue")
+  ) +
+  scale_x_date(expand = c(0, 0)) +
+  scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, 1)) +
+  labs(
+    x = "Date",
+    y = "% Videos Watched",
+    title = "Percent of Videos Watched per Day (7AM - 7PM Only)",
     subtitle = "Date = when video was recorded"
   )
 
