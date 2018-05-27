@@ -142,22 +142,23 @@ run_counts <- videos %>%
   filter(
     date >= ymd(cfg$report$start),
     month(start_timestamp) < 7,
-    hour(start_timestamp) < 19,
-    hour(end_timestamp) >= 7
+    hour(start_timestamp) < 21,
+    hour(end_timestamp) >= 5
     # !(hour(start) != hour(end) & hour(end) %in% c(7, 11, 15, 19) & minute(end) > 0)
   ) %>%
   mutate(
     hour = hour(start_timestamp),
     period = case_when(
+      hour >= 5 & hour < 7 ~ 0,
       hour >= 7 & hour < 11 ~ 1,
       hour >= 11 & hour < 15 ~ 2,
       hour >= 15 & hour < 19 ~ 3,
+      hour >= 19 & hour < 21 ~ 4,
       TRUE ~ NA_real_
     )
   ) %>%
   filter(!is.na(period)) %>%
   select(date, video_id = id, start = start_timestamp, end = end_timestamp, hour, period, duration, n_count, mean_count)
-
 
 run_hour <- run_counts %>%
   select(
@@ -190,6 +191,7 @@ run_hour <- run_counts %>%
   )
 
 run_period <- run_counts %>%
+  filter(period %in% c(1:3)) %>%
   select(
     date,
     period,
