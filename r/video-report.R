@@ -136,6 +136,145 @@ videos_hour_tally <- videos %>%
   )
 
 
+# run estimate ------------------------------------------------------------
+
+run_counts <- videos %>%
+  filter(
+    date >= ymd(cfg$report$start),
+    month(start_timestamp) < 7,
+    hour(start_timestamp) < 19,
+    hour(end_timestamp) >= 7
+    # !(hour(start) != hour(end) & hour(end) %in% c(7, 11, 15, 19) & minute(end) > 0)
+  ) %>%
+  mutate(
+    hour = hour(start_timestamp),
+    period = case_when(
+      hour >= 7 & hour < 11 ~ 1,
+      hour >= 11 & hour < 15 ~ 2,
+      hour >= 15 & hour < 19 ~ 3,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  filter(!is.na(period)) %>%
+  select(date, video_id = id, start = start_timestamp, end = end_timestamp, hour, period, duration, n_count, mean_count)
+
+
+run_hour <- run_counts %>%
+  select(
+    date,
+    hour,
+    n_count,
+    y_i = mean_count,
+    t_i = duration
+  ) %>%
+  mutate(
+    t_i_counted = t_i * (n_count > 0)
+  ) %>%
+  group_by(date, hour) %>%
+  summarise(
+    N = n(),
+    n = sum(n_count > 0),
+    T = sum(t_i),
+    sum_y = sum(y_i, na.rm = TRUE),
+    sum_t = sum(t_i_counted),
+    mean_t = coalesce(sum_t / n, 0),
+    r = coalesce(sum_y / sum_t, 0),
+    Y = r * T,
+    se2 = coalesce(sum((y_i - r * t_i_counted) ^ 2, na.rm = TRUE) / (n - 1), 0),
+    var_Y = coalesce((T / mean_t)^2 * (N - n) / (N * n) * se2, 0),
+    df = n - 1,
+    t_star = coalesce(qt(0.975, df = df), 0),
+    ci_lower = Y - t_star * sqrt(var_Y),
+    ci_upper = Y + t_star * sqrt(var_Y),
+    a = if_else(n == 0, 0, N * (N - n) / n)
+  )
+
+run_period <- run_counts %>%
+  select(
+    date,
+    period,
+    n_count,
+    y_i = mean_count,
+    t_i = duration
+  ) %>%
+  mutate(
+    t_i_counted = t_i * (n_count > 0)
+  ) %>%
+  group_by(date, period) %>%
+  summarise(
+    N = n(),
+    n = sum(n_count > 0),
+    T = sum(t_i),
+    sum_y = sum(y_i, na.rm = TRUE),
+    sum_t = sum(t_i_counted),
+    mean_t = coalesce(sum_t / n, 0),
+    r = coalesce(sum_y / sum_t, 0),
+    Y = r * T,
+    se2 = coalesce(sum((y_i - r * t_i_counted) ^ 2, na.rm = TRUE) / (n - 1), 0),
+    var_Y = coalesce((T / mean_t)^2 * (N - n) / (N * n) * se2, 0),
+    df = n - 1,
+    t_star = coalesce(qt(0.975, df = df), 0),
+    ci_lower = Y - t_star * sqrt(var_Y),
+    ci_upper = Y + t_star * sqrt(var_Y),
+    a = if_else(n == 0, 0, N * (N - n) / n)
+  )
+
+run_day <- run_period %>%
+  group_by(date) %>%
+  summarise(
+    df_num = sum(a * se2),
+    df_den = sum((a * se2) ^ 2 / (n - 1), na.rm = TRUE),
+    N = sum(N),
+    n = sum(n),
+    T = sum(T),
+    sum_y = sum(sum_y),
+    sum_t = sum(sum_t),
+    Y = sum(Y),
+    r = Y / T,
+    var_Y = sum(var_Y),
+    se_Y = sqrt(var_Y),
+    df = coalesce(df_num ^ 2 / df_den, 0),
+    df = round(df),
+    t_star = coalesce(qt(0.975, df = df), 0),
+    ci_lower = Y - t_star * sqrt(var_Y),
+    ci_upper = Y + t_star * sqrt(var_Y)
+  )
+
+run_total <- run_day %>%
+  summarise(
+    N = sum(N),
+    n = sum(n),
+    T = sum(T),
+    sum_y = sum(sum_y),
+    sum_t = sum(sum_t),
+    Y = sum(Y),
+    r = Y / T,
+    var_Y = sum(var_Y),
+    se_Y = sqrt(var_Y),
+    df = sum(df_num) ^ 2 / sum(df_den),
+    df = round(df),
+    t_star = coalesce(qt(0.975, df = df), 0),
+    ci_lower = Y - t_star * sqrt(var_Y),
+    ci_upper = Y + t_star * sqrt(var_Y)
+  )
+
+
+run_day_cumul <- run_day %>%
+  mutate(
+    Y = cumsum(Y),
+    var_Y = cumsum(var_Y),
+    se = sqrt(var_Y),
+    df_num = cumsum(df_num),
+    df_den = cumsum(df_den),
+    df = df_num ^ 2 / df_den,
+    df = coalesce(round(df), 0),
+    t_star = map_dbl(df, ~ qt(0.975, df = .)),
+    t_star = coalesce(t_star, 0),
+    ci_lower = Y - t_star * se,
+    ci_upper = Y + t_star * se
+  )
+
+
 # load volunteer counts ---------------------------------------------------
 #
 # volunteer <- fromJSON("json/volunteer-counts.json") %>%
@@ -275,6 +414,85 @@ grid.arrange(
 )
 
 
+# RUN ESTIMATE ------------------------------------------------------------
+
+p1 <- run_day %>%
+  ggplot(aes(date, Y)) +
+  geom_col(fill = "gray50") +
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.5) +
+  scale_x_date(expand = c(0, 0)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10), labels = scales::comma, expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, max(run_day$ci_upper) * 1.1)) +
+  labs(
+    x = "Date",
+    y = "Est. # Fish",
+    title = "Daily Run Estimate",
+    subtitle = "Date = when video was recorded"
+  )
+
+p2 <- run_day_cumul %>%
+  ggplot(aes(date)) +
+  geom_line(aes(y = Y)) +
+  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper), alpha = 0.2) +
+  geom_point(
+    data = run_day_cumul %>%
+      filter(date == max(date)),
+    aes(x = date, y = Y)
+  ) +
+  geom_text(
+    data = run_day_cumul %>%
+      filter(
+        date == max(date)
+      ),
+    aes(label = scales::comma(round(Y)), x = date, y = Y),
+    hjust = 1, vjust = 0, nudge_y = 4000
+  ) +
+  # scale_x_date(breaks = scales::pretty_breaks(n = 8)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6), labels = scales::comma) +
+  labs(
+    x = "Date",
+    y = "Cumul. Est. # Fish",
+    title = "Cumulative Est. Total Fish (95% CI)"
+  )
+
+p3 <- run_hour %>%
+  ggplot(aes(date, hour, fill = Y)) +
+  geom_tile(aes(alpha = n > 0)) +
+  scale_x_date(expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 23), expand = c(0, 0)) +
+  scale_alpha_manual("", values = c("TRUE" = 1, "FALSE" = 0), guide = FALSE) +
+  scale_fill_gradientn("# Fish\nCounted", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  labs(
+    x = "Date",
+    y = "Hour of Day",
+    title = "Estimated # Fish"
+  ) +
+  theme(
+    panel.grid.minor = element_blank()
+  )
+
+p4 <- run_hour %>%
+  ggplot(aes(date, hour, fill = var_Y)) +
+  geom_tile(aes(alpha = n > 0)) +
+  scale_x_date(expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 23), expand = c(0, 0)) +
+  scale_alpha_manual("", values = c("TRUE" = 1, "FALSE" = 0), guide = FALSE) +
+  scale_fill_gradientn("# Fish\nCounted", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  labs(
+    x = "Date",
+    y = "Hour of Day",
+    title = "Variance of Estimated # Fish"
+  ) +
+  theme(
+    panel.grid.minor = element_blank()
+  )
+
+grid.arrange(
+  p1, p2, p3, p4,
+  ncol = 2,
+  top = paste0("Mystic River Herring (", cfg$report$year, ") | Estimated Run Summary"),
+  bottom = updated_at
+)
 
 # BAR CHARTS - DAILY VIDEOS -----------------------------------------------
 
