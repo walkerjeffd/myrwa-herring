@@ -461,7 +461,7 @@ p3 <- run_hour %>%
   scale_x_date(expand = c(0, 0)) +
   scale_y_continuous(breaks = seq(0, 23), expand = c(0, 0)) +
   scale_alpha_manual("", values = c("TRUE" = 1, "FALSE" = 0), guide = FALSE) +
-  scale_fill_gradientn("# Fish\nCounted", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  scale_fill_gradientn("# Fish", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
   labs(
     x = "Date",
     y = "Hour of Day",
@@ -472,16 +472,16 @@ p3 <- run_hour %>%
   )
 
 p4 <- run_hour %>%
-  ggplot(aes(date, hour, fill = var_Y)) +
+  ggplot(aes(date, hour, fill = sqrt(se2))) +
   geom_tile(aes(alpha = n > 0)) +
   scale_x_date(expand = c(0, 0)) +
   scale_y_continuous(breaks = seq(0, 23), expand = c(0, 0)) +
   scale_alpha_manual("", values = c("TRUE" = 1, "FALSE" = 0), guide = FALSE) +
-  scale_fill_gradientn("# Fish\nCounted", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  scale_fill_gradientn("Std Error", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
   labs(
     x = "Date",
     y = "Hour of Day",
-    title = "Variance of Estimated # Fish"
+    title = "Standard Error"
   ) +
   theme(
     panel.grid.minor = element_blank()
