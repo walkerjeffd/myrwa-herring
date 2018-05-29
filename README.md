@@ -42,3 +42,13 @@ nano apps/config/index.js
 /r               # R scripts
 /video-service   # video processing service
 ```
+
+## Firebase Authentication
+
+To export user list:
+
+```
+npm install -g firebase-tools
+firebase login
+firebase auth:export users.csv --format=csv --project myrwa-herring
+```
