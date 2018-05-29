@@ -47,8 +47,12 @@ nano apps/config/index.js
 
 To export user list:
 
-```
+```bash
 npm install -g firebase-tools
 firebase login
-firebase auth:export users.csv --format=csv --project myrwa-herring
+firebase auth:export firebase_users.csv --format=csv --project myrwa-herring
+```
+
+```sql
+\copy (select * from users) to 'db_users.csv' with CSV HEADER; 
 ```
