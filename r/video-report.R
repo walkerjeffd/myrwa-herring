@@ -341,7 +341,12 @@ run_day_cumul <- run_day %>%
 
 # pdf ---------------------------------------------------------------------
 
-pdf(paste0("pdf/video-report-", cfg$report$year, ".pdf"), width = 11, height = 8.5)
+pdf(
+  paste0("pdf/video-report-", cfg$report$year, ".pdf"),
+  title = paste0("Mystic Herring Video Report ", cfg$report$year),
+  width = 11,
+  height = 8.5
+)
 
 
 # TILES -------------------------------------------------------------------
