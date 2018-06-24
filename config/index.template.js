@@ -20,6 +20,7 @@ module.exports = {
       lambda: 0.0005,      // exponential distribution parameter
       year: 2018,          // year
       start: '2018-04-27', // first date
+      end: '2018-06-30',   // last date
       location: 'UML',     // location
       hours: [7, 19]       // range of hours (end hour not inclusive)
     }

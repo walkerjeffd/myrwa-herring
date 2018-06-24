@@ -209,7 +209,78 @@ function getVideoById(id) {
 //     .then(results => results.rows);
 // }
 
+// function getRandomVideo(params) {
+//   // get random video using exponential distribution (param: lambda)
+//   // more recent videos have higher weight
+//   if (params.id) {
+//     return getVideoById(params.id);
+//   }
+
+//   const sql = `
+//     WITH v AS (
+//       SELECT *
+//       FROM videos
+//       WHERE NOT flagged
+//       AND location_id='UML'
+//       AND date_part('year', start_timestamp AT TIME ZONE 'America/New_York') = :year
+//       AND (start_timestamp AT TIME ZONE 'America/New_York')::date >= :startDate
+//       AND (
+//         CASE
+//           WHEN
+//             (start_timestamp AT TIME ZONE 'America/New_York')::date < '2018-05-19'
+//           THEN
+//             (date_part('hour', start_timestamp AT TIME ZONE 'America/New_York') >= 7
+//              AND
+//              date_part('hour', start_timestamp AT TIME ZONE 'America/New_York') < 19
+//             )
+//           ELSE
+//             (date_part('hour', start_timestamp AT TIME ZONE 'America/New_York') >= 5
+//              AND
+//              date_part('hour', start_timestamp AT TIME ZONE 'America/New_York') < 21
+//             )
+//           END
+//       )
+//       ORDER BY start_timestamp desc
+//     )
+//     SELECT *
+//     FROM v
+//     OFFSET random_exp(:lambda, (SELECT count(*)::int FROM v)) LIMIT 1;
+//   `;
+
+//   return knex
+//     .raw(
+//       sql, {
+//         lambda: config.api.videos.lambda,
+//         year: config.api.videos.year,
+//         startDate: config.api.videos.start
+//       }
+//     )
+//     .then(results => results.rows);
+
+//   // const cte = knex('videos')
+//   //   .where('flagged', false)
+//   //   .andWhere(knex.raw('date_part(\'year\', start_timestamp at time zone \'America/New_York\')'), '=', config.api.videos.year)
+//   //   .andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date'), '>=', config.api.videos.start)
+//   //   // only daylight hours
+//   //   .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '>=', config.api.videos.hours[0])
+//   //   .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '<', config.api.videos.hours[1])
+//   //   .andWhere('location_id', config.api.videos.location)
+//   //   .orderBy('start_timestamp', 'desc');
+
+
+
+//   // return knex
+//   //   .raw(
+//   //     'with v as (?) ?',
+//   //     // [cte, knex.raw('select * from v offset floor( random() * (select count(*) from v) ) limit 1')]
+//   //     [cte, knex.raw('select * from v offset random_exp(:lambda, (select count(*)::int from v)) limit 1', { lambda: config.api.videos.lambda })]
+//   //   )
+//   //   .then(results => results.rows);
+// }
+
 function getRandomVideo(params) {
+  // get random video using exponential distribution (param: lambda)
+  // more recent videos have higher weight
   if (params.id) {
     return getVideoById(params.id);
   }
@@ -222,6 +293,7 @@ function getRandomVideo(params) {
       AND location_id='UML'
       AND date_part('year', start_timestamp AT TIME ZONE 'America/New_York') = :year
       AND (start_timestamp AT TIME ZONE 'America/New_York')::date >= :startDate
+      AND (start_timestamp AT TIME ZONE 'America/New_York')::date <= :endDate
       AND (
         CASE
           WHEN
@@ -242,38 +314,19 @@ function getRandomVideo(params) {
     )
     SELECT *
     FROM v
-    OFFSET random_exp(:lambda, (SELECT count(*)::int FROM v)) LIMIT 1;
+    OFFSET floor(random() * (SELECT count(*)::int FROM v))
+    LIMIT 1;
   `;
 
   return knex
     .raw(
       sql, {
-        lambda: config.api.videos.lambda,
         year: config.api.videos.year,
-        startDate: config.api.videos.start
+        startDate: config.api.videos.start,
+        endDate: config.api.videos.end
       }
     )
     .then(results => results.rows);
-
-  // const cte = knex('videos')
-  //   .where('flagged', false)
-  //   .andWhere(knex.raw('date_part(\'year\', start_timestamp at time zone \'America/New_York\')'), '=', config.api.videos.year)
-  //   .andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::date'), '>=', config.api.videos.start)
-  //   // only daylight hours
-  //   .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '>=', config.api.videos.hours[0])
-  //   .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '<', config.api.videos.hours[1])
-  //   .andWhere('location_id', config.api.videos.location)
-  //   .orderBy('start_timestamp', 'desc');
-
-
-
-  // return knex
-  //   .raw(
-  //     'with v as (?) ?',
-  //     // [cte, knex.raw('select * from v offset floor( random() * (select count(*) from v) ) limit 1')]
-  //     [cte, knex.raw('select * from v offset random_exp(:lambda, (select count(*)::int from v)) limit 1', { lambda: config.api.videos.lambda })]
-  //   )
-  //   .then(results => results.rows);
 }
 
 function getSprintCount(params) {
