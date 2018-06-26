@@ -429,7 +429,7 @@ p1 <- run_day %>%
   geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.5) +
   scale_x_date(expand = c(0, 0)) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10), labels = scales::comma, expand = c(0, 0)) +
-  coord_cartesian(ylim = c(0, max(run_day$ci_upper) * 1.1)) +
+  coord_cartesian(ylim = c(0, max(run_day$ci_upper, na.rm = TRUE) * 1.1)) +
   labs(
     x = "Date",
     y = "Est. # Fish",
