@@ -54,9 +54,10 @@ export default new Vuex.Store({
       commit('incrementSessionTotal', count);
       commit('setSessionLastCount', count);
     },
-    fetchVideo({ commit }) {
+    fetchVideo({ commit, state }) {
       console.log('store:fetchVideo');
-      return axios.get('/video/')
+      const first = state.session.count === 0;
+      return axios.get('/video/', { params: { first } })
         .then((response) => {
           const videos = response.data.data;
 
