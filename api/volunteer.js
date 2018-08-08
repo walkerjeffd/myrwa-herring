@@ -1,6 +1,6 @@
 /* eslint-disable no-console, no-shadow, no-param-reassign, arrow-body-style */
 
-const GoogleSpreadsheet = require('google-spreadsheet');
+// const GoogleSpreadsheet = require('google-spreadsheet');
 const d3 = require('d3');
 const Promise = require('bluebird');
 // const _ = require('lodash');
@@ -45,7 +45,7 @@ function fetchVideos(row) {
     });
 }
 
-function getData(docId) {
+function getDataFromGoogleSpreadsheet(docId) {
   const doc = new GoogleSpreadsheet(docId);
 
   return new Promise((resolve, reject) => {
@@ -65,6 +65,11 @@ function getData(docId) {
       });
     });
   });
+}
+
+function getDataFromJSON(path) {
+  const data = require(path);
+  return Promise.resolve(data);
 }
 
 function parseRows(rows) {
@@ -89,8 +94,8 @@ function filterRows(rows) {
   return filteredRows;
 }
 
-function getVideos(docId) {
-  return getData(docId)
+function getVideos(path) {
+  return getDataFromJSON(path)
     .then(parseRows)
     .then(filterRows)
     .then(data => Promise.mapSeries(data, fetchVideos));
@@ -98,6 +103,7 @@ function getVideos(docId) {
 
 module.exports = {
   getVideos,
-  getData,
+  getDataFromGoogleSpreadsheet,
+  getDataFromJSON,
   parseRows
 };

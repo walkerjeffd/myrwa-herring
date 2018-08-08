@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 
 const config = require('../config');
 const db = require('./db');
-// const volunteer = require('./volunteer');
+const volunteer = require('./volunteer');
 
 const app = express();
 
@@ -36,22 +36,22 @@ app.use(allowCrossDomain);
 
 
 // set up priority queue
-// let volunteerQueue = [];
-// function refreshVolunteerQueue() {
-//   console.log('updating volunteerQueue');
-//   volunteer.getVideos(config.volunteer.docId)
-//     .then((data) => {
-//       const videos = data.map((row) => { // eslint-disable-line
-//         return row.videos
-//           .filter(d => d.n_count === 0)
-//           .map(d => d.id);
-//       });
-//       volunteerQueue = [].concat.apply([], videos); // eslint-disable-line
-//       console.log(`updated volunteerQueue (n = ${volunteerQueue.length})`);
-//     });
-// }
-// refreshVolunteerQueue();
-// setInterval(refreshVolunteerQueue, config.volunteer.interval * 1000);
+let volunteerQueue = [];
+function refreshVolunteerQueue() {
+  console.log('updating volunteerQueue');
+  volunteer.getVideos(config.volunteer.path)
+    .then((data) => {
+      const videos = data.map((row) => { // eslint-disable-line
+        return row.videos
+          .filter(d => d.n_count === 0)
+          .map(d => d.id);
+      });
+      volunteerQueue = [].concat.apply([], videos); // eslint-disable-line
+      console.log(`updated volunteerQueue (n = ${volunteerQueue.length})`);
+    });
+}
+refreshVolunteerQueue();
+setInterval(refreshVolunteerQueue, config.volunteer.interval * 1000);
 
 // paths to app builds
 app.use('/static/video-watch', express.static(config.api.static.videoWatch));
@@ -83,22 +83,22 @@ app.get('/status/', (req, res, next) => {
 app.get('/video/', (req, res, next) => {
   const first = req.query && req.query.first && req.query.first === 'true';
 
-  // if (first || volunteerQueue.length === 0) {
-  db.getRandomVideo(req.query)
-    .then((result) => {
-      console.log('served random video id=%d first=%s ip=%s', result.length > 0 ? result[0].id : 'unknown', first, req.headers['x-real-ip'] || req.connection.remoteAddress);
-      return res.status(200).json({ status: 'ok', data: result });
-    })
-    .catch(next);
-  // } else {
-  //   const index = Math.floor(Math.random() * volunteerQueue.length);
-  //   db.getVideoById(volunteerQueue.splice(index, 1)[0])
-  //     .then((result) => {
-  //       console.log('served volunteer video id=%d ip=%s', result.length > 0 ? result[0].id : 'unknown', req.headers['x-real-ip'] || req.connection.remoteAddress);
-  //       return res.status(200).json({ status: 'ok', data: result });
-  //     })
-  //     .catch(next);
-  // }
+  if (first || volunteerQueue.length === 0) {
+    db.getRandomVideo(req.query)
+      .then((result) => {
+        console.log('served random video id=%d first=%s ip=%s', result.length > 0 ? result[0].id : 'unknown', first, req.headers['x-real-ip'] || req.connection.remoteAddress);
+        return res.status(200).json({ status: 'ok', data: result });
+      })
+      .catch(next);
+  } else {
+    const index = Math.floor(Math.random() * volunteerQueue.length);
+    db.getVideoById(volunteerQueue.splice(index, 1)[0])
+      .then((result) => {
+        console.log('served volunteer video id=%d ip=%s', result.length > 0 ? result[0].id : 'unknown', req.headers['x-real-ip'] || req.connection.remoteAddress);
+        return res.status(200).json({ status: 'ok', data: result });
+      })
+      .catch(next);
+  }
 });
 
 app.get('/videos/', (req, res, next) => {
