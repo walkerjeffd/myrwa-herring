@@ -1,3 +1,5 @@
+// Fetch 2017 volunteer counts from google sheet and save to json
+
 const GoogleSpreadsheet = require('google-spreadsheet');
 const jsonfile = require('jsonfile');
 const path = require('path');
@@ -5,7 +7,7 @@ const path = require('path');
 const config = require('../config');
 
 const doc = new GoogleSpreadsheet(config.volunteer.docId);
-const filename = path.join('json', 'volunteer-counts.json');
+const filename = path.join('json', 'volunteer-counts-2017.json');
 
 doc.getInfo((err, info) => {
   if (err) return reject(err);

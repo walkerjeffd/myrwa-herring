@@ -48,10 +48,16 @@ install.packages(c("tidyverse", "RPostgreSQL", "lubridate", "RColorBrewer", "gri
 
 ## Fetch Volunteer Data
 
-Read volunteer count data from google sheet, and save results to `json/volunteer-counts.json`.
+Read volunteer count data from google sheet, and save results to `json/volunteer-counts-2017.json`.
 
 ```bash
-node get-volunteer-counts.js
+node get-volunteer-counts-2017.js
+```
+
+For 2018, load from excel file and save to `json/volunteer-counts-2018.json`.
+
+```bash
+Rscript get-volunteer-counts-2018.R
 ```
 
 ## Video Report
