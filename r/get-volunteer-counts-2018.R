@@ -27,5 +27,9 @@ df %>%
   geom_point()
 
 df %>%
+  ggplot(aes(hour(datetime_start))) +
+  geom_histogram()
+
+df %>%
   select(lastname, date, starttime, endtime, count) %>%
   write_json(file.path("json", "volunteer-counts-2018.json"))
