@@ -10,3 +10,7 @@ apps/config/*.js
 !apps/config/index.template.js
 
 .Rproj.user
+
+r/rmd/*.html
+r/rmd/*_cache
+r/rmd/*_files

@@ -1,0 +1,320 @@
+---
+title: Comparison of Mystic River Herring Run Estimates during Nighttime and Daytime Hours,
+  2018
+author: "Jeffrey D Walker, PhD ([Walker Environmental Research LLC](https://walkerenvres.com))"
+date: "Nov 19, 2018"
+output: 
+  html_document: 
+    number_sections: yes
+    toc: yes
+    toc_float: true
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(lubridate))
+suppressPackageStartupMessages(library(RColorBrewer))
+suppressPackageStartupMessages(library(gridExtra))
+suppressPackageStartupMessages(library(jsonlite))
+
+theme_set(theme_bw())
+
+cfg <- read_json("../config.json")
+
+# helper for labelling hour axis
+label_hour <- function (x) {
+  paste0(sprintf("%02d", as.integer(x)), ":00 - ", sprintf("%02d", as.integer(x)), ":59")
+}
+```
+
+# Overview
+
+In 2017, the [Mystic River Watershed Association (MyRWA)](https://mysticriver.org) installed an underwater video camera system to record river herring passing through the fish ladder at the Upper Mystic Lake Dam. The recorded videos are shown on the project website ([https://mysticherring.org](https://mysticherring.org)) where citizen scientists can participate in monitoring the annual herring run by counting the number of fish in each video. A statistical model is the used to estimate the total daily and seasonal herring run based on these video counts.
+
+Currently, the total herring run is based on observations of fish passage collected from 7 AM to 7 PM each day. These estimates do not include potential fish passage before or after those daytime hours to ensure consistency with previous herring run estimates, which were calculated by MA DMF based on in-person volunteer counts. The installation of the video camera system, and the addition of underwater lighting in 2018, now allow us to collect fish passage data at all hours of the day.
+
+The following analysis compares estimated fish passage rates during different times of the day using fish counts from videos recorded from May 18 through June 10, 2018. A large portion of these videos were counted during a data sprint held at Brandies University on Nov 16, without which this analysis would not be possible. The overall goal of this analysis is to better understand the complete diurnal pattern (i.e. changes over the course of a given day) of fish passage at Upper Mystic Lakes dam, and to estimate the potential error in the current total run estimate, which is based only on daylight period.
+
+# Dataset Summary
+
+The dataset for this analysis is based on videos recorded at all hours of the day from May 18 through June 10, 2018. Prior to May 18, the camera system was not yet configured to use underwater lights, which were necessary to improve the visibility of night-time videos.
+
+```{r load-data, cache=TRUE}
+pg <- src_postgres(
+  dbname = cfg$db$database,
+  host = cfg$db$host,
+  port = cfg$db$port,
+  user = cfg$db$user,
+  password = cfg$db$password
+)
+
+# fetch videos
+tbl_videos <- pg %>%
+  tbl("videos") %>%
+  filter(!flagged, location_id == "UML")  %>%
+  collect() %>%
+  mutate(
+    start_timestamp = with_tz(start_timestamp, tzone = "America/New_York"),
+    end_timestamp = with_tz(end_timestamp, tzone = "America/New_York"),
+    date = as.Date(start_timestamp, tz = "America/New_York"),
+    hour = hour(start_timestamp)
+  ) %>%
+  filter(
+    date >= ymd(20180518),
+    date <= ymd(20180610)
+  )
+
+# fetch counts
+tbl_counts <- pg %>%
+  tbl("counts") %>%
+  filter(!flagged) %>%
+  collect()
+
+# calculate mean count for each video if counted more than once
+counts_by_video <- tbl_counts %>%
+  group_by(video_id) %>%
+  summarise(
+    n_count = n(),
+    mean_count = mean(count)
+  )
+
+# add mean counts to videos dataset
+videos <- tbl_videos %>%
+  left_join(counts_by_video, by = c("id" = "video_id")) %>%
+  mutate(
+    n_count = coalesce(n_count, 0L),
+    mean_count = coalesce(mean_count, 0.0),
+    counted = n_count > 0
+  )
+```
+
+The following figure shows the number of videos recorded during each hour of each day. The "holes" in this figures (i.e., where there is no colored tile) indicate that no videos were recorded during that hour. Prior to May 25, there were were significantly more hours with no videos, including a long stretch from 7 PM on May 20 to 9 AM on May 21. Therefore, the remaining sections will only include videos from May 25 through June 10 so that the analysis is based on a relatively complete dataset with full coverage of all hours of each day.
+
+```{r tile-video-n, fig.width=8, fig.height=6}
+videos %>% 
+  group_by(date, hour) %>% 
+  summarise(n = n()) %>% 
+  ggplot(aes(date, hour, fill = n)) +
+  geom_tile() +
+  scale_x_date(expand = c(0, 0), breaks = scales::date_breaks("2 days"), labels = scales::date_format("%b %d")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20), expand = c(0, 0), labels = label_hour) +
+  scale_fill_gradientn("# Videos\nRecorded", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  coord_equal() +
+  labs(x = "", y = "Hour of Day", title = "Number of Videos Recorded by Day and Hour")
+```
+
+The next figure shows the percent of recorded videos that were counted at least once during each hour. In general, the percent of videos counted was lower during night-time hours from 9 PM to 4 AM because these videos were not provided to users through the website until recently. But there are still a sufficient number of night-time counts to estimate the total herring run during these hours.
+
+```{r tile-video-n-counted, fig.width=8, fig.height=6}
+videos %>% 
+  group_by(date, hour) %>% 
+  summarise(n = n(), n_count = sum(n_count > 0)) %>% 
+  ggplot(aes(date, hour, fill = n_count / n * 100)) +
+  geom_tile() +
+  scale_x_date(expand = c(0, 0), breaks = scales::date_breaks("2 days"), labels = scales::date_format("%b %d")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20), expand = c(0, 0), labels = label_hour) +
+  scale_fill_gradientn("% Videos\nCounted", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  coord_equal() +
+  labs(x = "", y = "Hour of Day", title = "Percent of Recorded Videos Counted by Day and Hour")
+```
+
+# Hourly Run Estimates
+
+Using the video counts, the total herring run was estimated for each hour of each day using the methodology described in [Walker (2018)](https://walkerenvres.com/rpubs/myrwa/herring/video-count-estimation-method.html). As noted above, these estimates were calculated only from May 25 to June 10 in order to exclude a number of days with missing videos (May 18 to May 24).
+
+```{r run-hour, warning=FALSE}
+run_counts <- videos %>%
+  filter(date >= ymd(20180525)) %>% 
+  mutate(
+    hour = hour(start_timestamp)
+  ) %>%
+  select(date, video_id = id, start = start_timestamp, end = end_timestamp, hour, duration, n_count, mean_count)
+
+run_hour <- run_counts %>%
+  select(
+    date,
+    hour,
+    n_count,
+    y_i = mean_count,
+    t_i = duration
+  ) %>%
+  mutate(
+    t_i_counted = t_i * (n_count > 0)
+  ) %>%
+  group_by(date, hour) %>%
+  summarise(
+    N = n(),
+    n = sum(n_count > 0),
+    T = sum(t_i),
+    sum_y = sum(y_i, na.rm = TRUE),
+    sum_t = sum(t_i_counted),
+    mean_t = coalesce(sum_t / n, 0),
+    r = coalesce(sum_y / sum_t, 0),
+    Y = r * T,
+    se2 = coalesce(sum((y_i - r * t_i_counted) ^ 2, na.rm = TRUE) / (n - 1), 0),
+    var_Y = coalesce((T / mean_t)^2 * (N - n) / (N * n) * se2, 0),
+    df = n - 1,
+    t_star = coalesce(qt(0.975, df = df), 0),
+    ci_lower = Y - t_star * sqrt(var_Y),
+    ci_upper = Y + t_star * sqrt(var_Y),
+    a = if_else(n == 0, 0, N * (N - n) / n)
+  )
+```
+
+This figure shows the estimated total number of herring during each hour and day. The hours with no colored tile indicate that none of the recorded videos was counted. Regardless of the missing hours of data, the pattern in this figure clearly suggests that the majority of herring passed through the dam between 4 AM to 9 PM (21:00) on all of the days. 
+
+```{r tile-run-hour, fig.width=8, fig.height=6}
+run_hour %>% 
+  filter(n > 0) %>% 
+  ggplot(aes(date, hour, fill = Y)) +
+  geom_tile() +
+  scale_x_date(expand = c(0, 0), breaks = scales::date_breaks("2 days"), labels = scales::date_format("%b %d")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20), expand = c(0, 0), labels = label_hour) +
+  scale_fill_gradientn("Est. Total\nHerring", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  coord_equal() +
+  labs(x = "", y = "Hour of Day", title = "Estimated Total Hourly Herring Run")
+```
+
+Even though a smaller fraction of recorded videos were counted during night time hours (see above), the standard error of the estimated hourly run is still relatively small during those periods.
+
+```{r tile-run-hour-se, fig.width=8, fig.height=6}
+run_hour %>% 
+  filter(n > 0) %>% 
+  ggplot(aes(date, hour, fill = sqrt(se2))) +
+  geom_tile() +
+  scale_x_date(expand = c(0, 0), breaks = scales::date_breaks("2 days"), labels = scales::date_format("%b %d")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20), expand = c(0, 0), labels = label_hour) +
+  scale_fill_gradientn("Standard\nError", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  coord_equal() +
+  labs(x = "", y = "Hour of Day", title = "Standard Error of Estimated Total Hourly Herring Run")
+```
+
+Therefore, the upper 95th percentile of the confidence interval for each hourly estimate still shows a similar pattern, with much lower totals from 9 PM (21:00) to 4 AM.
+
+```{r tile-run-hour-ci-upper, fig.width=8, fig.height=6}
+run_hour %>% 
+  filter(n > 0) %>% 
+  ggplot(aes(date, hour, fill = sqrt(se2))) +
+  geom_tile() +
+  scale_x_date(expand = c(0, 0), breaks = scales::date_breaks("2 days"), labels = scales::date_format("%b %d")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20), expand = c(0, 0), labels = label_hour) +
+  scale_fill_gradientn("Upper 95th\nPercentile", colours = rev(brewer.pal(8, "Spectral")), limits = c(0, NA)) +
+  coord_equal() +
+  labs(x = "", y = "Hour of Day", title = "Upper 95th Percentile of Estimated Total Hourly Herring Run")
+```
+
+# Comparison of Night and Day Run Sizes
+
+Currently, the total estimated herring run for the entire season is based on observations collected only from 7 AM to 7 PM on each day. This period is being used so that the total run estimate is consistent with previous estimates generated by MADMF using in-person volunteer counts, which are only collected during daylight hours. However, until now, it was not known whether a significant number of fish passed before or after those daylight hours. If there are in fact a large number of fish passing during nighttime, then the total run would be underestimated. Therefore, the current video count dataset gives us the opportunity to compare the relative fraction of total fish passage during different periods of the day.
+
+Based on the hourly run estimates from the previous section, it appears that the majority of fish do indeed pass between 7 AM and 7 PM. However, there are also a significant number of fish that pass in the early morning around sunrise (4 AM to 7 AM), and the late evening around sunset (7 PM to 9 PM). 
+
+This figure shows the **average** hourly fish passage rate for each hour of the day over the period. Each bar shows the mean number of fish per hour calculated from the estimate hourly run during that hour over all days from May 25 to June 10. The hours are grouped into five distinct periods:
+
+- *Before Dawn*: 12 AM to 4 AM
+- *Dawn*: 4 AM to 7 AM
+- *Daytime*: 7 AM to 7 PM
+- *Dusk*: 7 PM to 9 PM
+- *After Dusk*: 9 PM to 12 AM
+
+The Daylight period was chosen to correspond to the period currently used for the total run estimate. The Dawn period includes the three hours before this when there were a significant number of fish on most of the days. Similarly, the Dusk period includes the two hours after that period. Lastly, Before Dawn and After Dusk include hours when very few fish were observed passing through the dam.
+
+```{r col-run-hr-avg, fig.width=8, fig.height=5}
+run_hour_period <- run_hour %>% 
+  filter(n > 0) %>% 
+  mutate(
+    period = case_when(
+      hour < 4 ~ "Before Dawn",
+      hour < 7 ~ "Dawn",
+      hour < 19 ~ "Daytime",
+      hour < 21 ~ "Dusk",
+      TRUE ~ "After Dusk"
+    ),
+    period = factor(period, levels = c("Before Dawn", "Dawn", "Daytime", "Dusk", "After Dusk"), ordered = TRUE)
+  )
+
+run_hour_period %>%
+  group_by(period, hour) %>% 
+  summarise(
+    Y = mean(Y)
+  ) %>% 
+  ggplot(aes(hour, Y, fill = period)) +
+  geom_col(color = "gray80") +
+  geom_vline(
+    data = data_frame(hour = c(3.5, 6.5, 18.5, 20.5)),
+    aes(xintercept = hour),
+    color = "gray50", linetype = 2
+  ) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 20), expand = c(0, 0), labels = label_hour) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6), expand = c(0, 0), limits = c(0, 2750)) +
+  scale_fill_brewer("Period", type = "div", palette = "Spectral") +
+  labs(x = "Hour of Day", y = "Average Estimated Hourly Run\n(# fish/hr)", title = "Average Estimated Hourly Run by Hour of the Day") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+  )
+```
+
+
+The following two figures show the total estimated number of fish during each of these five periods on each day, followed by the % of the daily total for each period. On days when the total fish run was relative high (> 30,000), between about 5 and 20% of that total occurred during Dawn (4 AM to 7 AM) and about 1 to 5% during Dusk (7 PM to 9 PM). On days with lower total fish run (< 30,000), the fraction during Dawn was generally less than 20% and sometimes very low (e.g. May 29 to May 31), while the fraction during Dusk could be very high (e.g. June 5 to June 7).
+
+```{r col-run-period, fig.width=8, fig.height=4}
+run_hour_period %>% 
+  group_by(date, period) %>% 
+  summarise(Y = sum(Y)) %>% 
+  ungroup() %>% 
+  ggplot(aes(date, Y, fill = fct_rev(period))) +
+  geom_col(position = "stack", color = "gray80") +
+  scale_x_date(expand = c(0, 0), breaks = scales::date_breaks("2 days"), labels = scales::date_format("%b %d")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6), expand = c(0, 0), limits = c(0, 85000), labels = scales::comma) +
+  scale_fill_brewer("Period", type = "div", palette = "Spectral", direction = -1) +
+  labs(x = "", y = "Total Daily Fish Passage\n(# Fish)", title = "Total Daily Fish Passage by Period")
+```
+
+```{r col-run-period-pct, fig.width=8, fig.height=4}
+run_hour_period %>% 
+  group_by(date, period) %>% 
+  summarise(Y = sum(Y)) %>% 
+  ungroup() %>% 
+  ggplot(aes(date, Y, fill = fct_rev(period))) +
+  geom_col(position = "fill", color = "gray80") +
+  scale_x_date(expand = c(0, 0), breaks = scales::date_breaks("2 days"), labels = scales::date_format("%b %d")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6), expand = c(0, 0), labels = scales::percent) +
+  scale_fill_brewer("Period", type = "div", palette = "Spectral", direction = -1) +
+  labs(x = "", y = "% Total Daily Fish Passage\n\n", title = "Percent of Total Daily Fish Passage by Period")
+```
+
+This final figure shows the total number of fish passing during each period summed over all days from May 25 to June 10. The labels also indicate the percent associated with each period. Overall, 81% of the total fish run occurred during the daylight hours (7 AM to 7 PM), while 10% occurred three hours before then during dawn (4 AM to 7 AM) and 8% during the two hours around dusk (7 PM to 9 PM). During the night time hours before dawn and after dusk (9 PM to 4 AM in total), only 0.5% of the total run was observed. 
+
+```{r}
+run_hour_period %>% 
+  group_by(period) %>% 
+  summarise(Y = sum(Y)) %>% 
+  ungroup() %>% 
+  mutate(
+    pct_Y = Y / sum(Y),
+    label = paste0(scales::comma(Y, digits = 0), "\n(", scales::percent(pct_Y), ")")
+  ) %>% 
+  ggplot(aes(period, Y)) +
+  geom_col(aes(fill = fct_rev(period)), color = "gray80") +
+  geom_text(aes(label = label), vjust = -0.2) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6), expand = c(0, 0), limits = c(0, 450000), labels = scales::comma) +
+  scale_fill_brewer("Period", type = "div", palette = "Spectral", direction = -1) +
+  labs(x = "", y = "Total Fish Passage\n(# Fish)", title = "Total Fish Passage by Period") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+  )
+```
+
+# Conclusions
+
+These results lead to the following conclusions and recommendations:
+
+1. The official total seasonal and daily run estimate, which is currently based only on observations during daytime hours from 7 AM to 7 PM, likely underestimates the true run size by about 20%.
+2. Of that 20%, approximately half occurs during dawn from 4 AM to 7 AM and the other half around dusk from 7 PM to 9 PM.
+3. Very few fish (~0.5% of the total) appear to pass in the middle of the night from 9 PM to 4 AM. However, as shown in Section 2, there is less data coverage (i.e. lower fraction of recorded videos have been counted) during those hours. 
+4. Based on these results, the video count website should be configured to include videos recorded during the dawn and dusk hours in order to collect data for accurately estimating the total run size. However, it does not seem necessary to include videos recorded from 9 PM to 4 AM, when fish passage is very low.
+
