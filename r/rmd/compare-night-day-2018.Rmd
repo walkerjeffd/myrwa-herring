@@ -198,7 +198,7 @@ Therefore, the upper 95th percentile of the confidence interval for each hourly 
 ```{r tile-run-hour-ci-upper, fig.width=8, fig.height=6}
 run_hour %>% 
   filter(n > 0) %>% 
-  ggplot(aes(date, hour, fill = sqrt(se2))) +
+  ggplot(aes(date, hour, fill = ci_upper)) +
   geom_tile() +
   scale_x_date(expand = c(0, 0), breaks = scales::date_breaks("2 days"), labels = scales::date_format("%b %d")) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 20), expand = c(0, 0), labels = label_hour) +
