@@ -50,8 +50,8 @@ function refreshVolunteerQueue() {
       console.log(`updated volunteerQueue (n = ${volunteerQueue.length})`);
     });
 }
-refreshVolunteerQueue();
-setInterval(refreshVolunteerQueue, config.volunteer.interval * 1000);
+// refreshVolunteerQueue();
+// setInterval(refreshVolunteerQueue, config.volunteer.interval * 1000);
 
 // paths to app builds
 app.use('/static/video-watch', express.static(config.api.static.videoWatch));
