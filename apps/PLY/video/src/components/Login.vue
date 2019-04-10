@@ -109,7 +109,7 @@ export default {
       if (this.loading) return;
       this.submitted = true;
       if (!this.$v.$invalid) {
-        console.log('login', this.email, this.password);
+        console.log('login', this.email);
         this.loading = true;
         this.$auth.login(this.email, this.password)
           .then(() => this.$router.push(this.$route.query.redirect || '/'))

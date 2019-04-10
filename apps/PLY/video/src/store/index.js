@@ -22,11 +22,15 @@ export default new Vuex.Store({
     run: null
   },
   getters: {
+    locationId: state => state.locationId,
     session: state => state.session,
     video: state => state.video,
     run: state => state.run
   },
   mutations: {
+    setLocationId(state, locationId) {
+      state.locationId = locationId;
+    },
     setSessionId(state, id) {
       state.session.id = id;
     },

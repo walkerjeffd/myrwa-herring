@@ -5,7 +5,7 @@
 
         <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
           <div class="sqs-block-content">
-            <h1>Data for the 2018 Mystic River Herring Run</h1>
+            <h1>Data for the 2019 Plymouth Herring Run</h1>
           </div>
         </div>
 
@@ -202,6 +202,7 @@ import * as d3TimeFormat from 'd3-time-format';
 import moment from 'moment';
 import Odometer from 'odometer';
 import jStat from 'jStat';
+import { mapGetters } from 'vuex';
 
 window.moment = moment;
 
@@ -283,18 +284,7 @@ export default {
     };
   },
   computed: {
-    dateRange() {
-      const minDate = moment('2018-04-15 00:00-0400');
-      let maxDate = moment('2018-07-01 00:00-0400');
-
-      const today = moment();
-
-      if (maxDate > today) {
-        maxDate = today;
-      }
-
-      return [minDate.toDate(), maxDate.toDate()];
-    }
+    ...mapGetters(['locationId'])
   },
   watch: {
     selectedVariable() {
@@ -401,9 +391,9 @@ export default {
         },
         title: {
           text: 'Date'
-        },
-        min: this.dateRange[0].valueOf(),
-        max: this.dateRange[1].valueOf()
+        }
+        // min: this.dateRange[0].valueOf(),
+        // max: this.dateRange[1].valueOf()
       },
       yAxis: {
         title: {
@@ -443,9 +433,9 @@ export default {
         },
         title: {
           text: 'Date'
-        },
-        min: this.dateRange[0].valueOf(),
-        max: this.dateRange[1].valueOf()
+        }
+        // min: this.dateRange[0].valueOf(),
+        // max: this.dateRange[1].valueOf()
       },
       yAxis: {
         title: {
@@ -490,9 +480,9 @@ export default {
         },
         title: {
           text: 'Date'
-        },
-        min: this.dateRange[0].valueOf(),
-        max: this.dateRange[1].valueOf()
+        }
+        // min: this.dateRange[0].valueOf(),
+        // max: this.dateRange[1].valueOf()
       },
       yAxis: {
         min: 0,
@@ -532,9 +522,9 @@ export default {
         },
         title: {
           text: 'Date'
-        },
-        min: this.dateRange[0].valueOf(),
-        max: this.dateRange[1].valueOf()
+        }
+        // min: this.dateRange[0].valueOf(),
+        // max: this.dateRange[1].valueOf()
       },
       yAxis: {
         min: 0,
@@ -557,7 +547,7 @@ export default {
       const utcFormat = d3TimeFormat.utcFormat('%b %d %I:%M %p EDT');
       const edtFormat = x => utcFormat(d3Time.timeHour.offset(x, -4));
 
-      return this.$http.get('/status/')
+      return this.$http.get('/status/', { params: { location_id: this.locationId } })
         .then((response) => {
           const data = response.data.data;
 
@@ -589,7 +579,7 @@ export default {
         });
     },
     fetchRunData() {
-      return this.$http.get('/run-estimate/?start=2018-04-25&end=2018-07-01')
+      return this.$http.get('/run-estimate/', { params: { location_id: this.locationId } })
         .then((response) => {
           const data = response.data.data;
 
@@ -626,7 +616,7 @@ export default {
         });
     },
     fetchSensorData() {
-      return this.$http.get('/sensor-hourly/')
+      return this.$http.get('/sensor-hourly/', { params: { location_id: this.locationId } })
         .then((response) => {
           const data = response.data.data.map(d => ({
             timestamp: (new Date(d.timestamp)),

@@ -2,7 +2,7 @@
   <div>
     <video-bar></video-bar>
     <video-player></video-player>
-    <div class="sqs-block button-block sqs-block-button" v-if="!showForm & !showConfirm">
+    <div class="sqs-block button-block sqs-block-button" v-if="!showForm & !showConfirm & video">
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
           <a
@@ -11,7 +11,7 @@
             v-on:click.prevent="showForm = true">
             Enter Count
           </a>
-          <p style="color:#666" v-if="!user">Don't forget! You can <router-link to="/signup">sign up</router-link> for an account to track your progress <br> and compete for a top spot on the <router-link to="/leaderboard">Leaderboard</router-link>!</p>
+          <!-- <p style="color:#666" v-if="!user">Don't forget! You can <router-link to="/signup">sign up</router-link> for an account to track your progress <br> and compete for a top spot on the <router-link to="/leaderboard">Leaderboard</router-link>!</p> -->
         </div>
       </div>
     </div>
@@ -72,10 +72,10 @@
       </div>
       <!-- <p>Share your count with friends and family!</p>
       <social-sharing
-        url="https://plymouthherring.org/"
+        url="https://mysticherring.org/"
         :title="title"
-        description="Help document the Plymouth herring migration in Medford and Winchester, MA and learn more about this amazing wildlife migration."
-        hashtags="plymouth,citizenscience"
+        description="Help document the Mystic River herring migration in Medford and Winchester, MA and learn more about this amazing wildlife migration."
+        hashtags="mysticriver,citizenscience"
         twitter-user="MysticMyRWA"
         inline-template>
         <div class="network-icons">
@@ -84,9 +84,6 @@
           </network>
           <network network="twitter">
             <icon name="brands/twitter-square" scale="4"></icon>
-          </network>
-          <network network="googleplus">
-            <icon name="brands/google-plus-square" scale="4"></icon>
           </network>
         </div>
       </social-sharing> -->

@@ -144,7 +144,7 @@ export default {
       this.submitted = true;
       this.error = null;
       if (!this.$v.$invalid) {
-        console.log('signup', this.username, this.email, this.password);
+        console.log('signup', this.username, this.email);
         this.loading = true;
         this.$auth.signUp(this.email, this.password, this.username)
           .then(() => this.$router.push(this.$route.query.redirect || '/'))

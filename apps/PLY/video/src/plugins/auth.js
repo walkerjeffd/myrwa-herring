@@ -22,9 +22,12 @@ export default {
           return response;
         })
         .then(() => auth.createUserWithEmailAndPassword(email, password))
-        .then(firebaseUser => axios.post('/users/', { uid: firebaseUser.uid, username }))
+        .then((firebaseUser) => {
+          console.log(firebaseUser.user.uid);
+          return axios.post('/users/', { uid: firebaseUser.user.uid, username });
+        })
         .then(response => response.data.data[0])
-        .then(user => axios.get(`/users/${user.uid}`)
+        .then(user => axios.get(`/users/${user.uid}`, { params: { location_id: store.getters.locationId } })
           .then(response => store.dispatch('auth/setUser', response.data.data[0]))
         ),
       updateEmail: email => auth.currentUser.updateEmail(email),
@@ -41,7 +44,7 @@ export default {
           return response;
         })
         .then(() => axios.put(`/users/${auth.currentUser.uid}`, { username }))
-        .then(() => axios.get(`/users/${auth.currentUser.uid}`))
+        .then(() => axios.get(`/users/${auth.currentUser.uid}`, { params: { location_id: store.getters.locationId } }))
         .then(response => store.dispatch('auth/setUser', response.data.data[0])),
       delete: () => {
         const uid = auth.currentUser.uid;
@@ -52,7 +55,7 @@ export default {
       refreshUser: () => {
         const user = auth.currentUser;
         if (user) {
-          axios.get(`/users/${user.uid}`)
+          axios.get(`/users/${user.uid}`, { params: { location_id: store.getters.locationId } })
             .then(response => store.dispatch('auth/setUser', response.data.data[0]));
         }
       }
@@ -61,7 +64,8 @@ export default {
       if (!user) {
         store.dispatch('auth/clearUser');
       } else {
-        axios.get(`/users/${user.uid}`)
+        console.log('onAuthStateChanged', user);
+        axios.get(`/users/${user.uid}`, { params: { location_id: store.getters.locationId } })
           .then(response => store.dispatch('auth/setUser', response.data.data[0]))
           .then(() => store.dispatch('auth/initialized'));
       }

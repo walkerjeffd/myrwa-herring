@@ -54,13 +54,13 @@ export default {
     };
   },
   computed: {
-    ...mapGetters({ user: 'auth/user' })
+    ...mapGetters({ user: 'auth/user', locationId: 'locationId' })
   },
   filters: {
     number
   },
   mounted() {
-    this.$http.get('/users/')
+    this.$http.get('/users/', { params: { location_id: this.locationId } })
       .then((response) => {
         this.users = response.data.data.filter(d => (d.n_count > 0)).filter(d => (d.rank <= 20));
       })
