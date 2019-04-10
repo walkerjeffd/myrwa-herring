@@ -1,13 +1,13 @@
-/* eslint no-console: "off" */
-
 const fs = require('fs');
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const moment = require('moment-timezone');
 
 const config = require('../config');
 const db = require('./db');
-const volunteer = require('./volunteer');
+// const volunteer = require('./volunteer');
+const utils = require('./utils');
 
 const app = express();
 
@@ -36,32 +36,29 @@ app.use(allowCrossDomain);
 
 
 // set up priority queue
-let volunteerQueue = [];
-function refreshVolunteerQueue() {
-  console.log('updating volunteerQueue');
-  volunteer.getVideos(config.volunteer.path)
-    .then((data) => {
-      const videos = data.map((row) => { // eslint-disable-line
-        return row.videos
-          .filter(d => d.n_count === 0)
-          .map(d => d.id);
-      });
-      volunteerQueue = [].concat.apply([], videos); // eslint-disable-line
-      console.log(`updated volunteerQueue (n = ${volunteerQueue.length})`);
-    });
-}
+const volunteerQueue = [];
+// let volunteerQueue = [];
+// function refreshVolunteerQueue() {
+//   console.log('updating volunteerQueue');
+//   volunteer.getVideos(config.volunteer.path)
+//     .then((data) => {
+//       const videos = data.map((row) => { // eslint-disable-line
+//         return row.videos
+//           .filter(d => d.n_count === 0)
+//           .map(d => d.id);
+//       });
+//       volunteerQueue = [].concat.apply([], videos); // eslint-disable-line
+//       console.log(`updated volunteerQueue (n = ${volunteerQueue.length})`);
+//     });
+// }
 // refreshVolunteerQueue();
 // setInterval(refreshVolunteerQueue, config.volunteer.interval * 1000);
 
 // paths to app builds
-app.use('/static/video-watch', express.static(config.api.static.videoWatch));
-app.use('/static/video-status', express.static(config.api.static.videoStatus));
-app.use('/static/vis-temp', express.static(config.api.static.visTemp));
-app.use('/static/vis-count', express.static(config.api.static.visCount));
-app.use('/static/sprint', express.static(config.api.static.sprint));
-app.use('/static/auth-dev', express.static(config.api.static.authDev));
-app.use('/static/run-estimate', express.static(config.api.static.runEstimate));
-app.use('/static/video', express.static(config.api.static.video));
+app.use('/static/UML/vis-temp', express.static(config.api.static.UML.visTemp));
+app.use('/static/UML/vis-count', express.static(config.api.static.UML.visCount));
+app.use('/static/UML/video', express.static(config.api.static.UML.video));
+app.use('/static/PLY/video', express.static(config.api.static.PLY.video));
 app.use('/reports', express.static(config.api.static.reports));
 app.use('/datasets', express.static(config.api.static.datasets));
 
@@ -75,34 +72,109 @@ app.get('/', (req, res) => {
 });
 
 app.get('/status/', (req, res, next) => {
-  db.getStatus()
+  const query = {
+    location_id: 'UML'
+  };
+
+  if ('location_id' in req.query) {
+    query.location_id = req.query.location_id;
+  }
+
+  const siteConfig = config.api.sites[query.location_id].status;
+
+  query.start_date = req.query.start_date || siteConfig.dates[0];
+  query.end_date = utils.minDateOrToday(req.query.end_date, siteConfig.dates[1]);
+  query.start_hour = req.query.start_hour || siteConfig.hours[0];
+  query.end_hour = req.query.end_hour || siteConfig.hours[1];
+
+  db.getStatus(query)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
     .catch(next);
 });
 
 app.get('/video/', (req, res, next) => {
-  const first = req.query && req.query.first && req.query.first === 'true';
+  const query = {
+    first: false,
+    location_id: 'UML'
+  };
 
-  if (first || volunteerQueue.length === 0) {
-    db.getRandomVideo(req.query)
-      .then((result) => {
-        console.log('served random video id=%d first=%s ip=%s', result.length > 0 ? result[0].id : 'unknown', first, req.headers['x-real-ip'] || req.connection.remoteAddress);
-        return res.status(200).json({ status: 'ok', data: result });
-      })
-      .catch(next);
-  } else {
+  if ('first' in req.query) {
+    query.first = req.query.first === 'true';
+  }
+
+  if ('location_id' in req.query) {
+    query.location_id = req.query.location_id;
+  }
+
+  const siteConfig = config.api.sites[query.location_id].videos;
+
+  query.start_hour = siteConfig.hours[0];
+  query.end_hour = siteConfig.hours[1];
+
+  if (!query.first && query.location_id === 'UML' && volunteerQueue.length > 0) {
     const index = Math.floor(Math.random() * volunteerQueue.length);
-    db.getVideoById(volunteerQueue.splice(index, 1)[0])
+    return db.getVideoById(volunteerQueue.splice(index, 1)[0])
       .then((result) => {
-        console.log('served volunteer video id=%d ip=%s', result.length > 0 ? result[0].id : 'unknown', req.headers['x-real-ip'] || req.connection.remoteAddress);
+        console.log('served volunteer video id=%d location=%s ip=%s', result.length > 0 ? result[0].id : 'unknown', query.location_id, req.headers['x-real-ip'] || req.connection.remoteAddress);
         return res.status(200).json({ status: 'ok', data: result });
       })
       .catch(next);
   }
+
+  let func;
+  switch (siteConfig.method.type) {
+    case 'uniform':
+      func = db.getRandomVideoUniform;
+      break;
+    case 'exponential':
+      func = db.getRandomVideoExponential;
+      query.lambda = siteConfig.method.lambda;
+      break;
+    default:
+      console.error(`Invalid video selection method (${siteConfig.method.type}), must be one of {uniform,exponential}.`);
+      return res.status(500).json({ status: 'error', error: 'Invalid server configuration' });
+  }
+
+  const windowDates = utils.getWindowDates(siteConfig.window.days);
+  switch (siteConfig.window.type) {
+    case 'fixed':
+      query.start_date = siteConfig.window.dates[0];
+      query.end_date = siteConfig.window.dates[1];
+      break;
+    case 'sliding':
+      query.start_date = windowDates[0];
+      query.end_date = windowDates[1];
+      break;
+    default:
+      console.error(`Invalid video window (${siteConfig.window.type}), must be one of {fixed,sliding}.`);
+      return res.status(500).json({ status: 'error', error: 'Invalid server configuration' });
+  }
+
+  return func(query)
+    .then((result) => {
+      console.log('served random video id=%d location=%s first=%s ip=%s', result.length > 0 ? result[0].id : 'unknown', query.location_id, query.first, req.headers['x-real-ip'] || req.connection.remoteAddress);
+      return res.status(200).json({ status: 'ok', data: result });
+    })
+    .catch(next);
 });
 
 app.get('/videos/', (req, res, next) => {
-  db.getVideos(req.query)
+  const query = {
+    location_id: 'UML'
+  };
+
+  if ('location_id' in req.query) {
+    query.location_id = req.query.location_id;
+  }
+
+  const siteConfig = config.api.sites[query.location_id].allVideos;
+
+  query.start_date = req.query.start_date || siteConfig.dates[0];
+  query.end_date = req.query.end_date || siteConfig.dates[1];
+  query.start_hour = req.query.start_hour || 0;
+  query.end_hour = req.query.end_hour || 23;
+
+  db.getVideos(query)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
     .catch(next);
 });
@@ -115,17 +187,44 @@ app.post('/count/', (req, res, next) => {
 });
 
 app.get('/users/', (req, res, next) => {
-  const params = {};
-  if (req.query && req.query.username) {
-    params.username = req.query.username;
+  const query = {
+    location_id: 'UML'
+  };
+
+  if ('location_id' in req.query) {
+    query.location_id = req.query.location_id;
   }
-  return db.getUsers(params)
+
+  if ('username' in req.query) {
+    query.username = req.query.username;
+  }
+
+  const siteConfig = config.api.sites[query.location_id].status;
+
+  query.start_date = req.query.start_date || siteConfig.dates[0];
+  query.end_date = req.query.end_date || siteConfig.dates[1];
+
+  return db.getUsers(query)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
     .catch(next);
 });
 
 app.get('/users/:uid', (req, res, next) => {
-  db.getUser({ uid: req.params.uid })
+  const query = {
+    location_id: 'UML',
+    uid: req.params.uid
+  };
+
+  if ('location_id' in req.query) {
+    query.location_id = req.query.location_id;
+  }
+
+  const siteConfig = config.api.sites[query.location_id].status;
+
+  query.start_date = req.query.start_date || siteConfig.dates[0];
+  query.end_date = req.query.end_date || siteConfig.dates[1];
+
+  db.getUserByUid(query)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
     .catch(next);
 });
@@ -158,29 +257,43 @@ app.post('/users/', (req, res, next) => {
     .catch(next);
 });
 
-// app.get('/leaderboard/', (req, res, next) => {
-//   db.getUsers()
-//     .then(result => res.status(200).json({ status: 'ok', data: result }))
-//     .catch(next);
-// });
+app.get('/sensor/', (req, res, next) => {
+  const query = {
+    location_id: 'UML'
+  };
 
-app.get('/sprint/', (req, res, next) => {
-  db.getSprintCount(config.api.sprint)
+  if ('location_id' in req.query) {
+    query.location_id = req.query.location_id;
+  }
+
+  const siteConfig = config.api.sites[query.location_id].status;
+
+  query.start_date = req.query.start_date || siteConfig.dates[0];
+  query.end_date = utils.minDateOrToday(req.query.end_date, siteConfig.dates[1]);
+
+  return db.getSensorData(query)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
     .catch(next);
 });
 
-app.get('/sensor/', (req, res, next) =>
-  db.getSensorData(req.query)
-    .then(result => res.status(200).json({ status: 'ok', data: result }))
-    .catch(next)
-);
+app.get('/sensor-hourly/', (req, res, next) => {
+  const query = {
+    location_id: 'UML'
+  };
 
-app.get('/sensor-hourly/', (req, res, next) =>
-  db.getSensorHourlyData(req.query)
+  if ('location_id' in req.query) {
+    query.location_id = req.query.location_id;
+  }
+
+  const siteConfig = config.api.sites[query.location_id].status;
+
+  query.start_date = req.query.start_date || siteConfig.dates[0];
+  query.end_date = utils.minDateOrToday(req.query.end_date, siteConfig.dates[1]);
+
+  return db.getSensorHourlyData(query)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
-    .catch(next)
-);
+    .catch(next);
+});
 
 app.post('/sensor/', (req, res, next) => {
   console.log('received sensor data');
@@ -210,9 +323,22 @@ app.post('/sensor/', (req, res, next) => {
 });
 
 app.get('/run-estimate/', (req, res, next) => {
-  return db.getDailyRunEstimate(req.query)
+  const query = {
+    location_id: 'UML'
+  };
+
+  if ('location_id' in req.query) {
+    query.location_id = req.query.location_id;
+  }
+
+  const siteConfig = config.api.sites[query.location_id].run;
+
+  query.start_date = req.query.start_date || siteConfig.dates[0];
+  query.end_date = req.query.end_date || siteConfig.dates[1];
+
+  return db.getDailyRunEstimate(query)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
-    .catch(next);
+    .catch(next)
 });
 
 // error handler

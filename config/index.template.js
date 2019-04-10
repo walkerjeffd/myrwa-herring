@@ -16,13 +16,33 @@ module.exports = {
       secret: 'secret password'
     },
     logFile: '/path/to/api-access.log',
-    videos: {              // video selection criteria
-      lambda: 0.0005,      // exponential distribution parameter
-      year: 2018,          // year
-      start: '2018-04-27', // first date
-      end: '2018-06-30',   // last date
-      location: 'UML',     // location
-      hours: [7, 19]       // range of hours (end hour not inclusive)
+    sites: {
+      UML: {
+        videos: {                   // video sampling criteria
+          method: {                 // sampling method
+            // type: 'uniform'
+            type: 'exponential',    // if 'exponential', must include lambda parameter
+            lambda: 0.0002
+          },
+          window: {                 // range of dates to sample from
+            type: 'fixed',          // 'fixed' requires 'dates'
+            dates: ['2018-04-01', '2018-07-01']
+            // type: 'sliding',     // 'sliding' requires number of days prior to today
+            // days: 20
+          },
+          hours: [4, 20]            // hours of the day to sample from
+        },
+        allVideos: {                // all videos for admin page (and /videos/ route)
+          dates: ['2018-04-01', '2018-07-01']
+        },
+        run: {                      // range of dates for run estimate
+          dates: ['2018-04-01', '2018-07-01']
+        },
+        status: {                   // status parameters
+          dates: ['2018-04-01', '2018-07-01'], // range of dates to generate status time series
+          hours: [7, 18]                       // range of video hours to include in status
+        }
+      }
     }
   },
   db: {

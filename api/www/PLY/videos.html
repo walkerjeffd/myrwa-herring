@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Admin - Plymouth</title>
+  <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
+  <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
+  <link href="//vjs.zencdn.net/5.19.1/video-js.css" rel="stylesheet">
+
+  <script src="//vjs.zencdn.net/5.19.1/video.js"></script>
+  <script src="//code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+
+<div>
+  <video id="video" class="video-js vjs-big-play-centered"></video>
+</div>
+
+<div id="jsGrid" style="margin-top: 20px"></div>
+
+
+<script>
+var player = videojs('video', {
+  controls: true,
+  autoplay: false,
+  width: 800,
+  height: 600,
+  playbackRates: [0.1, 0.25, 0.5, 1]
+});
+
+$.ajax({
+  url: 'https://myrwa-api.org/api/herring/videos/?location=PLY&start_date=2019-04-01&end_date=2019-08-01',
+  // url: 'http://localhost:8000/videos/?location_id=PLY&start_date=2019-04-01&end_date=2019-08-01',
+  success: function (response) {
+    response.data.forEach(function (d) {
+      d.start_timestamp = new Date(d.start_timestamp);
+      d.end_timestamp = new Date(d.end_timestamp);
+    });
+
+    var data = response.data.sort(function (a, b) {
+      return b.start_timestamp - a.start_timestamp;
+    });
+
+    $('#jsGrid').jsGrid({
+      width: '1200px',
+
+      inserting: false,
+      editing: false,
+      sorting: true,
+      paging: true,
+
+      pageSize: 10,
+
+      data: data,
+
+      fields: [
+        {
+          name: 'id',
+          title: 'ID',
+          type: 'number',
+          align: 'right',
+          width: '40px'
+        },
+        {
+          name: 'filename',
+          title: 'Filename',
+          type: 'text',
+          align: 'right',
+          width: '100px'
+        },
+        {
+          name: 'start_timestamp',
+          title: 'Start Time',
+          type: 'text',
+          align: 'right',
+          sorter: 'date',
+          itemTemplate: function(value, item) {
+            return value.toLocaleString()
+          }
+        },
+        {
+          name: 'end_timestamp',
+          title: 'End Time',
+          type: 'text',
+          align: 'right',
+          sorter: 'date',
+          itemTemplate: function(value, item) {
+            return value.toLocaleString()
+          }
+        },
+        {
+          name: 'duration',
+          title: 'Duration (sec)',
+          type: 'number',
+          align: 'right',
+          width: '40px'
+        }
+      ],
+
+      rowClick: function (args) {
+        console.log(args.item);
+        player.src({type: 'video/mp4', src: args.item.url});
+        player.load();
+      }
+    });
+  },
+  dataType: 'json'
+});
+</script>
+</body>
+</html>

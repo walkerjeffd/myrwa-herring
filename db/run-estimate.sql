@@ -23,7 +23,7 @@ c AS (
   GROUP BY video_id
 ),
 vpd1 AS (
-  SELECT 
+  SELECT
     v.id,
     v.start_timestamp AT TIME ZONE 'US/Eastern' as start_timestamp,
     (v.start_timestamp AT TIME ZONE 'US/Eastern')::date AS date,

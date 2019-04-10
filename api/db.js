@@ -6,146 +6,49 @@ const knex = require('knex')({
   connection: config.db,
 });
 
-function fishStatus() {
-  const sql = `
-    WITH c AS (
-      SELECT
-        video_id,
-        count(*) as n_count,
-        avg(count) as mean_count
-      FROM counts
-      WHERE NOT flagged
-      GROUP BY video_id
-    ),
-    vc AS (
-      SELECT
-        v.id,
-        (v.start_timestamp AT TIME ZONE 'America/New_York')::date as date,
-        c.mean_count as mean_count
-      FROM videos v
-      LEFT JOIN c ON v.id = c.video_id
-      WHERE NOT v.flagged
-      AND (v.start_timestamp AT TIME ZONE 'America/New_York')::date >= '2018-04-27'
-    ),
-    vcd AS (
-      SELECT
-        vc.date,
-        sum(vc.mean_count) as count
-      FROM vc
-      GROUP BY vc.date
-    ),
-    d AS (
-      SELECT generate_series('2018-04-25'::date, (now() at time zone 'US/Eastern')::date, '1 day')::date as date
+function fishStatus(params) {
+  return knex
+    .raw(
+      'SELECT * FROM f_fish_status(:location_id, :start_date, :end_date, :start_hour, :end_hour)',
+      params
     )
-    SELECT
-      d.date::text as date,
-      COALESCE(vcd.count, 0)::real as count
-    FROM d
-    LEFT JOIN vcd
-    ON d.date = vcd.date
-    ORDER BY d.date;
-  `;
-
-  return knex
-    .raw(sql)
     .then(result => result.rows);
 }
 
-function videoStatus() {
-  const sql = `
-    WITH c AS (
-      SELECT
-        video_id,
-        count(*) as n_count
-      FROM counts
-      WHERE NOT flagged
-      GROUP BY video_id
-    ),
-    vc AS (
-      SELECT
-        v.id,
-        (v.start_timestamp AT TIME ZONE 'America/New_York')::date as date,
-        (COALESCE(c.n_count, 0) > 0)::integer as counted
-      FROM videos v
-      LEFT JOIN c on v.id = c.video_id
-      WHERE NOT flagged
-      AND (v.start_timestamp AT TIME ZONE 'America/New_York')::date >= '2018-04-27'
-    ),
-    vcd AS (
-      SELECT
-        vc.date,
-        count(*) as n_total,
-        sum(counted) as n_counted
-      FROM vc
-      GROUP BY vc.date
-    ),
-    d AS (
-      SELECT generate_series('2018-04-25'::date, (now() at time zone 'US/Eastern')::date, '1 day')::date as date
+function videoStatus(params) {
+  return knex
+    .raw(
+      'SELECT * FROM f_video_status(:location_id, :start_date, :end_date, :start_hour, :end_hour)',
+      params
     )
-    SELECT
-      d.date::text as date,
-      COALESCE(vcd.n_total::integer, 0) as n_total,
-      COALESCE(vcd.n_counted::integer, 0) as n_counted
-    FROM d
-    LEFT JOIN vcd
-    ON d.date = vcd.date
-    ORDER BY d.date;
-  `;
-
-  return knex
-    .raw(sql)
     .then(result => result.rows);
 }
 
-function activityStatus() {
-  const sql = `
-    SELECT
-      c.id,
-      c.created_at as count_timestamp,
-      c.video_id,
-      c.count,
-      c.comment,
-      v.start_timestamp as video_start,
-      v.end_timestamp as video_end,
-      v.duration as duration,
-      v.url as url
-    FROM counts c
-    LEFT JOIN videos v ON c.video_id = v.id
-    WHERE NOT c.flagged
-      AND NOT v.flagged
-      AND (c.created_at at time zone 'America/New_York')::date = (current_timestamp at time zone 'America/New_York')::date
-    ORDER BY c.created_at;
-  `;
-
+function activityStatus(params) {
   return knex
-    .raw(sql)
+    .raw(
+      'SELECT * FROM f_activity_status_today(:location_id)',
+      params
+    )
     .then(result => result.rows);
 }
 
-function getStatus() {
-  return Promise.all([fishStatus(), videoStatus(), activityStatus()])
-    .then((results) => {
-      return {
-        fish: results[0],
-        video: results[1],
-        activity: results[2]
-      };
-    });
+function getStatus(params) {
+  return Promise.all([fishStatus(params), videoStatus(params), activityStatus(params)])
+    .then(results => ({
+      fish: results[0],
+      video: results[1],
+      activity: results[2]
+    }));
 }
 
 function getVideos(params) {
-  let qry = knex('videos')
-    .select();
-
-  if (params.location) {
-    qry = qry.where('location_id', params.location);
-  }
-
-  if (params.year) {
-    qry = qry.where(knex.raw('date_part(\'year\', start_timestamp at time zone \'America/New_York\')'), '=', params.year);
-  }
-
-  return qry.orderBy('location_id').orderBy('start_timestamp');
+  return knex('videos')
+    .select()
+    .where('location_id', params.location_id)
+    .andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::DATE'), '>=', params.start_date)
+    .andWhere(knex.raw('(start_timestamp at time zone \'America/New_York\')::DATE'), '<=', params.end_date)
+    .orderBy('start_timestamp');
 }
 
 function getVideoById(id) {
@@ -154,58 +57,48 @@ function getVideoById(id) {
     .where('id', id);
 }
 
-function getRandomVideo(params) {
+function getRandomVideoUniform(params) {
   if (params.id) {
     return getVideoById(params.id);
   }
 
-  const counts = knex('counts')
-    .select('video_id', knex.raw('count(*)::integer as n_count'), knex.raw('avg(count)::real as mean_count'))
-    .where('flagged', false)
-    .groupBy('video_id')
-    .as('c');
+  let func;
+  if (params.first) {
+    func = 'f_candidate_videos_counted';
+  } else {
+    func = 'f_candidate_videos';
+  }
 
-  // select subset of videos
-  const videos = knex('videos')
-    .where('flagged', false)
-    // run year
-    .andWhere(knex.raw('date_part(\'year\', start_timestamp at time zone \'America/New_York\')'), '=', config.api.videos.year)
-    // start/end dates
-    .andWhere(knex.raw('(start_timestamp AT TIME ZONE \'America/New_York\')::date'), '>=', config.api.videos.start)
-    .andWhere(knex.raw('(start_timestamp AT TIME ZONE \'America/New_York\')::date'), '<=', config.api.videos.end)
-    // only daylight hours
-    .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '>=', config.api.videos.hours[0])
-    .andWhere(knex.raw('date_part(\'hour\', start_timestamp at time zone \'America/New_York\')'), '<', config.api.videos.hours[1])
-    // upper mystic lake dam only
-    .andWhere('location_id', 'UML');
+  const cte = knex.raw(`SELECT * FROM ${func}(:location_id, :start_date, :end_date, :start_hour, :end_hour)`, params);
 
-  // join videos and counts
-  const cte = videos
-    .leftJoin(counts, 'videos.id', 'c.video_id')
-    .select()
-    .where(function () { // eslint-disable-line
-      this.where(knex.raw('COALESCE(mean_count, 0)'), '>', 0);
-      if (!params.first || params.first === 'false') {
-        this.orWhere(knex.raw('COALESCE(n_count, 0)'), '=', 0);
-      }
-    });
   return knex
     .raw(
-      'with v as (?) ?',
-      [cte, knex.raw('select * from v offset floor( random() * (select count(*) from v) ) limit 1')]
+      'WITH v AS (?) ?',
+      [cte, knex.raw('SELECT * FROM v OFFSET FLOOR(RANDOM() * (SELECT COUNT(*) FROM v) ) LIMIT 1')]
     )
     .then(results => results.rows);
 }
 
+function getRandomVideoExponential(params) {
+  if (params.id) {
+    return getVideoById(params.id);
+  }
 
-function getSprintCount(params) {
-  const count = knex('counts')
-    .count()
-    .whereRaw('(created_at at time zone \'America/New_York\')::date >= ?::date', params.from)
-    .whereRaw('(created_at at time zone \'America/New_York\')::date <= ?::date', params.to)
-    .then(result => result[0]);
+  let func;
+  if (params.first) {
+    func = 'f_candidate_videos_counted';
+  } else {
+    func = 'f_candidate_videos';
+  }
 
-  return count;
+  const cte = knex.raw(`SELECT * FROM ${func}(:location_id, :start_date, :end_date, :start_hour, :end_hour)`, params);
+
+  return knex
+    .raw(
+      'WITH v AS (?) ?',
+      [cte, knex.raw('SELECT * FROM v OFFSET random_exp(:lambda, (SELECT count(*)::int FROM v)) LIMIT 1', params)]
+    )
+    .then(results => results.rows);
 }
 
 function saveCount(data) {
@@ -227,30 +120,22 @@ function saveSensor(data) {
     .insert(data);
 }
 
-function getSensorData(query) {
-  let sql = knex('sensor')
+function getSensorData(params) {
+  return knex('sensor')
     .select()
-    .orderBy('timestamp', 'desc');
-
-  if (query) {
-    sql = sql.where(function whereClause() {
-      if (query.start) {
-        this.where('timestamp', '>=', query.start);
-      }
-      if (query.location_id) {
-        this.where('location_id', query.location_id);
-      }
-    });
-    if (query.last) {
-      sql = sql.limit(query.last);
-    }
-  }
-  return sql;
+    .where('location_id', params.location_id)
+    .andWhere(knex.raw('(timestamp AT TIME ZONE \'US/Eastern\')::DATE >= ?', [params.start_date]))
+    .andWhere(knex.raw('(timestamp AT TIME ZONE \'US/Eastern\')::DATE <= ?', [params.end_date]))
+    .orderBy('timestamp');
 }
 
-function getSensorHourlyData() {
-  return knex('sensor_hourly')
-    .select();
+function getSensorHourlyData(params) {
+  return knex
+    .raw(
+      'SELECT * FROM f_sensor_hourly(:location_id, :start_date, :end_date)',
+      params
+    )
+    .then(result => result.rows);
 }
 
 function checkUsernameAvailability(username) {
@@ -264,15 +149,34 @@ function checkUsernameAvailability(username) {
     });
 }
 
-function getUser(params) {
-  return knex('users_stats')
-    .where(params)
-    .limit(1);
+function getUserByUsername(params) {
+  return knex
+    .raw(
+      'SELECT * FROM f_users_stats(:location_id, :start_date, :end_date) WHERE username=:username LIMIT 1',
+      params
+    )
+    .then(result => result.rows);
+}
+
+function getUserByUid(params) {
+  return knex
+    .raw(
+      'SELECT * FROM f_users_stats(:location_id, :start_date, :end_date) WHERE uid=:uid LIMIT 1',
+      params
+    )
+    .then(result => result.rows);
 }
 
 function getUsers(params) {
-  return knex('users_stats')
-    .where(params);
+  if (params.username) {
+    return getUserByUsername(params);
+  }
+  return knex
+    .raw(
+      'SELECT * FROM f_users_stats(:location_id, :start_date, :end_date)',
+      params
+    )
+    .then(result => result.rows);
 }
 
 function updateUser(user) {
@@ -297,27 +201,30 @@ function createUser(data) {
 }
 
 function getDailyRunEstimate(params) {
-  return knex('run_daily')
-    .select()
-    .where('date', '>=', params.start)
-    .where('date', '<=', params.end);
+  return knex
+    .raw(
+      'SELECT * FROM f_run_daily(:location_id, :start_date, :end_date)',
+      params
+    )
+    .then(result => result.rows);
 }
 
 module.exports = {
   getStatus,
-  getRandomVideo,
+  getRandomVideoUniform,
+  getRandomVideoExponential,
   getVideoById,
   getVideos,
-  getSprintCount,
   saveCount,
   saveSensor,
   getSensorData,
   getSensorHourlyData,
   createUser,
-  getUser,
   checkUsernameAvailability,
   updateUser,
   deleteUser,
   getUsers,
+  getUserByUsername,
+  getUserByUid,
   getDailyRunEstimate
 };

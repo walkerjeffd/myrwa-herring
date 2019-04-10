@@ -4,6 +4,7 @@ module.exports = {
       "import"
   ],
   "rules": {
-    "comma-dangle": "off"
+    "comma-dangle": "off",
+    "no-console": "off"
   }
 };
