@@ -55,10 +55,6 @@ const volunteerQueue = [];
 // setInterval(refreshVolunteerQueue, config.volunteer.interval * 1000);
 
 // paths to app builds
-app.use('/static/UML/vis-temp', express.static(config.api.static.UML.visTemp));
-app.use('/static/UML/vis-count', express.static(config.api.static.UML.visCount));
-app.use('/static/UML/video', express.static(config.api.static.UML.video));
-app.use('/static/PLY/video', express.static(config.api.static.PLY.video));
 app.use('/reports', express.static(config.api.static.reports));
 app.use('/datasets', express.static(config.api.static.datasets));
 

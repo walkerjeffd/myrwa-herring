@@ -3,10 +3,8 @@ module.exports = {
     port: 8000,       // API listening port
     maxCount: 300,    // counts exceeding this are auto-flagged
     static: {
-      videoWatch: '../apps/watch/dist',
-      videoStatus: '../apps/status/dist',
-      visTemp: '../apps/vis-temp/dist',
-      reports: '../r/pdf'
+      reports: '../r/pdf',
+      datasets: '../r/csv'
     },
     sprint: {
       from: 'YYYY-MM-DD',
