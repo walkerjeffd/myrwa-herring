@@ -330,8 +330,7 @@ app.get('/run-estimate/', (req, res, next) => {
   const siteConfig = config.api.sites[query.location_id].run;
 
   query.start_date = req.query.start_date || siteConfig.dates[0];
-  query.end_date = req.query.end_date || siteConfig.dates[1];
-
+  query.end_date = utils.minDateOrToday(req.query.end_date, siteConfig.dates[1]);
   return db.getDailyRunEstimate(query)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
     .catch(next)
