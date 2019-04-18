@@ -30,6 +30,7 @@ module.exports = {
             // type: 'sliding',     // 'sliding' requires number of days prior to today
             // days: 20
           },
+          allowFirst: true,         // allow client to request video that has been counted if first of session
           hours: [4, 20]            // hours of the day to sample from
         },
         allVideos: {                // all videos for admin page (and /videos/ route)

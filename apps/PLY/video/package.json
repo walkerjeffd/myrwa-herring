@@ -9,7 +9,7 @@
     "start": "npm run dev",
     "lint": "eslint --ext .js,.vue src",
     "build": "node build/build.js",
-    "deploy": "scp -r dist/static/* myrwa@myrwa-api.org:/home/myrwa/static/herring/video"
+    "deploy": "npm run build && scp -r dist/static/* myrwa@myrwa-api.org:/home/myrwa/static/herring/PLY/video"
   },
   "dependencies": {
     "axios": "^0.18.0",

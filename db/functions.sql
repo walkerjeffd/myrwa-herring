@@ -431,8 +431,6 @@ AS $$
   LEFT JOIN videos ON v5.id = videos.id;
 $$ LANGUAGE SQL;
 
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO myrwa_www;
-
 -- fish status
 CREATE OR REPLACE FUNCTION f_fish_status(_location_id TEXT, _start_date TEXT, _end_date TEXT, _start_hour INT, _end_hour INT)
 RETURNS TABLE(
@@ -580,3 +578,5 @@ RETURNS TABLE(
 ) AS $$
   SELECT * FROM f_activity_status(_location_id, (current_timestamp AT TIME ZONE 'America/New_York')::DATE::TEXT)
 $$ LANGUAGE SQL;
+
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO myrwa_www;

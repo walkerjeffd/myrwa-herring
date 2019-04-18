@@ -98,15 +98,15 @@ app.get('/video/', (req, res, next) => {
     location_id: 'UML'
   };
 
-  if ('first' in req.query) {
-    query.first = req.query.first === 'true';
-  }
-
   if ('location_id' in req.query) {
     query.location_id = req.query.location_id;
   }
 
   const siteConfig = config.api.sites[query.location_id].videos;
+
+  if ('first' in req.query && siteConfig.allowFirst) {
+    query.first = req.query.first === 'true';
+  }
 
   query.start_hour = siteConfig.hours[0];
   query.end_hour = siteConfig.hours[1];
@@ -149,7 +149,7 @@ app.get('/video/', (req, res, next) => {
       console.error(`Invalid video window (${siteConfig.window.type}), must be one of {fixed,sliding}.`);
       return res.status(500).json({ status: 'error', error: 'Invalid server configuration' });
   }
-
+  console.log('query', query);
   return func(query)
     .then((result) => {
       console.log('served random video id=%d location=%s first=%s ip=%s', result.length > 0 ? result[0].id : 'unknown', query.location_id, query.first, req.headers['x-real-ip'] || req.connection.remoteAddress);
