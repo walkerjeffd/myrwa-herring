@@ -1,24 +1,10 @@
 <template>
   <div>
-    <div class="row sqs-row">
-      <div class="col sqs-col-3 span-3">
-        <video-nav></video-nav>
-      </div>
-      <div class="col sqs-col-9 span-9">
-        <div class="sqs-block code-block sqs-block-code">
-          <div class="sqs-block-content">
-            <router-view></router-view>
-          </div>
-        </div>
-      </div>
-    </div>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-// import queryString from 'query-string';
-import VideoNav from '@/components/VideoNav';
-
 // https://gist.github.com/jed/982883
 const uuid = function b(a) {
   return a ? (a^Math.random()*16>>a/4) // eslint-disable-line
@@ -29,7 +15,6 @@ const uuid = function b(a) {
 export default {
   name: 'app',
   components: {
-    VideoNav
   },
   created() {
     console.log('app:created');

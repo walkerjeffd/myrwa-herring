@@ -5,7 +5,7 @@
 
         <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
           <div class="sqs-block-content">
-            <h1>Data for the 2019 Plymouth Herring Run</h1>
+            <h1>Data for the 2019 Town Brook Herring Run</h1>
           </div>
         </div>
 
@@ -29,7 +29,7 @@
               </div>
             </div>
           </div>
-          <div class="col sqs-col-7 span-7">
+          <div class="col sqs-col-10 span-10">
             <div class="sqs-block image-block sqs-block-image" data-block-type="5">
               <div class="sqs-block-content">
                 <div id="chart-activity"></div>
@@ -61,67 +61,10 @@
               </div>
             </div>
           </div>
-          <div class="col sqs-col-7 span-7">
+          <div class="col sqs-col-10 span-10">
             <div class="sqs-block image-block sqs-block-image" data-block-type="5">
               <div class="sqs-block-content">
                 <div id="chart-run"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="sqs-block html-block sqs-block-html count-title-block" data-block-type="2">
-          <div class="sqs-block-content">
-            <h1 class="count-title">Temperature and Water Quality</h1>
-            <p class="small-text">This chart shows temperature and water quality data measured at the dam in real time. Select a variable from the drop down menu. You can also click and drag to zoom in on a specific time period.</p>
-          </div>
-        </div>
-        <div class="row sqs-row">
-          <div class="col sqs-col-2 span-2">
-            <div class="sqs-block html-block sqs-block-html" data-block-type="2">
-              <div class="sqs-block-content">
-                <div class="select-label">Select Variable</div>
-              </div>
-            </div>
-          </div>
-          <div class="col sqs-col-7 span-7">
-            <div class="sqs-block image-block sqs-block-image" data-block-type="5">
-              <div class="sqs-block-content">
-                <select v-model="selectedVariable">
-                  <option v-for="variable in variables" :value="variable.id" :key="variable.id">
-                    {{ variable.label }}
-                  </option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row sqs-row">
-          <div class="col sqs-col-2 span-2">
-            <div class="sqs-block html-block sqs-block-html" data-block-type="2">
-              <div class="sqs-block-content" style="padding-top:10px">
-                <p v-if="selectedVariable === 'temperature_degc'" class="text-align-left small-text" style="color:black">
-                  Water temperature is the primary factor that determines when the herring begin their annual migration ustream. In most years, herring wait until temperatures rise above 13 deg C (55 deg F) to begin migrating.
-                </p>
-                <p v-if="selectedVariable === 'specificconductance_us_cm'" class="text-align-left small-text" style="color:black">
-                  Specific conductivity is similar to salinity and represents how salty the water is. This tends to change rapidly when it rains and the river is flushed out by fresh water.
-                </p>
-                <p v-if="selectedVariable === 'turbidity_ntu'" class="text-align-left small-text" style="color:black">
-                  Turbidity reflects how cloudy the water is. This tends to be higher during large rain storms due to runoff that carries particles from the land and into the river.
-                </p>
-                <p v-if="selectedVariable === 'odo_mg_l'" class="text-align-left small-text" style="color:black">
-                  Dissolved oxygen is important for the health and survival of fish. When this falls below 5 mg/L, fish can become stressed and ultimately die due to lack of oxygen.
-                </p>
-                <p v-if="selectedVariable === 'chlorophyll_rfu'" class="text-align-left small-text" style="color:black">
-                  Chlorophyll reflects the amount of plant matter (primarily algae) in the water. This tends to increase over the summer as the algae grow.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col sqs-col-7 span-7">
-            <div class="sqs-block image-block sqs-block-image" data-block-type="5">
-              <div class="sqs-block-content">
-                <div id="chart-sensor"></div>
               </div>
             </div>
           </div>
@@ -147,7 +90,7 @@
               </div>
             </div>
           </div>
-          <div class="col sqs-col-7 span-7">
+          <div class="col sqs-col-10 span-10">
             <div class="sqs-block image-block sqs-block-image" data-block-type="5">
               <div class="sqs-block-content">
                 <div id="chart-fish"></div>
@@ -182,7 +125,7 @@
               </div>
             </div>
           </div>
-          <div class="col sqs-col-7 span-7">
+          <div class="col sqs-col-10 span-10">
             <div class="sqs-block image-block sqs-block-image" data-block-type="5">
               <div class="sqs-block-content">
                 <div id="chart-video"></div>
@@ -202,41 +145,13 @@ import * as d3TimeFormat from 'd3-time-format';
 import moment from 'moment';
 import Odometer from 'odometer';
 import jStat from 'jStat';
-import { mapGetters } from 'vuex';
 
 window.moment = moment;
 
 export default {
   data() {
     return {
-      selectedVariable: 'temperature_degc',
-      variables: [
-        {
-          id: 'temperature_degc',
-          label: 'Water Temperature',
-          labelUnits: 'Water Temperature (degC)'
-        },
-        {
-          id: 'specificconductance_us_cm',
-          label: 'Specific Conductivity',
-          labelUnits: 'Specific Conductivity (uS/cm)'
-        },
-        {
-          id: 'turbidity_ntu',
-          label: 'Turbidity',
-          labelUnits: 'Turbidity (NTU)'
-        },
-        {
-          id: 'odo_mg_l',
-          label: 'Dissolved Oxygen',
-          labelUnits: 'Dissolved Oxygen (mg/L)'
-        },
-        {
-          id: 'chlorophyll_rfu',
-          label: 'Chlorophyll',
-          labelUnits: 'Chlorophyll (RFU)'
-        }
-      ],
+      locationId: 'PLY',
       data: {
         activity: {
           total: 0,
@@ -249,7 +164,6 @@ export default {
           },
           values: []
         },
-        sensor: [],
         fish: {
           total: 0,
           values: []
@@ -265,7 +179,6 @@ export default {
       charts: {
         activity: null,
         run: null,
-        sensor: null,
         fish: null,
         video: null
       },
@@ -282,14 +195,6 @@ export default {
         }
       }
     };
-  },
-  computed: {
-    ...mapGetters(['locationId'])
-  },
-  watch: {
-    selectedVariable() {
-      this.updateSensor();
-    }
   },
   mounted() {
     let today = d3Time.timeDay.floor(new Date());
@@ -414,44 +319,6 @@ export default {
         shared: true
       }
     });
-    this.charts.sensor = this.$highcharts.chart('chart-sensor', {
-      chart: {
-        type: 'line',
-        height: 275,
-        marginLeft: 75,
-        zoomType: 'x'
-      },
-      title: {
-        text: ''
-      },
-      xAxis: {
-        type: 'datetime',
-        dateTimeLabelFormats: {
-          month: '%b %d',
-          week: '%b %d',
-          day: '%b %d'
-        },
-        title: {
-          text: 'Date'
-        }
-        // min: this.dateRange[0].valueOf(),
-        // max: this.dateRange[1].valueOf()
-      },
-      yAxis: {
-        title: {
-          text: null
-        },
-        min: 0,
-        endOnTick: false,
-        tickPixelInterval: 36
-      },
-      plotOptions: {
-      },
-      legend: {
-        enabled: false
-      },
-      series: []
-    });
     this.charts.fish = this.$highcharts.chart('chart-fish', {
       chart: {
         type: 'column',
@@ -539,8 +406,6 @@ export default {
       .then(this.updateStatus);
     this.fetchRunData()
       .then(this.updateRun);
-    this.fetchSensorData()
-      .then(this.updateSensor);
   },
   methods: {
     fetchStatusData() {
@@ -615,20 +480,6 @@ export default {
           };
         });
     },
-    fetchSensorData() {
-      return this.$http.get('/sensor-hourly/', { params: { location_id: this.locationId } })
-        .then((response) => {
-          const data = response.data.data.map(d => ({
-            timestamp: (new Date(d.timestamp)),
-            temperature_degc: d.temperature_degc,
-            turbidity_ntu: d.turbidity_ntu,
-            specificconductance_us_cm: d.specificconductance_us_cm,
-            chlorophyll_rfu: d.chlorophyll_rfu,
-            odo_mg_l: d.odo_mg_l
-          }));
-          this.data.sensor = data;
-        });
-    },
     updateStatus() {
       const colors = this.$highcharts.getOptions().colors;
 
@@ -679,29 +530,6 @@ export default {
           valueDecimals: 0
         }
       }, true);
-    },
-    updateSensor() {
-      const chart = this.charts.sensor;
-      const data = this.data.sensor;
-      const variableId = this.selectedVariable;
-      const variableLabel = this.variables.find(d => (d.id === variableId)).labelUnits;
-
-      if (chart.series.length > 0) {
-        chart.series[0].remove();
-      }
-
-      if (variableId && data && data.length > 0) {
-        // chart.title.update({ text: variableLabel });
-        chart.yAxis[0].setTitle({ text: variableLabel });
-        chart.addSeries({
-          name: variableLabel,
-          data: data.map(d => [d.timestamp.valueOf(), d[variableId]]),
-          type: 'line',
-          tooltip: {
-            valueDecimals: 1
-          }
-        });
-      }
     }
   }
 };

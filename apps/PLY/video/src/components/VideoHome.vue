@@ -2,7 +2,7 @@
   <div>
     <video-bar></video-bar>
     <video-player></video-player>
-    <div class="sqs-block button-block sqs-block-button" v-if="!showForm & !showConfirm & video">
+    <div class="sqs-block button-block sqs-block-button" v-if="!showForm && !showConfirm && !!video">
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
           <a
@@ -11,7 +11,6 @@
             v-on:click.prevent="showForm = true">
             Enter Count
           </a>
-          <!-- <p style="color:#666" v-if="!user">Don't forget! You can <router-link to="/signup">sign up</router-link> for an account to track your progress <br> and compete for a top spot on the <router-link to="/leaderboard">Leaderboard</router-link>!</p> -->
         </div>
       </div>
     </div>
@@ -70,6 +69,8 @@
           </div>
         </div>
       </div>
+
+
       <!-- <p>Share your count with friends and family!</p>
       <social-sharing
         url="https://mysticherring.org/"
@@ -242,7 +243,6 @@ export default {
 .is-danger {
   color: red;
 }
-
 
 .network-icons {
   color: #888;

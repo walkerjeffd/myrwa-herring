@@ -2,7 +2,7 @@
   <div>
     <video-bar></video-bar>
     <video-player></video-player>
-    <div class="sqs-block button-block sqs-block-button" v-if="!showForm & !showConfirm & video">
+    <div class="sqs-block button-block sqs-block-button" v-if="!showForm && !showConfirm && !!video">
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
           <a

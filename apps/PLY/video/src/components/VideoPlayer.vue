@@ -32,8 +32,8 @@ export default {
     this.player = videojs('video', {
       controls: true,
       autoplay: false,
-      width: 683,
-      height: 480,
+      width: 701,
+      height: 500,
       playbackRates: [0.1, 0.25, 0.5, 1],
       inactivityTimeout: 0
     });

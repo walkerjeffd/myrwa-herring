@@ -619,7 +619,7 @@ export default {
       return this.$http.get('/sensor-hourly/', { params: { location_id: this.locationId } })
         .then((response) => {
           const data = response.data.data.map(d => ({
-            timestamp: (new Date(d.timestamp)),
+            timestamp: (new Date(d.datetime)),
             temperature_degc: d.temperature_degc,
             turbidity_ntu: d.turbidity_ntu,
             specificconductance_us_cm: d.specificconductance_us_cm,

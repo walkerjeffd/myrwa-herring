@@ -1,14 +1,14 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import VideoHome from '@/components/VideoHome';
+import Data from '@/components/Data';
 
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: '/',
-    component: VideoHome
+    component: Data
   }
 ];
 
