@@ -1,8 +1,18 @@
 const moment = require('moment-timezone');
 
-function getWindowDates(days) {
-  const endDate = moment().tz('US/Eastern').startOf('date');
-  const startDate = endDate.clone().subtract(days - 1, 'days');
+function getSlidingWindowDates(dates, days) {
+  const fixedStart = moment.tz(dates[0], 'US/Eastern');
+  const fixedEnd = moment.tz(dates[1], 'US/Eastern');
+
+  let endDate = moment().tz('US/Eastern').startOf('date');
+  if (fixedEnd < endDate) {
+    endDate = fixedEnd;
+  }
+  let startDate = endDate.clone().subtract(days - 1, 'days');
+  if (fixedStart > startDate) {
+    startDate = fixedStart;
+  }
+
   return [startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')];
 }
 
@@ -23,6 +33,6 @@ function minDateOrToday(d1, d2) {
 }
 
 module.exports = {
-  getWindowDates,
+  getSlidingWindowDates,
   minDateOrToday
 };

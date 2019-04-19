@@ -131,13 +131,17 @@ app.get('/video/', (req, res, next) => {
       return res.status(500).json({ status: 'error', error: 'Invalid server configuration' });
   }
 
-  const windowDates = utils.getWindowDates(siteConfig.window.days);
   switch (siteConfig.window.type) {
     case 'fixed':
       query.start_date = siteConfig.window.dates[0];
       query.end_date = siteConfig.window.dates[1];
       break;
+    // eslint-disable-next-line no-case-declarations
     case 'sliding':
+      const windowDates = utils.getSlidingWindowDates(
+        siteConfig.window.dates,
+        siteConfig.window.days
+      );
       query.start_date = windowDates[0];
       query.end_date = windowDates[1];
       break;
@@ -145,7 +149,7 @@ app.get('/video/', (req, res, next) => {
       console.error(`Invalid video window (${siteConfig.window.type}), must be one of {fixed,sliding}.`);
       return res.status(500).json({ status: 'error', error: 'Invalid server configuration' });
   }
-  console.log('query', query);
+
   return func(query)
     .then((result) => {
       console.log('served random video id=%d location=%s first=%s ip=%s', result.length > 0 ? result[0].id : 'unknown', query.location_id, query.first, req.headers['x-real-ip'] || req.connection.remoteAddress);
