@@ -11,7 +11,7 @@ updated_at <- paste0("Updated: ", with_tz(now(), "US/Eastern"))
 
 # load config -------------------------------------------------------------
 
-cfg <- read_json("./config.local.json")
+cfg <- read_json("./config.json")
 
 # load data ---------------------------------------------------------------
 
