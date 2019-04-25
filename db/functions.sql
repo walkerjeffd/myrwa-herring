@@ -1,4 +1,5 @@
 -- random row using truncated exponential distribution
+-- returns value between 0 and hi, mean approx equal to 1/lambda if lambda is large
 CREATE OR REPLACE FUNCTION random_exp(lambda REAL, hi INT) RETURNS integer AS $$
   BEGIN
     RETURN round(- ln(1 - random() * (1 - exp(- hi * lambda))) / lambda);
@@ -316,6 +317,7 @@ RETURNS TABLE(
     AND (end_timestamp AT TIME ZONE 'US/Eastern')::date <= _end_date::date
     AND date_part('hour', start_timestamp AT TIME ZONE 'US/Eastern') >= _start_hour
     AND date_part('hour', start_timestamp AT TIME ZONE 'US/Eastern') <= _end_hour
+  ORDER BY start_timestamp DESC
 $$ LANGUAGE SQL;
 
 -- get set of counted candidate videos with > 0 fish
@@ -353,6 +355,7 @@ RETURNS TABLE (
   FROM v
   LEFT JOIN c ON v.id = c.video_id
   WHERE COALESCE(c.mean_count, 0) > 0
+  ORDER BY v.start_timestamp desc
 $$ LANGUAGE SQL;
 
 -- random video (exponential distribution)
