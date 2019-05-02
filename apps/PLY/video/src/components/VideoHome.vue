@@ -146,7 +146,7 @@ export default {
       run: 'run'
     }),
     title() {
-      return `I just counted ${this.session.total} river herring migrating up the Mystic River!`;
+      return `I just counted ${this.session.total} river herring migrating up Town Brook!`;
     }
   },
   components: {

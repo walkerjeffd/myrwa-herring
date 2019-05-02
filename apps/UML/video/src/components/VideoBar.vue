@@ -3,7 +3,7 @@
     <div class="run-bar">
       2019 Estimated Total Run (so far):
       <span><span id="odometer-total" class="odometer">0</span> +/- <span id="odometer-range" class="odometer">0</span></span>
-      <icon name="question-circle" scale="1" v-tooltip="'Based on all video counts so far, <br>this is the total number of herring we<br>estimate have passed through the<br>Mystic Lakes dam since April 2018'"></icon>
+      <icon name="question-circle" scale="1" v-tooltip="'Based on all video counts so far, <br>this is the total number of herring we<br>estimate have passed through the<br>fish ladder so far'"></icon>
     </div>
     <div class="video-bar">
       Video Recorded:
