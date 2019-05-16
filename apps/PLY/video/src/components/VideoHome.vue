@@ -38,7 +38,7 @@
               </label>
               <input type="text" class="field-element" name="comment" v-model="form.comment">
             </div>
-            <div class="form-button-wrapper form-button-wrapper--align-left">
+            <div class="form-button-wrapper form-button-wrapper--align-left" v-if="!submitting">
               <input
                 class="button sqs-system-button sqs-editable-button"
                 type="submit"
@@ -49,6 +49,9 @@
                 value="Cancel"
                 v-on:click.prevent="resetForm">
             </div>
+            <p v-if="submitting">
+              <strong>Submitting count, please wait...</strong>
+            </p>
           </div>
         </form>
       </div>
@@ -119,6 +122,7 @@ export default {
       showConfirm: false,
       loading: false,
       submitted: false,
+      submitting: false,
       confirmMessage: null,
       form: {
         count: null,
@@ -165,6 +169,8 @@ export default {
       if (this.loading) return;
       this.submitted = true;
       if (!this.$v.$invalid) {
+        this.submitting = true;
+
         const payload = {
           video_id: this.video.id,
           count: +this.form.count,
@@ -190,11 +196,13 @@ export default {
             this.resetForm();
             this.updateConfirmMessage();
             this.showConfirm = true;
+            this.submitting = false;
           })
           .catch((response) => {
             alert('Error occurred saving count to the server, try submitting again.\n\nIf the problem continues, please let us know using the Contact Us form, or email us at herring.education@mysticriver.org.');
             console.log(response);
             this.loading = false;
+            this.submitting = false;
           });
       }
     },
