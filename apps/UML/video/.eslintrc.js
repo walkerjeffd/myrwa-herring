@@ -49,6 +49,7 @@ module.exports = {
     'no-console': 'off',
     'comma-dangle': 'off',
     'no-alert': 'off',
-    'max-len': 'off'
+    'max-len': 'off',
+    'no-plusplus': 'off'
   }
 }

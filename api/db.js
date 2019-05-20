@@ -109,7 +109,7 @@ function saveCount(data) {
       count: data.count,
       comment: data.comment,
       session: data.session,
-      flagged: data.count >= config.api.maxCount,
+      flagged: data.flagged || data.count >= config.api.maxCount,
       users_uid: data.users_uid,
     });
 }

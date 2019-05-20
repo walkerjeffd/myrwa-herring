@@ -1,7 +1,15 @@
 <template>
   <div>
     <video-bar></video-bar>
-    <video-player></video-player>
+    <video id="video" class="video-js vjs-big-play-centered">
+      <p class="vjs-no-js">
+        To view this video please enable JavaScript, and consider upgrading to a
+        web browser that
+        <a href="http://videojs.com/html5-video-support/" target="_blank">
+          supports HTML5 video
+        </a>
+      </p>
+    </video>
     <div class="sqs-block button-block sqs-block-button" v-if="!showForm && !showConfirm && !!video">
       <div class="sqs-block-content">
         <div class="sqs-block-button-container--center">
@@ -58,9 +66,11 @@
       </div>
     </div>
     <div v-if="showConfirm" class="confirm-container">
-      <h2 v-if="!flagged">{{ confirmMessage }}</h2>
-      <h2 v-else>Hmmm...</h2>
-      <p v-if="flagged">That count seems a little questionable. It has been flagged for our review.</p>
+      <h2 v-if="!flag">{{ confirmMessage }}</h2>
+      <div v-else>
+        <h2>Hmmm...</h2>
+        <p>{{flag}}</p>
+      </div>
       <div class="sqs-block button-block sqs-block-button">
         <div class="sqs-block-content">
           <div class="sqs-block-button-container--center">
@@ -97,10 +107,10 @@
 <script>
 import { mapGetters } from 'vuex';
 import { required, numeric } from 'vuelidate/lib/validators';
+import videojs from 'video.js';
 
 import { number } from '@/filters';
 import VideoBar from './VideoBar';
-import VideoPlayer from './VideoPlayer';
 
 const messages = [
   'Great job!',
@@ -127,7 +137,7 @@ export default {
         count: null,
         comment: null
       },
-      flagged: false
+      flag: undefined
     };
   },
   validations: {
@@ -153,20 +163,100 @@ export default {
     }
   },
   components: {
-    VideoBar,
-    VideoPlayer
+    VideoBar
   },
   mounted() {
-    console.log('videoHome:mounted');
+    // console.log('videoHome:mounted');
     this.$store.dispatch('fetchVideo')
       .catch(err => console.log(err));
     this.$store.dispatch('fetchRun')
       .catch(err => console.log(err));
+    // console.log('videoPlayer:mounted');
+
+    this.player = videojs('video', {
+      controls: true,
+      autoplay: false,
+      width: 683,
+      height: 480,
+      playbackRates: [0.1, 0.25, 0.5, 1],
+      inactivityTimeout: 0
+    });
+
+    // this.player.ready(() => {
+    //   this.player.on('loadstart', () => {
+    //     console.log('video:loadstart');
+    //   });
+    //   this.player.on('loadeddata', () => {
+    //     console.log('video:loadeddata', this.player.currentSource());
+    //     // this.loading = false;
+    //   });
+    //   this.player.on('error', () => {
+    //     console.log('video:error');
+    //     // this.error = true;
+    //   });
+    //   this.player.on('abort', () => {
+    //     console.log('video:abort');
+    //     // this.error = true;
+    //   });
+    //   this.player.on('ended', () => {
+    //     console.log('video:ended');
+    //   });
+    // });
+
+    if (this.video) {
+      this.loadVideo(this.video);
+    }
+  },
+  beforeDestroy() {
+    // console.log('video:beforeDestroy');
+    this.player.dispose();
+  },
+  watch: {
+    video(video) {
+      console.log('videoPlayer:watch(video)', video);
+      if (video) {
+        this.loadVideo(video);
+      } else {
+        console.log('video:loadVideo no video');
+      }
+    }
   },
   methods: {
+    loadVideo(video) {
+      console.log('video:loadVideo loaded id=', video.id);
+
+      const src = [];
+      src.push({ type: 'video/mp4', src: video.url });
+
+      if (video.url_webm) {
+        src.push({ type: 'video/webm', src: video.url_webm });
+      }
+
+      this.player.src(src);
+      this.player.load();
+    },
     submitCount() {
       if (this.loading) return;
+
       this.submitted = true;
+
+      const duration = this.player.duration();
+      const timeRanges = this.player.played();
+
+      let totalTimeWatched = 0;
+      for (let i = 0; i < timeRanges.length; i++) {
+        const start = timeRanges.start(i);
+        const end = timeRanges.end(i);
+        totalTimeWatched += (end - start);
+      }
+      const percentWatched = totalTimeWatched / duration;
+
+      if (percentWatched < 0.01) {
+        this.flag = 'It doesn\'t look like you watched any of the video. This count has been flagged for review.';
+      } else if (percentWatched < 0.9) {
+        this.flag = 'It doesn\'t look like you watched the entire video. This count has been flagged for review.';
+      }
+
       if (!this.$v.$invalid) {
         this.submitting = true;
 
@@ -175,7 +265,8 @@ export default {
           count: +this.form.count,
           comment: this.form.comment,
           session: this.session.id,
-          users_uid: null
+          users_uid: null,
+          flagged: !!this.flag
         };
 
         if (this.user) {
@@ -185,7 +276,9 @@ export default {
         this.$http.post('/count/', payload)
           .then((response) => {
             if (response.data && response.data.data && response.data.data.length > 0) {
-              this.flagged = response.data.data[0].flagged;
+              if (!this.flag && response.data.data[0].flagged) {
+                this.flag = 'That count seems a little questionable. It has been flagged for our review.';
+              }
             }
             this.$store.dispatch('updateSession', payload.count);
           })
@@ -221,6 +314,7 @@ export default {
     showNext() {
       this.showForm = false;
       this.showConfirm = false;
+      this.flag = undefined;
       this.$store.dispatch('fetchVideo');
     }
   }

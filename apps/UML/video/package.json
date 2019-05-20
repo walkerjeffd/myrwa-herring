@@ -24,7 +24,7 @@
     "query-string": "^6.1.0",
     "v-tooltip": "^2.0.0-rc.32",
     "vee-validate": "^2.0.8",
-    "video.js": "^6.8.0",
+    "video.js": "^7.5.4",
     "vue": "^2.5.2",
     "vue-awesome": "^3.0.0",
     "vue-resource": "^1.5.0",

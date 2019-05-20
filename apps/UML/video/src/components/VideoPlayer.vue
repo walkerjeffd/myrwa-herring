@@ -57,6 +57,10 @@ export default {
       this.player.on('ended', () => {
         console.log('video:ended');
       });
+      this.player.on('play', () => {
+        console.log('video:play');
+        this.$emit('play');
+      });
     });
 
     if (this.video) {
