@@ -17,7 +17,7 @@
           </div>
         </div>
         <div class="row sqs-row">
-          <div class="col sqs-col-2 span-2">
+          <div class="col sqs-col-3 span-3">
             <div class="sqs-block html-block sqs-block-html" data-block-type="2">
               <div class="sqs-block-content">
                 <div class="odometer-wrapper" style="padding-top:30px">
@@ -29,7 +29,7 @@
               </div>
             </div>
           </div>
-          <div class="col sqs-col-10 span-10">
+          <div class="col sqs-col-9 span-9">
             <div class="sqs-block image-block sqs-block-image" data-block-type="5">
               <div class="sqs-block-content">
                 <div id="chart-activity"></div>
@@ -46,7 +46,7 @@
           </div>
         </div>
         <div class="row sqs-row">
-          <div class="col sqs-col-2 span-2">
+          <div class="col sqs-col-3 span-3">
             <div class="sqs-block html-block sqs-block-html" data-block-type="2">
               <div class="sqs-block-content">
                 <div class="odometer-wrapper" style="padding-top:70px">
@@ -61,7 +61,7 @@
               </div>
             </div>
           </div>
-          <div class="col sqs-col-10 span-10">
+          <div class="col sqs-col-9 span-9">
             <div class="sqs-block image-block sqs-block-image" data-block-type="5">
               <div class="sqs-block-content">
                 <div id="chart-run"></div>
@@ -78,7 +78,7 @@
           </div>
         </div>
         <div class="row sqs-row">
-          <div class="col sqs-col-2 span-2">
+          <div class="col sqs-col-3 span-3">
             <div class="sqs-block html-block sqs-block-html" data-block-type="2">
               <div class="sqs-block-content">
                 <div class="odometer-wrapper" style="padding-top:70px">
@@ -90,7 +90,7 @@
               </div>
             </div>
           </div>
-          <div class="col sqs-col-10 span-10">
+          <div class="col sqs-col-9 span-9">
             <div class="sqs-block image-block sqs-block-image" data-block-type="5">
               <div class="sqs-block-content">
                 <div id="chart-fish"></div>
@@ -107,7 +107,7 @@
           </div>
         </div>
         <div class="row sqs-row">
-          <div class="col sqs-col-2 span-2">
+          <div class="col sqs-col-3 span-3">
             <div class="sqs-block html-block sqs-block-html" data-block-type="2">
               <div class="sqs-block-content">
                 <div class="odometer-wrapper" style="padding-top:30px">
@@ -125,7 +125,7 @@
               </div>
             </div>
           </div>
-          <div class="col sqs-col-10 span-10">
+          <div class="col sqs-col-9 span-9">
             <div class="sqs-block image-block sqs-block-image" data-block-type="5">
               <div class="sqs-block-content">
                 <div id="chart-video"></div>
