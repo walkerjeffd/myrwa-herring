@@ -66,7 +66,8 @@ function getRandomVideoUniform(params) {
   if (params.first) {
     func = 'f_candidate_videos_counted';
   } else {
-    func = 'f_candidate_videos';
+    // func = 'f_candidate_videos';
+    func = 'f_candidate_videos_counted_any';
   }
 
   const cte = knex.raw(`SELECT * FROM ${func}(:location_id, :start_date, :end_date, :start_hour, :end_hour)`, params);

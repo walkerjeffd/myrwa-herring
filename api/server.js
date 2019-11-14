@@ -2,7 +2,6 @@ const fs = require('fs');
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const moment = require('moment-timezone');
 
 const config = require('../config');
 const db = require('./db');
@@ -97,7 +96,6 @@ app.get('/video/', (req, res, next) => {
   if ('location_id' in req.query) {
     query.location_id = req.query.location_id;
   }
-
   const siteConfig = config.api.sites[query.location_id].videos;
 
   if ('first' in req.query && siteConfig.allowFirst) {
@@ -337,7 +335,7 @@ app.get('/run-estimate/', (req, res, next) => {
   query.end_date = utils.minDateOrToday(req.query.end_date, siteConfig.dates[1]);
   return db.getDailyRunEstimate(query)
     .then(result => res.status(200).json({ status: 'ok', data: result }))
-    .catch(next)
+    .catch(next);
 });
 
 // error handler

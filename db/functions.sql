@@ -358,6 +358,43 @@ RETURNS TABLE (
   ORDER BY v.start_timestamp desc
 $$ LANGUAGE SQL;
 
+-- get set of candidate videos that have been counted at least once, included flagged counts, regardless of whether there were fish or not
+CREATE OR REPLACE FUNCTION f_candidate_videos_counted_any(_location_id TEXT, _start_date TEXT, _end_date TEXT, _start_hour INT, _end_hour INT)
+RETURNS TABLE (
+  id INT,
+  created_at TIMESTAMP WITH TIME ZONE,
+  url TEXT,
+  filename TEXT,
+  duration REAL,
+  filesize REAL,
+  start_timestamp TIMESTAMP WITH TIME ZONE,
+  end_timestamp TIMESTAMP WITH TIME ZONE,
+  location_id TEXT,
+  flagged BOOLEAN,
+  url_webm TEXT,
+  mp4_converted BOOLEAN,
+  n_count INT,
+  mean_count REAL
+) AS $$
+  WITH v AS (
+    SELECT *
+    FROM f_candidate_videos(_location_id, _start_date, _end_date, _start_hour, _end_hour)
+  ), c AS (
+    SELECT
+      c.video_id,
+      count(c.count)::INT AS n_count,
+      avg(c.count)::REAL AS mean_count
+    FROM counts c
+    WHERE c.video_id IN (SELECT id FROM v)
+    GROUP BY c.video_id
+  )
+  SELECT v.*, COALESCE(c.n_count, 0)::INT AS n_count, COALESCE(c.mean_count, 0)::REAL AS mean_count
+  FROM v
+  LEFT JOIN c ON v.id = c.video_id
+  WHERE n_count > 0
+  ORDER BY v.start_timestamp desc
+$$ LANGUAGE SQL;
+
 -- random video (exponential distribution)
 CREATE OR REPLACE FUNCTION f_random_video_exponential(_location_id text, _start_date text, _end_date text)
 RETURNS TABLE (
