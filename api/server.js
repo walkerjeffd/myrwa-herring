@@ -90,12 +90,9 @@ app.get('/status/', (req, res, next) => {
 app.get('/video/', (req, res, next) => {
   const query = {
     first: false,
-    location_id: 'UML'
+    location_id: req.query.location_id || 'UML'
   };
 
-  if ('location_id' in req.query) {
-    query.location_id = req.query.location_id;
-  }
   const siteConfig = config.api.sites[query.location_id].videos;
 
   if ('first' in req.query && siteConfig.allowFirst) {
@@ -147,6 +144,8 @@ app.get('/video/', (req, res, next) => {
       console.error(`Invalid video window (${siteConfig.window.type}), must be one of {fixed,sliding}.`);
       return res.status(500).json({ status: 'error', error: 'Invalid server configuration' });
   }
+
+  console.log(func)
 
   return func(query)
     .then((result) => {
