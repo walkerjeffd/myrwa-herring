@@ -158,12 +158,8 @@ app.get('/video/', (req, res, next) => {
 
 app.get('/videos/', (req, res, next) => {
   const query = {
-    location_id: 'UML'
+    location_id: req.query.location_id || 'UML'
   };
-
-  if ('location_id' in req.query) {
-    query.location_id = req.query.location_id;
-  }
 
   const siteConfig = config.api.sites[query.location_id].allVideos;
 

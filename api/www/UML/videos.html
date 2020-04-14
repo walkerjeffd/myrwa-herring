@@ -19,9 +19,14 @@
 </head>
 <body>
 
+<h2>Location: UML</h2>
 
 <div>
   <video id="video" class="video-js vjs-big-play-centered"></video>
+</div>
+
+<div style="margin-top:8px">
+  <strong>Current Video:</strong> <span id="info"></span>
 </div>
 
 <div id="jsGrid" style="margin-top: 20px"></div>
@@ -37,7 +42,7 @@ var player = videojs('video', {
 });
 
 $.ajax({
-  url: 'https://myrwa-api.org/api/herring/videos/?location_id=UML',
+  url: 'https://myrwa-api.org/api/herring/videos/?location_id=UML&start_date=2020-04-01&end_date=2020-08-01',
   // url: 'http://127.0.0.1:8000/videos/?location_id=UML&start_date=2019-04-01&end_date=2019-08-01',
   success: function (response) {
     response.data.forEach(function (d) {
@@ -49,6 +54,8 @@ $.ajax({
       return b.start_timestamp - a.start_timestamp;
     });
 
+    console.log(data[0])
+
     $('#jsGrid').jsGrid({
       width: '1200px',
 
@@ -57,7 +64,7 @@ $.ajax({
       sorting: true,
       paging: true,
 
-      pageSize: 10,
+      pageSize: 20,
 
       data: data,
 
@@ -102,11 +109,19 @@ $.ajax({
           type: 'number',
           align: 'right',
           width: '40px'
+        },
+        {
+          name: 'flagged',
+          title: 'Flagged',
+          type: 'checkbox',
+          align: 'center',
+          width: '40px'
         }
       ],
 
       rowClick: function (args) {
         console.log(args.item);
+        $('#info').text(args.item.url);
         player.src({type: 'video/mp4', src: args.item.url});
         player.load();
       }
