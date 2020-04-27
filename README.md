@@ -1,4 +1,4 @@
-MyRWA River Herring Video Count Website
+Herring Video Count API
 =======================================
 
 Jeffrey D Walker, PhD
@@ -13,13 +13,6 @@ cp config/index.template.js config/index.js   # copy config template
 nano config/index.js                          # edit config
 ```
 
-Copy client configuration template and set API url.
-
-```bash
-cp apps/config/index.template.js apps/config/index.js  # copy config template
-nano apps/config/index.js
-```
-
 ## System Requirements
 
 - [ffmpeg/ffprobe](https://ffmpeg.org/)
@@ -29,32 +22,10 @@ nano apps/config/index.js
 
 ```text
 /api             # api server
-/apps            # client-side applications
-  /config        # client-side configuration
-  /status        # video count status app
-  /watch         # video count watch app
-  /vis-temp      # data vis temperature app
-  /vis-count     # data vis annual count app
 /config          # common configuration
 /db              # database
 /nginx           # proxy server configuration
 /pm2             # pm2 configuration
 /r               # R scripts
 /video-service   # video processing service
-```
-
-## Firebase Authentication
-
-To export user list:
-
-```bash
-npm install -g firebase-tools
-firebase login
-firebase auth:export ~/herring_users.csv --format=csv --project myrwa-herring
-awk -F "," '{print $2}' ~/herring_users.csv > ~/herring_emails.csv
-rm ~/herring_users.csv
-```
-
-```sql
-\copy (select * from users) to 'db_users.csv' with CSV HEADER; 
 ```
