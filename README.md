@@ -13,19 +13,24 @@ cp config/index.template.js config/index.js   # copy config template
 nano config/index.js                          # edit config
 ```
 
-## System Requirements
+## API
 
-- [ffmpeg/ffprobe](https://ffmpeg.org/)
-- [nvm/node](https://github.com/creationix/nvm)
+See `./api/README.md` for instructions.
 
-## Components
+## Video Processing Service
 
-```text
-/api             # api server
-/config          # common configuration
-/db              # database
-/nginx           # proxy server configuration
-/pm2             # pm2 configuration
-/r               # R scripts
-/video-service   # video processing service
+The video processing service (`./video-service`) processes new videos as they are uploaded via FTP.
+
+Install [ffmpeg/ffprobe](https://ffmpeg.org/) for video conversions.
+
+See `./video-service/README.md` for instructions.
+
+## R Report
+
+See `./r/README.md` for instructions.
+
 ```
+cd r/
+Rscript video-report.R # -> r/pdf/video-<YEAR>-<LOCATION_ID>.pdf
+```
+
