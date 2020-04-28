@@ -60,7 +60,15 @@ module.exports = {
     },
     sampler: {
       distribution: 'exponential',
-      lambda: 0.0025
+      lambda: 0.0005
+    },
+    status: {
+      start_date: '2020-04-13',
+      end_date: '2020-07-01'
+    },
+    run: {
+      start_date: '2020-04-13',
+      end_date: '2020-07-01'
     }
   },
   NSRWA: {
