@@ -3,11 +3,13 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
-config/*.js
-!config/index.template.js
+config/index.js
 
 .Rproj.user
 
 r/rmd/*.html
 r/rmd/*_cache
 r/rmd/*_files
+
+access.log
+volunteer-queue-2018.json

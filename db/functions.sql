@@ -292,6 +292,57 @@ AS $$
 $$ LANGUAGE SQL;
 
 
+-- get set of videos for specific location, date period, hour window, min/max # counts, minimum mean count
+CREATE OR REPLACE FUNCTION f_video_set(_location_id TEXT, _start_date TEXT, _end_date TEXT, _start_hour INT, _end_hour INT, _min_count_n INT, _max_count_n INT, _min_count_mean REAL)
+RETURNS TABLE(
+  id INT,
+  created_at TIMESTAMP WITH TIME ZONE,
+  url TEXT,
+  filename TEXT,
+  duration REAL,
+  filesize REAL,
+  start_timestamp TIMESTAMP WITH TIME ZONE,
+  end_timestamp TIMESTAMP WITH TIME ZONE,
+  location_id TEXT,
+  flagged BOOLEAN,
+  url_webm TEXT,
+  mp4_converted BOOLEAN,
+  count_n INT,
+  count_mean REAL
+) AS $$
+  WITH v AS (
+    SELECT *
+    FROM videos
+    WHERE
+      NOT flagged
+      AND location_id = _location_id
+      AND (start_timestamp AT TIME ZONE 'US/Eastern')::date >= _start_date::date
+      AND (end_timestamp AT TIME ZONE 'US/Eastern')::date <= _end_date::date
+      AND date_part('hour', start_timestamp AT TIME ZONE 'US/Eastern') >= _start_hour
+      AND date_part('hour', start_timestamp AT TIME ZONE 'US/Eastern') <= _end_hour
+    ORDER BY start_timestamp DESC
+  ), c AS (
+    SELECT
+      c.video_id,
+      count(c.count)::INT AS count_n,
+      avg(c.count)::REAL AS count_mean
+    FROM counts c
+    WHERE NOT flagged
+      AND c.video_id IN (SELECT id FROM v)
+    GROUP BY c.video_id
+  ), vc AS (
+    SELECT v.*, COALESCE(c.count_n, 0)::INT AS count_n, COALESCE(c.count_mean, 0)::REAL AS count_mean
+    FROM v
+    LEFT JOIN c ON v.id = c.video_id
+    ORDER BY v.start_timestamp desc
+  )
+  SELECT *
+  FROM vc
+  WHERE count_n >= _min_count_n
+    AND count_n <= _max_count_n
+    AND count_mean >= _min_count_mean
+$$ LANGUAGE SQL;
+
 -- get set of candidate videos
 CREATE OR REPLACE FUNCTION f_candidate_videos(_location_id TEXT, _start_date TEXT, _end_date TEXT, _start_hour INT, _end_hour INT)
 RETURNS TABLE(
