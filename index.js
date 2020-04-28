@@ -80,33 +80,8 @@ app.get('/status/', (req, res, next) => {
 })
 
 app.get('/video', (req, res, next) => {
-  // console.log('GET /video', req.query)
   const locationId = req.query.location_id || 'UML'
   const params = utils.getSiteParams(locationId)
-  console.log(params)
-
-  // const params = {
-  //   window: {
-  //     range: ['2020-04-24', '2020-07-01'],
-  //     method: 'fixed'
-  //     // method: 'sliding',
-  //     // days: 20
-  //   },
-  //   times: {
-  //     start_hour: 7,
-  //     end_hour: 18
-  //   },
-  //   counts: {
-  //     min_count_n: 0,
-  //     max_count_n: 1000,
-  //     min_count_mean: 0
-  //   },
-  //   sampler: {
-  //     distribution: 'uniform'
-  //     // distribution: 'exponential',
-  //     // lambda: 0.0002
-  //   }
-  // }
   const { window, counts, times, sampler } = params
   const defaultQuery = {
     location_id: locationId,
@@ -115,8 +90,6 @@ app.get('/video', (req, res, next) => {
     ...counts
   }
   const query = Object.assign(defaultQuery, req.query)
-
-  console.log(query, sampler)
 
   return db.getRandomVideo(query, sampler)
     .then((result) => {
