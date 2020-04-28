@@ -62,6 +62,11 @@ module.exports = {
       distribution: 'exponential',
       lambda: 0.0005
     },
+    counts: {
+      min_count_n: 0,
+      max_count_n: 2,
+      min_count_mean: 0
+    },
     status: {
       start_date: '2020-04-13',
       end_date: '2020-07-01'
