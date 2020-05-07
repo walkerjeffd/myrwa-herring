@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mystic River | Herring Video Admin</title>
+  <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
+  <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
+  <link href="//vjs.zencdn.net/5.19.1/video-js.css" rel="stylesheet">
+
+  <script src="//vjs.zencdn.net/5.19.1/video.js"></script>
+  <script src="//code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/handsontable@7.4.2/dist/handsontable.full.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/handsontable@7.4.2/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
+
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    .handsontable .htDimmed {
+      color: #000 !important;
+    }
+    .handsontable td {
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Location: UML</h2>
+
+<div>
+  <video id="video" class="video-js vjs-big-play-centered"></video>
+</div>
+
+<div style="margin-top:8px">
+  <strong>Current Video:</strong> <span id="info"></span>
+</div>
+
+<div id="table" style="margin-top: 20px; width:1300px"></div>
+
+
+<script>
+var player = videojs('video', {
+  controls: true,
+  autoplay: false,
+  width: 800,
+  height: 600,
+  playbackRates: [0.1, 0.25, 0.5, 1]
+});
+
+function datetimeRenderer(instance, td, row, col, prop, value, cellProperties) {
+  td.innerHTML = value.toLocaleString()
+  return td
+}
+
+function dateRenderer(instance, td, row, col, prop, value, cellProperties) {
+  td.innerHTML = value.toLocaleString(undefined, {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric"
+  })
+  return td
+}
+
+function timeRenderer(instance, td, row, col, prop, value, cellProperties) {
+  td.innerHTML = value.toLocaleString(undefined, {
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric"
+  })
+  return td
+}
+
+$.ajax({
+  url: 'https://myrwa-api.org/api/herring/videos/?location_id=UML&start_date=2020-04-01&end_date=2020-08-01',
+  success: function (response) {
+    response.data.forEach(function (d) {
+      d.start_timestamp = new Date(d.start_timestamp)
+      d.end_timestamp = new Date(d.end_timestamp)
+      d.created_at = new Date(d.created_at)
+      d.start_hour = d.start_timestamp.getHours()
+    })
+
+    var data = response.data.sort(function (a, b) {
+      return b.id - a.id
+    })
+
+    var container = document.getElementById('table')
+    var hot = new Handsontable(container, {
+      licenseKey: 'non-commercial-and-evaluation',
+      data: data,
+      height: 500,
+
+      rowHeights: 30,
+      rowHeaders: true,
+      columnSorting: {
+        initialConfig: {
+          column: 2,
+          sortOrder: 'desc'
+        }
+      },
+      colHeaders: ['ID', 'Uploaded At', 'Filename', 'Recorded Date', 'Start Time', 'End Time', 'Duration (sec)', 'Flagged'],
+      className: 'htRight',
+      columns: [
+        {
+          data: 'id',
+          editor: false,
+          readOnly: true
+        },
+        {
+          data: 'created_at',
+          editor: false,
+          readOnly: true,
+          renderer: datetimeRenderer
+        },
+        {
+          data: 'filename',
+          editor: false,
+          readOnly: true
+        },
+        {
+          data: 'start_timestamp',
+          editor: false,
+          readOnly: true,
+          renderer: dateRenderer
+        },
+        {
+          data: 'start_timestamp',
+          editor: false,
+          readOnly: true,
+          renderer: timeRenderer
+        },
+        {
+          data: 'end_timestamp',
+          editor: false,
+          readOnly: true,
+          renderer: timeRenderer
+        },
+        {
+          data: 'duration',
+          editor: false,
+          readOnly: true
+        },
+        {
+          data: 'flagged',
+          editor: false,
+          readOnly: true
+        }
+      ],
+      filters: true,
+      dropdownMenu: true,
+      afterSelection: function(r, c) {
+        var rowData = this.getDataAtRow(r)
+        const id = rowData[0]
+        const d = data.find(d => d.id === id)
+        if (d) {
+          $('#info').text(d.url);
+          player.src({type: 'video/mp4', src: d.url})
+          player.load()
+        }
+      }
+    })
+
+  },
+  dataType: 'json'
+});
+</script>
+</body>
+</html>
