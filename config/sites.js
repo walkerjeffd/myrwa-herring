@@ -54,13 +54,11 @@ module.exports = {
   PLY: {
     window: {
       start_date: '2020-04-13',
-      end_date: '2020-07-01',
-      method: 'sliding',
-      days: 20
+      end_date: '2020-05-21',
+      method: 'fixed'
     },
     sampler: {
-      distribution: 'exponential',
-      lambda: 0.0005
+      distribution: 'uniform'
     },
     counts: {
       min_count_n: 0,
@@ -69,11 +67,11 @@ module.exports = {
     },
     status: {
       start_date: '2020-04-13',
-      end_date: '2020-07-01'
+      end_date: '2020-05-21'
     },
     run: {
       start_date: '2020-04-13',
-      end_date: '2020-07-01'
+      end_date: '2020-05-21'
     }
   },
   NSRWA: {
