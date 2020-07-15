@@ -2,6 +2,8 @@
 
 library(tidyverse)
 library(lubridate)
+library(RColorBrewer)
+library(jsonlite)
 
 
 # config ------------------------------------------------------------------
@@ -42,6 +44,9 @@ tbl_counts <- tbl(con, "counts") %>%
   collect()
 
 DBI::dbDisconnect(con)
+
+
+# merge -------------------------------------------------------------------
 
 counts <- tbl_counts %>%
   left_join(select(tbl_videos, id, start_timestamp, date), by = c("video_id" = "id")) %>%
@@ -206,7 +211,7 @@ run_total <- run_day %>%
     ci_upper = Y + t_star * sqrt(var_Y), # lower 95% CI
     .groups = "drop"
   )
-run_total
+run_total # Y = total run estimate
 
 # plots -------------------------------------------------------------------
 
