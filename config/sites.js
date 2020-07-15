@@ -34,13 +34,16 @@ module.exports = {
     window: {
       start_date: '2020-04-24',
       end_date: '2020-07-01',
-      method: 'sliding',
-      days: 20
+      method: 'fixed'
     },
     counts: {
       min_count_n: 0,
-      max_count_n: 0,
+      max_count_n: 2,
       min_count_mean: 0
+    },
+    sampler: {
+      distribution: 'exponential',
+      lambda: 0.0005
     },
     status: {
       start_date: '2020-04-24',
@@ -54,13 +57,11 @@ module.exports = {
   PLY: {
     window: {
       start_date: '2020-04-13',
-      end_date: '2020-07-01',
-      method: 'sliding',
-      days: 20
+      end_date: '2020-05-21',
+      method: 'fixed'
     },
     sampler: {
-      distribution: 'exponential',
-      lambda: 0.0005
+      distribution: 'uniform'
     },
     counts: {
       min_count_n: 0,
@@ -69,13 +70,34 @@ module.exports = {
     },
     status: {
       start_date: '2020-04-13',
-      end_date: '2020-07-01'
+      end_date: '2020-05-21'
     },
     run: {
       start_date: '2020-04-13',
-      end_date: '2020-07-01'
+      end_date: '2020-05-21'
     }
   },
   NSRWA: {
+    window: {
+      start_date: '2020-05-08',
+      end_date: '2020-07-01',
+      method: 'fixed'
+    },
+    sampler: {
+      distribution: 'uniform'
+    },
+    counts: {
+      min_count_n: 0,
+      max_count_n: 2,
+      min_count_mean: 0
+    },
+    status: {
+      start_date: '2020-05-08',
+      end_date: '2020-07-01'
+    },
+    run: {
+      start_date: '2020-05-08',
+      end_date: '2020-07-01'
+    }
   }
 }
