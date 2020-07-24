@@ -84,9 +84,9 @@ run_counts <- videos %>%
   mutate(
     hour = hour(start_timestamp),
     period = case_when(
-      hour >= 7 & hour < 11 ~ 0,
-      hour >= 11 & hour < 15 ~ 1,
-      hour >= 15 & hour < 19 ~ 2,
+      hour >= 7 & hour < 11 ~ 1,
+      hour >= 11 & hour < 15 ~ 2,
+      hour >= 15 & hour < 19 ~ 3,
       TRUE ~ NA_real_
     )
   ) %>%
