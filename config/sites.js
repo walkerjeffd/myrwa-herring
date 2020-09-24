@@ -42,7 +42,7 @@ module.exports = {
     },
     counts: {
       min_count_n: 0,
-      max_count_n: 2,
+      max_count_n: 10,
       min_count_mean: 0
     },
     //sampler: {
