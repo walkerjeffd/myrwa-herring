@@ -83,8 +83,8 @@ module.exports = {
   },
   NSRWA: {
     window: {
-      start_date: '2020-05-08',
-      end_date: '2020-07-01',
+      start_date: '2020-05-16',
+      end_date: '2020-05-16',
       method: 'fixed'
     },
     sampler: {
