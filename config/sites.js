@@ -60,8 +60,8 @@ module.exports = {
   },
   PLY: {
     window: {
-      start_date: '2020-04-13',
-      end_date: '2020-05-21',
+      start_date: '2021-04-17',
+      end_date: '2021-07-01',
       method: 'fixed'
     },
     sampler: {
@@ -73,12 +73,12 @@ module.exports = {
       min_count_mean: 0
     },
     status: {
-      start_date: '2020-04-13',
-      end_date: '2020-05-21'
+      start_date: '2021-04-17',
+      end_date: '2021-07-01'
     },
     run: {
-      start_date: '2020-04-13',
-      end_date: '2020-05-21'
+      start_date: '2021-04-17',
+      end_date: '2021-07-01'
     }
   },
   NSRWA: {
