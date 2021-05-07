@@ -65,7 +65,9 @@ module.exports = {
       method: 'fixed'
     },
     sampler: {
-      distribution: 'uniform'
+//      distribution: 'uniform'
+      distribution: 'exponential',
+      lambda: 0.0005
     },
     counts: {
       min_count_n: 0,
@@ -83,8 +85,8 @@ module.exports = {
   },
   NSRWA: {
     window: {
-      start_date: '2020-05-16',
-      end_date: '2020-05-16',
+      start_date: '2021-04-29',
+      end_date: '2021-07-01',
       method: 'fixed'
     },
     sampler: {
@@ -96,12 +98,12 @@ module.exports = {
       min_count_mean: 0
     },
     status: {
-      start_date: '2020-05-08',
-      end_date: '2020-07-01'
+      start_date: '2021-04-29',
+      end_date: '2021-07-01'
     },
     run: {
-      start_date: '2020-05-08',
-      end_date: '2020-07-01'
+      start_date: '2021-04-29',
+      end_date: '2021-07-01'
     }
   }
 }
