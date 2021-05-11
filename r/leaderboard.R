@@ -42,10 +42,11 @@ DBI::dbDisconnect(con)
 # merge -------------------------------------------------------------------
 
 df <- df_email %>%
-  inner_join(df_stats, by = "uid") %>%
+  full_join(df_stats, by = "uid") %>%
   arrange(desc(n_count)) %>%
   rename(videos_counts = n_count, fish_counted = sum_count)
 
+head(df, 10)
 
 # export ------------------------------------------------------------------
 
