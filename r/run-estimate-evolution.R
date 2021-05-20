@@ -233,8 +233,8 @@ df_count_days %>%
     subtitle = str_c(
       "This chart shows how the total run estimate changed over time based on when counts were submitted (not when videos were recorded).",
       "At each point in time, the run estimate is calculated from all counts submitted before that time.",
-      "The major increase on May 18 is probably from new videos that were uploaded at that time and contained a major pulse of fish",
-      "This spike then receeds as more videos from that day were counted, which brought down the estimate",
+      # "The major increase on May 18 is probably from new videos that were uploaded at that time and contained a major pulse of fish",
+      # "This spike then receeds as more videos from that day were counted, which brought down the estimate",
       sep = "\n"
     )
   )
