@@ -46,9 +46,9 @@ module.exports = {
       min_count_mean: 0
     },
     sampler: {
-      //distribution: 'exponential',
-      //lambda: 0.0005
-      distribution: 'uniform'
+      distribution: 'exponential',
+      lambda: 0.0005
+      //distribution: 'uniform'
     },
     status: {
       start_date: '2021-04-29',
