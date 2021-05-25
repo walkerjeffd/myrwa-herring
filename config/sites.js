@@ -62,13 +62,13 @@ module.exports = {
   PLY: {
     window: {
       start_date: '2021-04-17',
-      end_date: '2021-07-01',
+      end_date: '2021-05-21',
       method: 'fixed'
     },
     sampler: {
-//      distribution: 'uniform'
-      distribution: 'exponential',
-      lambda: 0.0005
+      distribution: 'uniform'
+      // distribution: 'exponential',
+      // lambda: 0.0005
     },
     counts: {
       min_count_n: 0,
@@ -77,11 +77,11 @@ module.exports = {
     },
     status: {
       start_date: '2021-04-17',
-      end_date: '2021-07-01'
+      end_date: '2021-05-21'
     },
     run: {
       start_date: '2021-04-17',
-      end_date: '2021-07-01'
+      end_date: '2021-05-21'
     }
   },
   NSRWA: {
